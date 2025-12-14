@@ -4,7 +4,7 @@ This project is an extended version of the original [maxmodels](https://github.c
 
 ## Installation and compiling
 
-To build **maxmodels (build II)**, you'll need a working C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses two git submodules for dependencies.
+To build **maxmodels (build II)**, you'll need a working C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses git submodules for dependencies.
 
 ### 1. Clone the repository
 
