@@ -1,6 +1,6 @@
 # maxmodels (build II)
 
-This project is an extended version of the original [maxmodels](https://github.com/lazarow/maxmodels). While it builds upon the ideas and features from the previous version, Build II includes major changes that set it apart from earlier releases.
+This project is an extended version of the original [maxmodels](https://github.com/lazarow/maxmodels). While it builds upon the ideas and features from the previous version, **build II** includes major changes that set it apart from earlier releases.
 
 ## Installation and compiling
 
