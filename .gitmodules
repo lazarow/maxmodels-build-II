@@ -1,0 +1,6 @@
+[submodule "vendor/incremental-maxhs"]
+	path = vendor/incremental-maxhs
+	url = https://bitbucket.org/coreo-group/incremental-maxhs.git
+[submodule "vendor/argparse"]
+	path = vendor/argparse
+	url = https://github.com/stdbug/argparse.git
