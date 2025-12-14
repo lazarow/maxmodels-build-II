@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdint>
 #include <ipamir.h>
+#include <omp.h>
 
 int main()
 {
@@ -78,6 +79,13 @@ int main()
     }
 
     ipamir_release(solver);
+
+#pragma omp parallel for
+    for (int i = 1; i <= 100; i++)
+    {
+        int tid = omp_get_thread_num();
+        printf("The thread %d  executes i = %d\n", tid, i);
+    }
 
     return 0;
 }

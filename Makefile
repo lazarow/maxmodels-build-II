@@ -12,10 +12,10 @@ OBJS := $(SRCS:$(SRC_DIRS)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++20 -O3 -MMD -MP
+CXXFLAGS := -Wall -Wextra -std=c++20 -O3 -MMD -MP -fopenmp
 CXXFLAGS += -I./vendor/incremental-maxhs/src/ipamir
 CXXFLAGS += -I./vendor/argparse/argparse
-LDFLAGS := -flto=auto -lipamirmaxhs -L$(IPAMIRLIBDIR) -lz -L$(CPLEX_LIB_DIR) -lcplex -lpthread -ldl
+LDFLAGS := -flto=auto -lipamirmaxhs -L$(IPAMIRLIBDIR) -lz -L$(CPLEX_LIB_DIR) -lcplex -lpthread -ldl -fopenmp
 
 .PHONY: prereqs prepare build clean all
 
