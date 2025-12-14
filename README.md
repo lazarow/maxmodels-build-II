@@ -1,8 +1,10 @@
 # maxmodels (build II)
 
+This project is an extended version of the original [maxmodels](https://github.com/lazarow/maxmodels). While it builds upon the ideas and features from the previous version, Build II includes major changes that set it apart from earlier releases.
+
 ## Installation and compiling
 
-To build **maxmodels 2**, you'll need a working C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses two git submodules for dependencies.
+To build **maxmodels (build II)**, you'll need a working C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses two git submodules for dependencies.
 
 ### 1. Clone the repository
 
