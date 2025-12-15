@@ -5,11 +5,11 @@
 void simplify(Program &program)
 {
     BodyIndex nof_bodies = program.bodies.size();
-    vector<Atom> forbidden_to_check;
-    forbidden_to_check.reserve(program.forbidden.size());
-    for (const auto &forbidden_atom : program.forbidden)
+    vector<Atom> forbidden_atoms_to_check;
+    forbidden_atoms_to_check.reserve(program.forbidden_atoms.size());
+    for (const auto &forbidden_atom : program.forbidden_atoms)
     {
-        forbidden_to_check.push_back(forbidden_atom);
+        forbidden_atoms_to_check.push_back(forbidden_atom);
     }
 
     bool has_changed = true;
@@ -18,12 +18,6 @@ void simplify(Program &program)
         has_changed = false;
 
         // #region Simplification of bodies (either rules or constraints)
-        /**
-         * The idea is simple, check every active literal (<>0) in each body.
-         * If a literal is positive and it is a fact of it is contained in B+, then "remove" it from a body.
-         * If a literal is negative and it is contained in B-, then "remove" it from a body.
-         * If a literal is known to be falsified, then mark a body as falsified (-1).
-         */
 #pragma omp parallel for reduction(|| : has_changed)
         for (BodyIndex body_index = 1; body_index < nof_bodies; body_index++)
         {
@@ -41,7 +35,7 @@ void simplify(Program &program)
                 if (
                     literal > 0 &&
                     (program.facts.contains(literal) ||
-                     program.required.contains(literal)))
+                     program.required_atoms.contains(literal)))
                 {
                     body[0]--;
                     literal = 0;
@@ -49,7 +43,7 @@ void simplify(Program &program)
                 }
                 else if (
                     literal < 0 &&
-                    (program.forbidden.contains(-literal) ||
+                    (program.forbidden_atoms.contains(-literal) ||
                      program.heads.contains(-literal) == false))
                 {
                     body[0]--;
@@ -58,7 +52,7 @@ void simplify(Program &program)
                 }
                 else if (
                     literal > 0 &&
-                    (program.forbidden.contains(literal) ||
+                    (program.forbidden_atoms.contains(literal) ||
                      program.heads.contains(literal) == false))
                 {
                     body[0] = -1;
@@ -68,7 +62,7 @@ void simplify(Program &program)
                 else if (
                     literal < 0 &&
                     (program.facts.contains(-literal) ||
-                     program.required.contains(-literal)))
+                     program.required_atoms.contains(-literal)))
                 {
                     body[0] = -1;
                     has_changed = true;
@@ -79,10 +73,7 @@ void simplify(Program &program)
         // #endregion
 
         // #region Handling forbidden atoms (B-)
-        /**
-         * If an atom is known to be forbidden in a model and it is a head, then convert all its bodies into constraints.
-         */
-        for (Atom forbidden_atom : forbidden_to_check)
+        for (Atom forbidden_atom : forbidden_atoms_to_check)
         {
             auto it = program.heads.find(forbidden_atom);
             if (it != program.heads.end())
@@ -94,7 +85,7 @@ void simplify(Program &program)
                 program.heads.erase(it);
             }
         }
-        forbidden_to_check.clear();
+        forbidden_atoms_to_check.clear();
         // #endregion
 
         // #region Simplification of constraints
@@ -132,21 +123,24 @@ void simplify(Program &program)
                 }
                 if (literal > 0)
                 {
-                    program.forbidden.insert(literal);
-                    forbidden_to_check.push_back(literal);
+                    // In this moment, other scenarios should be resolved by rules' checking.
+                    if (program.required_atoms.contains(literal))
+                        throw unsatisfied_exception("A single-literal constraint with a positive literalcontains a required atom.");
+                    program.forbidden_atoms.emplace(literal);
+                    forbidden_atoms_to_check.push_back(literal);
                 }
                 else if (literal < 0)
                 {
-                    auto head_it = program.heads.find(-literal);
-                    if (head_it != program.heads.end())
-                    {
-                        program.required.insert(-literal);
-                    }
+                    // A related head must exist! See, that if negative literal doesn't have a related head, then it will determined.
+                    if (program.forbidden_atoms.contains(literal))
+                        throw unsatisfied_exception("A single-literal constraint with a negative literalcontains a forbidden atom.");
+                    if (program.heads.contains(-literal) == false)
+                        throw unsatisfied_exception("A single-literal constraint with a negative literal doesn't have a related head.");
+                    program.required_atoms.emplace(-literal);
                 }
                 should_erase = true;
-                has_changed = true;
+                has_changed = true; // Change due to the forbidden and required atoms update.
             }
-
             if (should_erase)
             {
                 it = program.constraints.erase(it);
@@ -199,18 +193,23 @@ void simplify(Program &program)
 
             if (is_fact)
             {
-                program.facts.insert(head);
+                if (program.required_atoms.contains(head))
+                    program.required_atoms.erase(head); // Remove the head from the required atoms, as it is a fact now.
+                if (program.forbidden_atoms.contains(head))
+                    throw unsatisfied_exception("A head is both fact and forbidden in the program.");
+                program.facts.emplace(head);
                 should_erase = true;
                 has_changed = true;
             }
             else if (is_falsified)
             {
-                program.forbidden.insert(head);
-                forbidden_to_check.push_back(head);
+                if (program.required_atoms.contains(head))
+                    throw unsatisfied_exception("A head is both required and falsified in the program.");
+                program.forbidden_atoms.emplace(head);
+                forbidden_atoms_to_check.push_back(head);
                 should_erase = true;
                 has_changed = true;
             }
-
             if (should_erase)
             {
                 heads_it = program.heads.erase(heads_it);

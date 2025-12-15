@@ -41,6 +41,10 @@ void read_basic_rule(istream &in, Program &program)
     {
         in >> literal;
 
+        // If a literal is a head, then skip a body, i.e., a :- a. a :- not a.
+        if ((unsigned int)literal == head)
+            skip_body = true;
+
         // No need to process literals.
         if (skip_body || is_fact)
             continue;
@@ -180,9 +184,13 @@ void read_compute_statements(istream &in, Program &program)
     in >> atom;
     while (atom != 0)
     {
-        if (!program.heads.contains(atom) && !program.facts.contains(atom))
+        if (program.heads.contains(atom) == false && program.facts.contains(atom) == false)
             throw unsatisfied_exception("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
-        program.required.emplace(atom);
+
+        // Skip if an atom is a fact, as all its rules should be removed now.
+        if (program.facts.contains(atom) == false)
+            program.required_atoms.emplace(atom);
+
         in >> atom;
     }
 
@@ -192,7 +200,9 @@ void read_compute_statements(istream &in, Program &program)
     in >> atom;
     while (atom != 0)
     {
-        program.forbidden.emplace(atom);
+        if (program.facts.contains(atom) || program.required_atoms.contains(atom))
+            throw unsatisfied_exception("B-'s atom " + to_string(atom) + " is a fact or required in the program");
+        program.forbidden_atoms.emplace(atom);
         in >> atom;
     }
 
@@ -209,13 +219,13 @@ void Program::print() const
     }
     cout << endl;
     cout << "Required:" << endl;
-    for (const auto &required : required)
+    for (const auto &required : required_atoms)
     {
         cout << required << " ";
     }
     cout << endl;
     cout << "Forbidden:" << endl;
-    for (const auto &forbidden : forbidden)
+    for (const auto &forbidden : forbidden_atoms)
     {
         cout << forbidden << " ";
     }

@@ -31,8 +31,8 @@ struct Program
     unordered_map<BodyIndex, Atom> body_to_head;         // Maps body index to its corresponding head atom.
     unordered_set<BodyIndex> constraints;                // { bi_1, bi_2, ..., bi_n }
     unordered_set<Atom> facts;                           // { a_1, a_2, ..., a_n }
-    unordered_set<Atom> required;                        // B+ = { a_1, a_2, ..., a_n }
-    unordered_set<Atom> forbidden;                       // B- = { a_1, a_2, ..., a_n }
+    unordered_set<Atom> required_atoms;                  // B+ = { a_1, a_2, ..., a_n }
+    unordered_set<Atom> forbidden_atoms;                 // B- = { a_1, a_2, ..., a_n }
     unordered_map<Literal, Weight> weights;              // l -> w
     unordered_map<Atom, string> symbols;                 // a -> s
 
@@ -71,7 +71,7 @@ public:
             if (model.contains(atom))
                 cout << program.symbols.at(atom) << " ";
         }
-        for (const auto &atom : program.required)
+        for (const auto &atom : program.required_atoms)
         {
             if (model.contains(atom))
                 cout << program.symbols.at(atom) << " ";

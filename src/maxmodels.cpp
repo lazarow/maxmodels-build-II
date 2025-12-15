@@ -4,6 +4,7 @@
 #include <argparse.h>
 #include "internal_representation.hpp"
 #include "simplification.hpp"
+#include "answer_set.hpp"
 
 using namespace std;
 
@@ -24,16 +25,14 @@ int main(int argc, char *argv[])
         cout << "% Reading a logic program in the smodels internal format from stdin..." << endl;
         Program program = read_input(cin);
         // Simplify the program unless the "--skip-simplification" flag is set
-        if (!(*skip_simplification))
-        {
+        if ((bool)(*skip_simplification) == false)
             simplify(program);
-        }
         // Print the program only if the "--print" flag is set
-        if (*print_only)
-        {
+        if ((bool)(*print_only))
             program.print();
-            return 0;
-        }
+        // todo: remove
+        cout << "Testing if the program is an answer set..." << endl;
+        cout << (is_answer_set(program, Model({6, 5})) ? "YES" : "NO") << endl;
         return 0;
     }
     catch (const unsatisfied_exception &error)
@@ -43,6 +42,11 @@ int main(int argc, char *argv[])
     catch (const satisfied_exception &error)
     {
         return 0;
+    }
+    catch (const logic_error &error)
+    {
+        cout << "Error: " << error.what() << endl;
+        return 1;
     }
     catch (const runtime_error &error)
     {
