@@ -1,76 +1,78 @@
 #include "answer_set.hpp"
 
-bool is_answer_set(const Program &program, const Model &model)
+bool is_answer_set(const Program &program, const Model &supporting_model)
 {
-    // Checking the constraints first.
-    for (const auto &constraint : program.constraints)
+
+    PositiveRules positive_rules;
+    for (const auto &[head, body_indices] : program.heads)
     {
-        const auto &body = program.bodies[constraint];
-        bool is_satisfied = true;
-        unsigned int body_size = body.size();
-        for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
+        for (const auto &body_index : body_indices)
         {
-            const auto &literal = body[literal_index];
-            if (literal > 0)
+            const auto &body = program.bodies[body_index];
+            PositiveRule positive_rule;
+            positive_rule.reserve(body[0] + 1);
+            positive_rule.push_back(head);
+            bool add_rule = true;
+            for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
             {
-                if (!model.contains(literal))
+                if (body[literal_index] > 0)
                 {
-                    is_satisfied = false;
+                    positive_rule.push_back(body[literal_index]);
+                }
+                else if (body[literal_index] < 0 && !supporting_model.contains(-body[literal_index]))
+                {
+                    positive_rule.push_back(-body[literal_index]);
+                    add_rule = false;
                     break;
                 }
             }
-            else if (literal < 0 && model.contains(-literal))
+            if (add_rule)
             {
-                is_satisfied = false;
-                break;
+                positive_rules.push_back(positive_rule);
             }
-        }
-        if (is_satisfied)
-        {
-            return false;
         }
     }
 
-    // Checking the rules next.
-    Model smallest_fixpoint;
     bool is_fixpoint = false;
+    Model fixpoint;
     while (!is_fixpoint)
     {
         is_fixpoint = true;
-        for (const auto &[head, body_indices] : program.heads)
+        for (auto it = positive_rules.begin(); it != positive_rules.end();)
         {
-            if (smallest_fixpoint.contains(head))
-                continue;
-            for (const auto &body_index : body_indices)
+            if (fixpoint.contains((*it)[0]))
             {
-                const auto &body = program.bodies[body_index];
+                it = positive_rules.erase(it);
+            }
+            else
+            {
                 bool is_satisfied = true;
-                unsigned int body_size = body.size();
+                unsigned int body_size = it->size();
+
+                // Check if all positive literals in the body are satisfied
                 for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
                 {
-                    if (body[literal_index] > 0)
-                    {
-                        if (!model.contains(body[literal_index]))
-                        {
-                            is_satisfied = false;
-                            break;
-                        }
-                    }
-                    else if (body[literal_index] < 0 && model.contains(-body[literal_index]))
+                    const auto &literal = it->at(literal_index);
+                    if (literal > 0 && !supporting_model.contains(literal))
                     {
                         is_satisfied = false;
-                        break;
+                        break; // Early exit optimization
                     }
                 }
+
                 if (is_satisfied)
                 {
-                    smallest_fixpoint.insert(head);
                     is_fixpoint = false;
-                    break;
+                    fixpoint.insert((*it)[0]);
+                    it = positive_rules.erase(it);
+                }
+                else
+                {
+                    ++it;
                 }
             }
         }
     }
 
-    return smallest_fixpoint == model;
+    return fixpoint == supporting_model;
 }

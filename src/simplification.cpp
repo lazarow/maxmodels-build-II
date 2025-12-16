@@ -41,6 +41,7 @@ void simplify(Program &program)
                     literal = 0;
                     has_changed = true;
                 }
+                // If a negative literal is a forbidden atom or doesn't have a related head, then the body can be simplified.
                 else if (
                     literal < 0 &&
                     (program.forbidden_atoms.contains(-literal) ||
@@ -50,6 +51,7 @@ void simplify(Program &program)
                     literal = 0;
                     has_changed = true;
                 }
+                // If a positive literal is a forbidden atom or doesn't have a related head, then the body is falsified.
                 else if (
                     literal > 0 &&
                     (program.forbidden_atoms.contains(literal) ||
@@ -105,13 +107,13 @@ void simplify(Program &program)
             if (body[0] < 0)
             {
                 should_erase = true;
-                // has_changed = true; // Removing constraint as it is falsified doesn't have impact on other rules in the simplification.
+                // Note: Removing a falsified constraint doesn't trigger further simplification
             }
             else if (body[0] == 0)
             {
                 throw unsatisfied_exception("A constraint is satisfied.");
             }
-            // If the body has only one literal, then a contraint can be removed.
+            // If the body has only one literal, then a constraint can be removed.
             else if (body[0] == 1)
             {
                 unsigned int literal_index = 1;
@@ -125,15 +127,15 @@ void simplify(Program &program)
                 {
                     // In this moment, other scenarios should be resolved by rules' checking.
                     if (program.required_atoms.contains(literal))
-                        throw unsatisfied_exception("A single-literal constraint with a positive literalcontains a required atom.");
+                        throw unsatisfied_exception("A single-literal constraint with a positive literal contains a required atom.");
                     program.forbidden_atoms.emplace(literal);
                     forbidden_atoms_to_check.push_back(literal);
                 }
                 else if (literal < 0)
                 {
                     // A related head must exist! See, that if negative literal doesn't have a related head, then it will determined.
-                    if (program.forbidden_atoms.contains(literal))
-                        throw unsatisfied_exception("A single-literal constraint with a negative literalcontains a forbidden atom.");
+                    if (program.forbidden_atoms.contains(-literal))
+                        throw unsatisfied_exception("A single-literal constraint with a negative literal contains a forbidden atom.");
                     if (program.heads.contains(-literal) == false)
                         throw unsatisfied_exception("A single-literal constraint with a negative literal doesn't have a related head.");
                     program.required_atoms.emplace(-literal);

@@ -2,4 +2,7 @@
 
 #include "internal_representation.hpp"
 
-bool is_answer_set(const Program &program, const Model &model);
+using PositiveRule = vector<Literal>;
+using PositiveRules = vector<PositiveRule>;
+
+bool is_answer_set(const Program &program, const Model &supporting_model);

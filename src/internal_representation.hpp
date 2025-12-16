@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
+#include <limits>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ using Literal = int;
 using Body = vector<Literal>;
 using BodyIndex = unsigned int;
 using Weight = unsigned long long int;
+const Weight MAX_WEIGHT = numeric_limits<Weight>::max();
 using Model = unordered_set<Atom>;
 
 /**
@@ -35,6 +37,7 @@ struct Program
     unordered_set<Atom> forbidden_atoms;                 // B- = { a_1, a_2, ..., a_n }
     unordered_map<Literal, Weight> weights;              // l -> w
     unordered_map<Atom, string> symbols;                 // a -> s
+    Atom max_atom = 0;                                   // Highest atom in the program
 
     Program();
     /**
