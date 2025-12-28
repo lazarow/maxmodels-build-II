@@ -1,6 +1,6 @@
-#include "answer_set.hpp"
+#include "stable_model.hpp"
 
-bool is_answer_set(const Program &program, const Model &supporting_model)
+bool is_stable_model(const Program &program, const Model &supporting_model)
 {
 
     PositiveRules positive_rules;
@@ -19,9 +19,8 @@ bool is_answer_set(const Program &program, const Model &supporting_model)
                 {
                     positive_rule.push_back(body[literal_index]);
                 }
-                else if (body[literal_index] < 0 && !supporting_model.contains(-body[literal_index]))
+                else if (body[literal_index] < 0 && supporting_model.contains(-body[literal_index]))
                 {
-                    positive_rule.push_back(-body[literal_index]);
                     add_rule = false;
                     break;
                 }
@@ -73,6 +72,5 @@ bool is_answer_set(const Program &program, const Model &supporting_model)
             }
         }
     }
-
     return fixpoint == supporting_model;
 }

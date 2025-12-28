@@ -22,7 +22,7 @@ void simplify(Program &program)
         for (BodyIndex body_index = 1; body_index < nof_bodies; body_index++)
         {
             auto &body = program.bodies[body_index];
-            if (body[0] <= 0)
+            if (body[0] <= 0) // Skip if a body is falsified or satisfied already.
             {
                 continue;
             }
@@ -30,8 +30,9 @@ void simplify(Program &program)
             for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
                 auto &literal = body[literal_index];
-                if (literal == 0)
+                if (literal == 0) // Skip if a literal is determined.
                     continue;
+                // If a positive literal is a fact or a required atom, then the literal is determined.
                 if (
                     literal > 0 &&
                     (program.facts.contains(literal) ||
@@ -41,7 +42,7 @@ void simplify(Program &program)
                     literal = 0;
                     has_changed = true;
                 }
-                // If a negative literal is a forbidden atom or doesn't have a related head, then the body can be simplified.
+                // If a negative literal is a forbidden atom or doesn't have a related head, then the literal is determined.
                 else if (
                     literal < 0 &&
                     (program.forbidden_atoms.contains(-literal) ||
@@ -61,6 +62,7 @@ void simplify(Program &program)
                     has_changed = true;
                     break;
                 }
+                // If a negative literal is a fact or a required atom, then the body is falsified.
                 else if (
                     literal < 0 &&
                     (program.facts.contains(-literal) ||
@@ -77,6 +79,7 @@ void simplify(Program &program)
         // #region Handling forbidden atoms (B-)
         for (Atom forbidden_atom : forbidden_atoms_to_check)
         {
+            // If a forbidden atom is a head, then convert all its bodies to constraints.
             auto it = program.heads.find(forbidden_atom);
             if (it != program.heads.end())
             {
@@ -84,7 +87,7 @@ void simplify(Program &program)
                 {
                     program.constraints.insert(body_index);
                 }
-                program.heads.erase(it);
+                program.heads.erase(it); // Remove the head from the heads.
             }
         }
         forbidden_atoms_to_check.clear();
@@ -96,7 +99,7 @@ void simplify(Program &program)
          * If a body is:
          * a) falsified -> remove a constraint,
          * b) satisfied -> UNSAT,
-         * c) has only one literal -> convert to a required or forbidden atom.
+         * c) has only one literal -> convert to either a required or forbidden atom.
          */
         for (auto it = program.constraints.begin(); it != program.constraints.end();)
         {
@@ -104,16 +107,19 @@ void simplify(Program &program)
             auto &body = program.bodies[body_index];
             bool should_erase = false;
 
+            // If a body is falsified, then remove a constraint.
             if (body[0] < 0)
             {
                 should_erase = true;
                 // Note: Removing a falsified constraint doesn't trigger further simplification
             }
+            // If a body is satisfied, then the program is UNSAT.
             else if (body[0] == 0)
             {
                 throw unsatisfied_exception("A constraint is satisfied.");
             }
-            // If the body has only one literal, then a constraint can be removed.
+            // If the body has only one undetermined literal, then a constraint can be removed,
+            // and the literal can be convert to either a required or forbidden atom.
             else if (body[0] == 1)
             {
                 unsigned int literal_index = 1;
@@ -158,13 +164,6 @@ void simplify(Program &program)
         for (auto heads_it = program.heads.begin(); heads_it != program.heads.end();)
         {
             Atom head = heads_it->first;
-
-            if (program.facts.contains(head))
-            {
-                heads_it = program.heads.erase(heads_it);
-                continue;
-            }
-
             auto &body_indices = heads_it->second;
             bool is_fact = false;
             bool is_falsified = true;
@@ -200,13 +199,18 @@ void simplify(Program &program)
                 if (program.forbidden_atoms.contains(head))
                     throw unsatisfied_exception("A head is both fact and forbidden in the program.");
                 program.facts.emplace(head);
+                // Set all bodies related to the head as satisfied (will be ignored in the simplification and encoding).
+                for (const auto &body_index : body_indices)
+                {
+                    program.bodies[body_index][0] = 0;
+                }
                 should_erase = true;
                 has_changed = true;
             }
             else if (is_falsified)
             {
                 if (program.required_atoms.contains(head))
-                    throw unsatisfied_exception("A head is both required and falsified in the program.");
+                    throw unsatisfied_exception("A head is both required and forbidden in the program.");
                 program.forbidden_atoms.emplace(head);
                 forbidden_atoms_to_check.push_back(head);
                 should_erase = true;

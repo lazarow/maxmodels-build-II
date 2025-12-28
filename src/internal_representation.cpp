@@ -25,9 +25,6 @@ void read_basic_rule(istream &in, Program &program)
 
     // Handling input rule definition
     in >> head >> nof_literals >> nof_negative_literals;
-    if (head > program.max_atom)
-        program.max_atom = head;
-
     // Checking if a head is a fact
     is_fact = program.facts.contains(head);
 
@@ -42,8 +39,6 @@ void read_basic_rule(istream &in, Program &program)
     for (unsigned int i = 0; i < nof_literals; i++)
     {
         in >> literal;
-        if (literal > program.max_atom)
-            program.max_atom = literal;
 
         // If a literal is a head, then skip a body, i.e., a :- a. a :- not a.
         if (literal == head)
@@ -95,7 +90,6 @@ void read_basic_rule(istream &in, Program &program)
         {
             program.bodies.emplace_back(move(body));
             program.heads[head].insert(program.bodies.size() - 1);
-            program.body_to_head[program.bodies.size() - 1] = head;
         }
     }
 }
@@ -109,15 +103,11 @@ void read_minimization_rule(istream &in, Program &program)
     Weight weight = 0;
     vector<Literal> literals;
     in >> head >> nof_literals >> nof_negative_literals;
-    if (head > program.max_atom)
-        program.max_atom = head;
     literals.reserve(nof_literals);
 
     for (unsigned int i = 0; i < nof_literals; i++)
     {
         in >> literal;
-        if (literal > program.max_atom)
-            program.max_atom = literal;
         if (nof_negative_literals > 0)
         {
             literals.push_back(-literal);
@@ -174,8 +164,6 @@ void read_symbols(istream &in, Program &program)
     in >> atom;
     while (atom != 0)
     {
-        if (atom > program.max_atom)
-            program.max_atom = atom;
         in >> symbol;
         program.symbols.emplace(atom, move(symbol));
         in >> atom;
@@ -194,8 +182,6 @@ void read_compute_statements(istream &in, Program &program)
     in >> atom;
     while (atom != 0)
     {
-        if (atom > program.max_atom)
-            program.max_atom = atom;
         if (program.heads.contains(atom) == false && program.facts.contains(atom) == false)
             throw unsatisfied_exception("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
 
@@ -212,8 +198,6 @@ void read_compute_statements(istream &in, Program &program)
     in >> atom;
     while (atom != 0)
     {
-        if (atom > program.max_atom)
-            program.max_atom = atom;
         if (program.facts.contains(atom) || program.required_atoms.contains(atom))
             throw unsatisfied_exception("B-'s atom " + to_string(atom) + " is a fact or required in the program");
         program.forbidden_atoms.emplace(atom);
@@ -250,7 +234,6 @@ void Program::print() const
         cout << weight.first << "@" << weight.second << " ";
     }
     cout << endl;
-    cout << "Max atom: " << max_atom << endl;
     cout << "Rules:" << endl;
     for (const auto &[head, body_indices] : heads)
     {

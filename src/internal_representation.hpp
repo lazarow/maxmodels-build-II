@@ -30,14 +30,12 @@ struct Program
      */
     vector<Body> bodies;                                 // { b_1, b_2, ..., b_n }
     unordered_map<Atom, unordered_set<BodyIndex>> heads; // h -> { bi_1, bi_2, ..., bi_n }
-    unordered_map<BodyIndex, Atom> body_to_head;         // Maps body index to its corresponding head atom.
     unordered_set<BodyIndex> constraints;                // { bi_1, bi_2, ..., bi_n }
     unordered_set<Atom> facts;                           // { a_1, a_2, ..., a_n }
     unordered_set<Atom> required_atoms;                  // B+ = { a_1, a_2, ..., a_n }
     unordered_set<Atom> forbidden_atoms;                 // B- = { a_1, a_2, ..., a_n }
     unordered_map<Literal, Weight> weights;              // l -> w
     unordered_map<Atom, string> symbols;                 // a -> s
-    Atom max_atom = 0;                                   // Highest atom in the program
 
     Program();
     /**
@@ -66,24 +64,37 @@ public:
 class satisfied_exception : public logic_error
 {
 public:
-    satisfied_exception(const Program &program, const Model &model) : logic_error("The program is satisfied.")
+    satisfied_exception(const Program &program, const Model &stable_model) : logic_error("The program is satisfied.")
     {
         cout << "ANSWER" << endl;
+        unordered_set<Atom> answer_set;
         for (const auto &atom : program.facts)
-        {
-            if (model.contains(atom))
-                cout << program.symbols.at(atom) << " ";
-        }
+            answer_set.insert(atom);
         for (const auto &atom : program.required_atoms)
-        {
-            if (model.contains(atom))
-                cout << program.symbols.at(atom) << " ";
-        }
-        for (const auto &atom : model)
+            answer_set.insert(atom);
+        for (const auto &atom : stable_model)
+            answer_set.insert(atom);
+        for (const auto &atom : answer_set)
         {
             if (program.symbols.contains(atom))
                 cout << program.symbols.at(atom) << " ";
         }
         cout << endl;
+        if (program.weights.size() > 0)
+        {
+            Weight cost = 0;
+            Weight maximum_cost = 0;
+            for (const auto &[literal, weight] : program.weights)
+            {
+                if (literal > 0 && answer_set.contains(literal))
+                    cost += weight;
+                else if (literal < 0 && answer_set.contains(-literal) == false)
+                    cost += weight;
+                maximum_cost += weight;
+            }
+            cout << "% ALTERNATIVE COST " << (maximum_cost - cost) << endl;
+            cout << "COST " << cost << endl;
+            cout << "OPTIMUM" << endl;
+        }
     }
 };
