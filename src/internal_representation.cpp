@@ -90,6 +90,7 @@ void read_basic_rule(istream &in, Program &program)
         {
             program.bodies.emplace_back(move(body));
             program.heads[head].insert(program.bodies.size() - 1);
+            program.body_to_head[program.bodies.size() - 1] = head;
         }
     }
 }

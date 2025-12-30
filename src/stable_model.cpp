@@ -1,76 +1,44 @@
+#include <queue>
+
 #include "stable_model.hpp"
 
-bool is_stable_model(const Program &program, const Model &supporting_model)
+Model compute_consequences(const Program &program, const Model &model)
 {
-
-    PositiveRules positive_rules;
-    for (const auto &[head, body_indices] : program.heads)
+    Model consequences;
+    bool changed = true;
+    while (changed)
     {
-        for (const auto &body_index : body_indices)
+        changed = false;
+        for (const auto &[head, body_indices] : program.heads)
         {
-            const auto &body = program.bodies[body_index];
-            PositiveRule positive_rule;
-            positive_rule.reserve(body[0] + 1);
-            positive_rule.push_back(head);
-            bool add_rule = true;
-            for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
+            if (model.contains(head) == false || consequences.contains(head))
+                continue;
+            for (BodyIndex body_index : body_indices)
             {
-                if (body[literal_index] > 0)
+                const Body &body = program.bodies[body_index];
+                bool ok = true;
+                for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
                 {
-                    positive_rule.push_back(body[literal_index]);
+                    Literal literal = body[literal_index];
+                    if (literal > 0 && consequences.contains(literal) == false)
+                    {
+                        ok = false;
+                        break;
+                    }
+                    if (literal < 0 && model.contains(-literal))
+                    {
+                        ok = false;
+                        break;
+                    }
                 }
-                else if (body[literal_index] < 0 && supporting_model.contains(-body[literal_index]))
+                if (ok)
                 {
-                    add_rule = false;
+                    consequences.insert(head);
+                    changed = true;
                     break;
                 }
             }
-            if (add_rule)
-            {
-                positive_rules.push_back(positive_rule);
-            }
         }
     }
-
-    bool is_fixpoint = false;
-    Model fixpoint;
-    while (!is_fixpoint)
-    {
-        is_fixpoint = true;
-        for (auto it = positive_rules.begin(); it != positive_rules.end();)
-        {
-            if (fixpoint.contains((*it)[0]))
-            {
-                it = positive_rules.erase(it);
-            }
-            else
-            {
-                bool is_satisfied = true;
-                unsigned int body_size = it->size();
-
-                // Check if all positive literals in the body are satisfied
-                for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
-                {
-                    const auto &literal = it->at(literal_index);
-                    if (literal > 0 && !supporting_model.contains(literal))
-                    {
-                        is_satisfied = false;
-                        break; // Early exit optimization
-                    }
-                }
-
-                if (is_satisfied)
-                {
-                    is_fixpoint = false;
-                    fixpoint.insert((*it)[0]);
-                    it = positive_rules.erase(it);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-        }
-    }
-    return fixpoint == supporting_model;
+    return consequences;
 }

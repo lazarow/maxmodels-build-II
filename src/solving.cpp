@@ -2,68 +2,91 @@
 #include <ipamir.h>
 #include <cmath>
 #include <queue>
+#include <unordered_map>
+#include <vector>
 #include "solving.hpp"
 #include "stable_model.hpp"
+#include "loop_formulas.hpp"
 
 void solve(Program &program)
 {
     void *solver = ipamir_init();
 
     AtomMapper atom_mapper;
+    unordered_map<BodyIndex, unsigned int> body_to_variable;
 
     // #region Step 1: Encoding normal rules.
     unsigned int nof_first_level_soft_clauses = 0;
+    /**
+     * Consider:
+     * a <- b, not c.
+     * a <- not d.
+     * a <- e.
+     * Completion:
+     * (a ⇔ r1 ∨ r2 ∨ r3) ∧ (r1 ⇔ b ∧ ¬c) ∧ (r2 ⇔ ¬d) ∧ (r3 ⇔ e)
+     * CNF:
+     * (r1 ∨ r2 ∨ r3 ∨ ¬a) ∧ (¬r1 ∨ a) ∧ (¬r2 ∨ a) ∧ (¬r3 ∨ a) ∧
+     * (r1 ∨ ¬b ∨ c) ∧ (b ∨ ¬r1) ∧ (¬c ∨ ¬r1) ∧
+     * (r2 ∨ d) ∧ (¬d ∨ ¬r2) ∧
+     * (r3 ∨ ¬e) ∧ (e ∨ ¬r3)
+     * where r1, r2 and r3 are additional variables denoted rules' bodies.
+     */
     for (const auto &[head, body_indices] : program.heads)
     {
+        // List of bodies for a head (the Tseitin transformation).
         queue<unsigned int> body_variables;
         for (const auto &body_index : body_indices)
         {
             const auto &body = program.bodies[body_index];
-            unsigned int body_variable = atom_mapper.get_next_variable();
-            body_variables.push(body_variable);
-
+            // Skip if a body is falsified.
             if (body[0] < 0)
                 continue;
             else if (body[0] == 0)
-                // Justify a fact during the simplification should remove a head and its related bodies.
+                // Justifying a fact during the simplification should remove a head and its related bodies.
                 throw logic_error("An encoded rule cannot be a fact.");
 
-            // (a lub ~r1)
-            // Skip if a is known to be true.
+            // Create a new variable for a body.
+            unsigned int body_variable = atom_mapper.get_next_variable();
+            body_variables.push(body_variable);
+            body_to_variable[body_index] = body_variable;
+
+            // (¬r1 ∨ a)
+            // Skip if `a` is known to be true, i.e., (¬r1 ∨ true) = true.
             if (program.required_atoms.contains(head) == false)
             {
-                ipamir_add_hard(solver, atom_mapper.get_variable(head));
                 ipamir_add_hard(solver, -body_variable);
+                ipamir_add_hard(solver, atom_mapper.get_variable(head));
                 ipamir_add_hard(solver, 0);
             }
 
-            // a <- b, not c.
-            // b, not c <=> r1
+            // (b ∨ ¬r1) ∧ (¬c ∨ ¬r1)
             unsigned int body_size = body.size();
             for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
-                // (~r1 lub b) ^ (~r1 lub ~c)
-                if (body[literal_index] != 0)
+                if (body[literal_index] != 0) // Skip if a literal is determined.
                 {
-                    ipamir_add_hard(solver, -body_variable);
                     ipamir_add_hard(solver, atom_mapper.get_variable(body[literal_index]));
+                    ipamir_add_hard(solver, -body_variable);
                     ipamir_add_hard(solver, 0);
                 }
             }
-            // (r1 lub ~b lub c)
+            // (r1 ∨ ¬b ∨ c)
             ipamir_add_hard(solver, body_variable);
             for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
-                if (body[literal_index] != 0)
+                if (body[literal_index] != 0) // Skip if a literal is determined.
                 {
                     ipamir_add_hard(solver, -atom_mapper.get_variable(body[literal_index]));
                 }
             }
             ipamir_add_hard(solver, 0);
 
-            // Adding the first level of soft clauses.
-            // I use only actual atom from the program without auxilary atoms.
-            // Additionally, I skip required atoms.
+            /**
+             * The First Level of Weights (looking for a stable model).
+             * The following atoms are ignored:
+             * - required atoms (as they must be in a stable model already),
+             * - auxilary atoms (e.g. created during normalization of extended rules).
+             */
             if (program.symbols.contains(head) && program.required_atoms.contains(head) == false)
             {
                 ipamir_add_soft_lit(solver, -body_variable, 1);
@@ -74,10 +97,12 @@ void solve(Program &program)
             // A head must have at least one active rule.
             throw logic_error("An encoded head has no body.");
 
-        // Required atoms should be already removed from the bodies.
         if (program.required_atoms.contains(head))
         {
-            // (r1 lub r2)
+            /**
+             * If `a` is true then:
+             * (r1 ∨ r2 ∨ r3 ∨ ¬a) = (r1 ∨ r2 ∨ r3 ∨ false) = (r1 ∨ r2 ∨ r3)
+             */
             while (body_variables.empty() == false)
             {
                 ipamir_add_hard(solver, body_variables.front());
@@ -87,19 +112,19 @@ void solve(Program &program)
         }
         else
         {
-            // (~a lub r1 lub r2)
-            ipamir_add_hard(solver, -atom_mapper.get_variable(head));
+            // (r1 ∨ r2 ∨ r3 ∨ ¬a)
             while (body_variables.empty() == false)
             {
                 ipamir_add_hard(solver, body_variables.front());
                 body_variables.pop();
             }
+            ipamir_add_hard(solver, -atom_mapper.get_variable(head));
             ipamir_add_hard(solver, 0);
         }
     }
     // #endregion
 
-    // #region Step 2: Encoding constraints.
+    // #region Step 2: Encoding Constraints.
     for (const auto &body_index : program.constraints)
     {
         const auto &body = program.bodies[body_index];
@@ -111,13 +136,16 @@ void solve(Program &program)
         unsigned int body_size = body.size();
         for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
         {
-            ipamir_add_hard(solver, -atom_mapper.get_variable(body[literal_index]));
+            if (body[literal_index] != 0) // Skip if a literal is determined.
+            {
+                ipamir_add_hard(solver, -atom_mapper.get_variable(body[literal_index]));
+            }
         }
         ipamir_add_hard(solver, 0);
     }
     // #endregion
 
-    // #region Step 3: Additional clauses for weights (optimization).
+    // #region Step 3: The Second Level of Weights (optimization).
     if (program.weights.size() > 0)
     {
         unsigned int augmenting = nof_first_level_soft_clauses == 0
@@ -165,18 +193,48 @@ void solve(Program &program)
              *      void ipamir_print_wcnf(void *solver) { import(solver)->print_wcnf(); }
              */
             // ipamir_print_wcnf(solver);
+            // uint64_t obj = ipamir_val_obj(solver);
 
-            uint64_t obj = ipamir_val_obj(solver);
-            cout << "OBJ: " << obj << endl;
-
-            if (is_stable_model(program, supporting_model))
+            Model consequences = compute_consequences(program, supporting_model);
+            Model M_minus;
+            for (Atom atom : supporting_model)
+                if (consequences.contains(atom) == false)
+                    M_minus.insert(atom);
+            if (M_minus.empty())
                 throw satisfied_exception(program, supporting_model);
             else
             {
-                cout << "AN ANSWER IS NOT ANSWER SET" << endl;
-                cout << "FOUNDING LOOP FORMULAS IS NOT IMPLEMENTED YET" << endl;
+                vector<Model> loop_formulas = compute_loop_formulas(program, M_minus);
+                for (const auto &loop_formula : loop_formulas)
+                {
+                    vector<BodyIndex> external_bodies;
+                    for (Atom p : loop_formula)
+                    {
+                        for (BodyIndex body_index : program.heads.at(p))
+                        {
+                            const Body &body = program.bodies[body_index];
+                            if (body[0] < 0)
+                                continue;
+                            bool touches_loop = false;
+                            for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
+                            {
+                                if (loop_formula.contains(abs(body[literal_index])))
+                                {
+                                    touches_loop = true;
+                                    break;
+                                }
+                            }
+                            if (touches_loop == false)
+                            {
+                                ipamir_add_hard(solver, body_to_variable[body_index]);
+                            }
+                        }
+                        ipamir_add_hard(solver, -atom_mapper.get_variable(p));
+                    }
+                    ipamir_add_hard(solver, 0);
+                }
+                cout << "% Iteration " << nof_iterations << " completed. " << loop_formulas.size() << " loops found." << endl;
             }
-            break;
         }
         else
             throw logic_error("Unknown result of the solver.");
@@ -196,17 +254,6 @@ unsigned int AtomMapper::get_variable(Literal literal)
     if (atom_to_variable.contains(atom) == false)
     {
         atom_to_variable[atom] = get_next_variable();
-        variable_to_atom[atom_to_variable[atom]] = atom;
     }
     return literal < 0 ? -atom_to_variable.at(atom) : atom_to_variable.at(atom);
-}
-
-bool AtomMapper::has_atom(Atom atom) const
-{
-    return atom_to_variable.contains(atom);
-}
-
-Atom AtomMapper::get_atom(unsigned int variable) const
-{
-    return variable_to_atom.at(variable);
 }

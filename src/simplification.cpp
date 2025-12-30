@@ -32,31 +32,21 @@ void simplify(Program &program)
                 auto &literal = body[literal_index];
                 if (literal == 0) // Skip if a literal is determined.
                     continue;
-                // If a positive literal is a fact or a required atom, then the literal is determined.
-                if (
-                    literal > 0 &&
-                    (program.facts.contains(literal) ||
-                     program.required_atoms.contains(literal)))
+                /**
+                 * Keep in mind that the order is important!
+                 */
+                // If a positive literal is a head, then the body is falsified.
+                if (literal > 0 && program.body_to_head[body_index] == (Atom)literal)
                 {
-                    body[0]--;
-                    literal = 0;
+                    body[0] = -1;
                     has_changed = true;
+                    break;
                 }
-                // If a negative literal is a forbidden atom or doesn't have a related head, then the literal is determined.
-                else if (
-                    literal < 0 &&
-                    (program.forbidden_atoms.contains(-literal) ||
-                     program.heads.contains(-literal) == false))
-                {
-                    body[0]--;
-                    literal = 0;
-                    has_changed = true;
-                }
-                // If a positive literal is a forbidden atom or doesn't have a related head, then the body is falsified.
+                // If a positive literal is a forbidden atom or doesn't have a related head and it's not a fact, then the body is falsified.
                 else if (
                     literal > 0 &&
                     (program.forbidden_atoms.contains(literal) ||
-                     program.heads.contains(literal) == false))
+                     (program.heads.contains(literal) == false && program.facts.contains(literal) == false)))
                 {
                     body[0] = -1;
                     has_changed = true;
@@ -71,6 +61,26 @@ void simplify(Program &program)
                     body[0] = -1;
                     has_changed = true;
                     break;
+                }
+                // If a positive literal is a fact or a required atom, then the literal is determined.
+                else if (
+                    literal > 0 &&
+                    (program.facts.contains(literal) ||
+                     program.required_atoms.contains(literal)))
+                {
+                    body[0]--;
+                    literal = 0;
+                    has_changed = true;
+                }
+                // If a negative literal is a forbidden atom or doesn't have a related head, then the literal is determined.
+                else if (
+                    literal < 0 &&
+                    (program.forbidden_atoms.contains(-literal) ||
+                     (program.heads.contains(-literal) == false && program.facts.contains(-literal) == false)))
+                {
+                    body[0]--;
+                    literal = 0;
+                    has_changed = true;
                 }
             }
         }
@@ -125,9 +135,9 @@ void simplify(Program &program)
                 unsigned int literal_index = 1;
                 unsigned int body_size = body.size();
                 Literal literal = body[literal_index];
-                while (literal == 0 && literal_index < body_size)
+                while (literal == 0 && ++literal_index < body_size)
                 {
-                    literal = body[++literal_index];
+                    literal = body[literal_index];
                 }
                 if (literal > 0)
                 {
@@ -146,6 +156,7 @@ void simplify(Program &program)
                         throw unsatisfied_exception("A single-literal constraint with a negative literal doesn't have a related head.");
                     program.required_atoms.emplace(-literal);
                 }
+                body[0] = 0; // The body is determined.
                 should_erase = true;
                 has_changed = true; // Change due to the forbidden and required atoms update.
             }

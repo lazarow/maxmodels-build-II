@@ -36,6 +36,7 @@ struct Program
     unordered_set<Atom> forbidden_atoms;                 // B- = { a_1, a_2, ..., a_n }
     unordered_map<Literal, Weight> weights;              // l -> w
     unordered_map<Atom, string> symbols;                 // a -> s
+    unordered_map<BodyIndex, Atom> body_to_head;         // bi -> h
 
     Program();
     /**
