@@ -1,5 +1,6 @@
 #include <vector>
 #include <omp.h>
+#include <cmath>
 #include "simplification.hpp"
 
 void simplify(Program &program)
@@ -35,8 +36,8 @@ void simplify(Program &program)
                 /**
                  * Keep in mind that the order is important!
                  */
-                // If a positive literal is a head, then the body is falsified.
-                if (literal > 0 && program.body_to_head[body_index] == (Atom)literal)
+                // If a literal is a head, then the body is falsified.
+                if (abs(literal) && program.body_to_head[body_index] == (Atom)literal)
                 {
                     body[0] = -1;
                     has_changed = true;

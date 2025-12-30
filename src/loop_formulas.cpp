@@ -49,7 +49,7 @@ void strongconnect(const Atom &atom, const unordered_map<Atom, vector<Atom>> &gr
     }
 }
 
-vector<Model> compute_loop_formulas(const Program &program, const Model &M_minus)
+vector<Model> compute_maximal_loop_formulas(const Program &program, const Model &M_minus)
 {
     vector<Model> loops;
 

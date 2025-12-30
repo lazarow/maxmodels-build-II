@@ -4,6 +4,7 @@
 #include <queue>
 #include <unordered_map>
 #include <vector>
+#include <limits>
 #include "solving.hpp"
 #include "stable_model.hpp"
 #include "loop_formulas.hpp"
@@ -14,6 +15,8 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
 
     AtomMapper atom_mapper;
     unordered_map<BodyIndex, unsigned int> body_to_variable;
+    unordered_set<BodyIndex> bodies_to_lazy_strategy;
+    unordered_map<Atom, unsigned int> atom_to_nof_bodies;
 
     // #region Step 1: Encoding normal rules.
     unsigned int nof_first_level_soft_clauses = 0;
@@ -33,6 +36,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
      */
     for (const auto &[head, body_indices] : program.heads)
     {
+        atom_to_nof_bodies[head] = 0;
         // List of bodies for a head (the Tseitin transformation).
         queue<unsigned int> body_variables;
         for (const auto &body_index : body_indices)
@@ -44,6 +48,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             else if (body[0] == 0)
                 // Justifying a fact during the simplification should remove a head and its related bodies.
                 throw logic_error("An encoded rule cannot be a fact.");
+            atom_to_nof_bodies[head]++;
 
             // Create a new variable for a body.
             unsigned int body_variable = atom_mapper.get_next_variable();
@@ -81,19 +86,26 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             }
             ipamir_add_hard(solver, 0);
 
-            /**
-             * The First Level of Weights (looking for a stable model).
-             * The following atoms are ignored:
-             * - required atoms (as they must be in a stable model already),
-             * - auxilary atoms (e.g. created during normalization of extended rules).
-             */
-            if (solving_configuration.add_body_weights &&
-                program.symbols.contains(head) &&
-                program.required_atoms.contains(head) == false)
+            // #region Solving strategy: The First Level of Weights
+            if (solving_configuration.solving_strategy == SolvingStrategy::ALL_RULES)
             {
-                ipamir_add_soft_lit(solver, -body_variable, 1);
-                nof_first_level_soft_clauses++;
+                if ((program.required_atoms.contains(head) == false))
+                {
+                    ipamir_add_soft_lit(solver, -body_variable, 1);
+                    nof_first_level_soft_clauses++;
+                }
             }
+            else if (solving_configuration.solving_strategy == SolvingStrategy::NON_AUXILIARY_RULES)
+            {
+                if (
+                    program.symbols.contains(head) &&
+                    program.required_atoms.contains(head) == false)
+                {
+                    ipamir_add_soft_lit(solver, -body_variable, 1);
+                    nof_first_level_soft_clauses++;
+                }
+            }
+            // #endregion
         }
         if (body_variables.empty())
             // A head must have at least one active rule.
@@ -177,7 +189,9 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             Model supporting_model;
             for (const auto &[head, body_indices] : program.heads)
             {
-                if (ipamir_val_lit(solver, atom_mapper.get_variable(head)) > 0)
+                if (
+                    ipamir_val_lit(solver, atom_mapper.get_variable(head)) > 0 ||
+                    program.required_atoms.contains(head))
                     supporting_model.insert(head);
             }
 
@@ -206,13 +220,34 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                 throw satisfied_exception(program, supporting_model);
             else
             {
-                vector<Model> loop_formulas = compute_loop_formulas(program, M_minus);
+                vector<Model> loop_formulas;
+                loop_formulas = compute_maximal_loop_formulas(program, M_minus);
                 for (const auto &loop_formula : loop_formulas)
                 {
-                    vector<BodyIndex> external_bodies;
-                    for (Atom p : loop_formula)
+                    unordered_set<Atom> atoms_to_exclude;
+                    // #region Loop formulas strategy
+                    if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MAXIMAL)
+                        atoms_to_exclude = loop_formula;
+                    else if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MINIMAL_FIRST)
+                        atoms_to_exclude.insert(*loop_formula.begin());
+                    else if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MINIMAL_SMALLEST)
                     {
-                        for (BodyIndex body_index : program.heads.at(p))
+                        Atom best = -1;
+                        unsigned int best_nof_bodies = numeric_limits<unsigned int>::max();
+                        for (Atom atom : loop_formula)
+                        {
+                            if (atom_to_nof_bodies[atom] < best_nof_bodies)
+                            {
+                                best = atom;
+                                best_nof_bodies = atom_to_nof_bodies[atom];
+                            }
+                        }
+                        atoms_to_exclude.insert(best);
+                    }
+                    // #endregion
+                    for (Atom atom : atoms_to_exclude)
+                    {
+                        for (BodyIndex body_index : program.heads.at(atom))
                         {
                             const Body &body = program.bodies[body_index];
                             if (body[0] < 0)
@@ -231,7 +266,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                                 ipamir_add_hard(solver, body_to_variable[body_index]);
                             }
                         }
-                        ipamir_add_hard(solver, -atom_mapper.get_variable(p));
+                        ipamir_add_hard(solver, -atom_mapper.get_variable(atom));
                     }
                     ipamir_add_hard(solver, 0);
                 }

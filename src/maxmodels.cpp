@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
         argparse::Parser parser;
         auto print_only = parser.AddFlag("print", 'p', "Print the program only and exit");
         auto skip_simplification = parser.AddFlag("skip-simplification", "Skip the simplification step");
-        auto skip_body_weights = parser.AddFlag("skip-body-weights", "Skip the body weights");
+        auto solving_strategy = parser.AddArg<int>("solving-strategy", 's', "The solving strategy to use [0=baseline, 1=all rules, 2=non-extended rules, 3=lazy]").Default(2);
+        auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=maximal]").Default(0);
         parser.ParseArgs(argc, argv);
 
         cout << VERSION << endl;
@@ -30,7 +31,20 @@ int main(int argc, char *argv[])
         if ((bool)(*print_only))
             program.print();
         SolvingConfiguration solving_configuration;
-        solving_configuration.add_body_weights = !((bool)(*skip_body_weights));
+        solving_configuration.solving_strategy = static_cast<SolvingStrategy>(*solving_strategy);
+        if (*solving_strategy < 0 || *solving_strategy > 2)
+        {
+            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules), or 2 (non-extended rules)." << endl;
+            return 1;
+        }
+        solving_configuration.loop_formulas_strategy = static_cast<LoopFormulasStrategy>(*loop_formulas_strategy);
+        if (*loop_formulas_strategy < 0 || *loop_formulas_strategy > 2)
+        {
+            cerr << "Error: The loop formulas strategy must be one of 0 (maximal), 1 (minimal first), or 2 (minimal smallest)." << endl;
+            return 1;
+        }
+        cout << "% Solving strategy = " << (int)(solving_configuration.solving_strategy) << endl;
+        cout << "% Loop formulas strategy = " << (int)(solving_configuration.loop_formulas_strategy) << endl;
         solve(program, solving_configuration);
         return 0;
     }

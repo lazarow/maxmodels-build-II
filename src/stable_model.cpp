@@ -16,6 +16,8 @@ Model compute_consequences(const Program &program, const Model &model)
             for (BodyIndex body_index : body_indices)
             {
                 const Body &body = program.bodies[body_index];
+                if (body[0] < 0)
+                    continue;
                 bool ok = true;
                 for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
                 {

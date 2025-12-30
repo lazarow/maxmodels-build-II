@@ -12,9 +12,24 @@ public:
     unsigned int get_variable(Literal literal);
 };
 
+enum SolvingStrategy
+{
+    BASELINE = 0,
+    ALL_RULES = 1,
+    NON_AUXILIARY_RULES = 2
+};
+
+enum LoopFormulasStrategy
+{
+    MAXIMAL = 0,
+    MINIMAL_FIRST = 1,
+    MINIMAL_SMALLEST = 2
+};
+
 struct SolvingConfiguration
 {
-    bool add_body_weights = true;
+    SolvingStrategy solving_strategy = NON_AUXILIARY_RULES;
+    LoopFormulasStrategy loop_formulas_strategy = MAXIMAL;
 };
 
 void solve(Program &program, SolvingConfiguration &solving_configuration);
