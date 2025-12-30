@@ -12,4 +12,9 @@ public:
     unsigned int get_variable(Literal literal);
 };
 
-void solve(Program &program);
+struct SolvingConfiguration
+{
+    bool add_body_weights = true;
+};
+
+void solve(Program &program, SolvingConfiguration &solving_configuration);

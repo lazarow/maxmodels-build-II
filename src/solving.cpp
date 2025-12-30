@@ -8,7 +8,7 @@
 #include "stable_model.hpp"
 #include "loop_formulas.hpp"
 
-void solve(Program &program)
+void solve(Program &program, SolvingConfiguration &solving_configuration)
 {
     void *solver = ipamir_init();
 
@@ -87,7 +87,9 @@ void solve(Program &program)
              * - required atoms (as they must be in a stable model already),
              * - auxilary atoms (e.g. created during normalization of extended rules).
              */
-            if (program.symbols.contains(head) && program.required_atoms.contains(head) == false)
+            if (solving_configuration.add_body_weights &&
+                program.symbols.contains(head) &&
+                program.required_atoms.contains(head) == false)
             {
                 ipamir_add_soft_lit(solver, -body_variable, 1);
                 nof_first_level_soft_clauses++;

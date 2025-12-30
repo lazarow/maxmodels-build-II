@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
         argparse::Parser parser;
         auto print_only = parser.AddFlag("print", 'p', "Print the program only and exit");
         auto skip_simplification = parser.AddFlag("skip-simplification", "Skip the simplification step");
+        auto skip_body_weights = parser.AddFlag("skip-body-weights", "Skip the body weights");
         parser.ParseArgs(argc, argv);
 
         cout << VERSION << endl;
@@ -28,7 +29,9 @@ int main(int argc, char *argv[])
         // Print the program only if the "--print" flag is set
         if ((bool)(*print_only))
             program.print();
-        solve(program);
+        SolvingConfiguration solving_configuration;
+        solving_configuration.add_body_weights = !((bool)(*skip_body_weights));
+        solve(program, solving_configuration);
         return 0;
     }
     catch (const unsatisfied_exception &error)
