@@ -35,7 +35,6 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
      */
     for (const auto &[head, body_indices] : program.heads)
     {
-        atom_to_nof_bodies[head] = 0;
         // List of bodies for a head (the Tseitin transformation).
         vector<unsigned int> body_variables;
         for (const auto &body_index : body_indices)
@@ -47,7 +46,6 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             else if (body[0] == 0)
                 // Justifying a fact during the simplification should remove a head and its related bodies.
                 throw logic_error("An encoded rule cannot be a fact.");
-            atom_to_nof_bodies[head]++;
 
             // Create a new variable for a body.
             unsigned int body_variable = atom_mapper.get_next_variable();
@@ -118,6 +116,13 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                 ipamir_add_soft_lit(solver, -body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
         }
+        else if (solving_configuration.solving_strategy == SolvingStrategy::SELECTIVE &&
+                 body_variables.size() > 1)
+        {
+            for (unsigned int body_variable : body_variables)
+                ipamir_add_soft_lit(solver, -body_variable, 1);
+            nof_first_level_soft_clauses += body_variables.size();
+        }
         // #endregion
     }
     // #endregion
@@ -144,6 +149,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
     // #endregion
 
     // #region Step 3: The Second Level of Weights (optimization).
+    unsigned int nof_second_level_soft_clauses = 0;
     if (program.weights.size() > 0)
     {
         unsigned int bounded_weights = nof_first_level_soft_clauses + 1;
@@ -153,9 +159,12 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             if (program.heads.contains(atom))
             {
                 ipamir_add_soft_lit(solver, atom_mapper.get_variable(literal), weight * bounded_weights);
+                nof_second_level_soft_clauses++;
             }
         }
     }
+    cout << "% The number of soft clauses of 1st level: " << nof_first_level_soft_clauses << endl;
+    cout << "% The number of soft clauses of 2nd level: " << nof_second_level_soft_clauses << endl;
     // #endregion
 
     // #region Step 4: Solving the problem by means of iMaxHS.
