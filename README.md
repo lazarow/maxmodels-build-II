@@ -4,7 +4,7 @@ This project is an extended version of the original [maxmodels](https://github.c
 
 ## Installation and compiling
 
-To build **maxmodels (build II)**, you'll need a working C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses git submodules for dependencies.
+To build **maxmodels (build II)**, you'll need a working Linux, C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses git submodules for dependencies.
 
 ### 1. Clone the repository
 
@@ -13,20 +13,20 @@ git clone <this-repo>
 cd <this-repo>
 ```
 
-### 2. Prepare the build environment
+### 2. Configure CPLEX environment
+
+Set the following environment variables or edit the Makefile to specify the paths to your CPLEX installation:
+
+-   `CPLEX_LIB_DIR`: Absolute or relative path to the CPLEX static libraries (should contain `libcplex.a`)
+-   `CPLEX_INC_DIR`: Path to the CPLEX headers (should contain the subdirectory `ilcplex/`)
+
+### 3. Prepare the build environment
 
 Run the following to initialize git submodules and build dependencies:
 
 ```sh
 make prepare
 ```
-
-### 3. Configure CPLEX environment
-
-Set the following environment variables or edit the Makefile to specify the paths to your CPLEX installation:
-
--   `CPLEX_LIB_DIR`: Absolute or relative path to the CPLEX static libraries (should contain `libcplex.a`)
--   `CPLEX_INC_DIR`: Path to the CPLEX headers (should contain the subdirectory `ilcplex/`)
 
 ### 4. Check prerequisites
 

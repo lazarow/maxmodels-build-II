@@ -37,7 +37,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
     {
         atom_to_nof_bodies[head] = 0;
         // List of bodies for a head (the Tseitin transformation).
-        queue<unsigned int> body_variables;
+        vector<unsigned int> body_variables;
         for (const auto &body_index : body_indices)
         {
             const auto &body = program.bodies[body_index];
@@ -51,7 +51,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
 
             // Create a new variable for a body.
             unsigned int body_variable = atom_mapper.get_next_variable();
-            body_variables.push(body_variable);
+            body_variables.push_back(body_variable);
             body_to_variable[body_index] = body_variable;
 
             // (¬r1 ∨ a)
@@ -84,56 +84,41 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                 }
             }
             ipamir_add_hard(solver, 0);
-
-            // #region Solving strategy: The First Level of Weights
-            if (solving_configuration.solving_strategy == SolvingStrategy::ALL_RULES)
-            {
-                if ((program.required_atoms.contains(head) == false))
-                {
-                    ipamir_add_soft_lit(solver, -body_variable, 1);
-                    nof_first_level_soft_clauses++;
-                }
-            }
-            else if (solving_configuration.solving_strategy == SolvingStrategy::NON_AUXILIARY_RULES)
-            {
-                if (
-                    program.symbols.contains(head) &&
-                    program.required_atoms.contains(head) == false)
-                {
-                    ipamir_add_soft_lit(solver, -body_variable, 1);
-                    nof_first_level_soft_clauses++;
-                }
-            }
-            // #endregion
         }
         if (body_variables.empty())
             // A head must have at least one active rule.
             throw logic_error("An encoded head has no body.");
 
-        if (program.required_atoms.contains(head))
+        /**
+         * (r1 ∨ r2 ∨ r3 ∨ ¬a)
+         * If `a` is true then:
+         * (r1 ∨ r2 ∨ r3 ∨ ¬a) = (r1 ∨ r2 ∨ r3 ∨ false) = (r1 ∨ r2 ∨ r3)
+         */
+        for (unsigned int body_variable : body_variables)
         {
-            /**
-             * If `a` is true then:
-             * (r1 ∨ r2 ∨ r3 ∨ ¬a) = (r1 ∨ r2 ∨ r3 ∨ false) = (r1 ∨ r2 ∨ r3)
-             */
-            while (body_variables.empty() == false)
-            {
-                ipamir_add_hard(solver, body_variables.front());
-                body_variables.pop();
-            }
-            ipamir_add_hard(solver, 0);
+            ipamir_add_hard(solver, body_variable);
         }
-        else
+        if (program.required_atoms.contains(head) == false)
         {
-            // (r1 ∨ r2 ∨ r3 ∨ ¬a)
-            while (body_variables.empty() == false)
-            {
-                ipamir_add_hard(solver, body_variables.front());
-                body_variables.pop();
-            }
             ipamir_add_hard(solver, -atom_mapper.get_variable(head));
-            ipamir_add_hard(solver, 0);
         }
+        ipamir_add_hard(solver, 0);
+
+        // #region The First Level of Weights: Solving strategy
+        if (solving_configuration.solving_strategy == SolvingStrategy::ALL_RULES)
+        {
+            for (unsigned int body_variable : body_variables)
+                ipamir_add_soft_lit(solver, -body_variable, 1);
+            nof_first_level_soft_clauses += body_variables.size();
+        }
+        else if (solving_configuration.solving_strategy == SolvingStrategy::NON_AUXILIARY_RULES &&
+                 program.symbols.contains(head))
+        {
+            for (unsigned int body_variable : body_variables)
+                ipamir_add_soft_lit(solver, -body_variable, 1);
+            nof_first_level_soft_clauses += body_variables.size();
+        }
+        // #endregion
     }
     // #endregion
 
@@ -161,15 +146,13 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
     // #region Step 3: The Second Level of Weights (optimization).
     if (program.weights.size() > 0)
     {
-        unsigned int augmenting = nof_first_level_soft_clauses == 0
-                                      ? 1
-                                      : pow(10, ceil(log10(nof_first_level_soft_clauses)));
+        unsigned int bounded_weights = nof_first_level_soft_clauses + 1;
         for (const auto &[literal, weight] : program.weights)
         {
             Atom atom = literal < 0 ? -literal : literal;
             if (program.heads.contains(atom))
             {
-                ipamir_add_soft_lit(solver, atom_mapper.get_variable(literal), weight * augmenting);
+                ipamir_add_soft_lit(solver, atom_mapper.get_variable(literal), weight * bounded_weights);
             }
         }
     }
@@ -208,31 +191,15 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             {
                 vector<Model> loop_formulas;
                 loop_formulas = compute_maximal_loop_formulas(program, M_minus);
+                // #region Loop formulas strategy
+                if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::FIRST_ONLY)
+                {
+                    loop_formulas = {loop_formulas.front()};
+                }
+                // #endregion
                 for (const auto &loop_formula : loop_formulas)
                 {
-                    unordered_set<Atom> atoms_to_exclude;
-                    // #region Loop formulas strategy
-                    if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MAXIMAL)
-                        atoms_to_exclude = loop_formula;
-                    else if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MINIMAL_FIRST)
-                        atoms_to_exclude.insert(*loop_formula.begin());
-                    else if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::MINIMAL_SMALLEST)
-                    {
-                        Atom best = -1;
-                        unsigned int best_nof_bodies = numeric_limits<unsigned int>::max();
-                        for (Atom atom : loop_formula)
-                        {
-                            if (atom_to_nof_bodies[atom] < best_nof_bodies)
-                            {
-                                best = atom;
-                                best_nof_bodies = atom_to_nof_bodies[atom];
-                            }
-                        }
-                        atoms_to_exclude.insert(best);
-                    }
-                    // #endregion
-                    unordered_set<BodyIndex> excluded_bodies;
-                    for (Atom atom : atoms_to_exclude)
+                    for (Atom atom : loop_formula)
                     {
                         for (BodyIndex body_index : program.heads.at(atom))
                         {
@@ -251,7 +218,6 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                             if (touches_loop == false)
                             {
                                 ipamir_add_hard(solver, body_to_variable[body_index]);
-                                excluded_bodies.insert(body_index);
                             }
                         }
                         ipamir_add_hard(solver, -atom_mapper.get_variable(atom));

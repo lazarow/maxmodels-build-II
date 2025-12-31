@@ -16,20 +16,20 @@ enum SolvingStrategy
 {
     BASELINE = 0,
     ALL_RULES = 1,
-    NON_AUXILIARY_RULES = 2
+    NON_AUXILIARY_RULES = 2,
+    SELECTIVE = 3
 };
 
 enum LoopFormulasStrategy
 {
-    MAXIMAL = 0,
-    MINIMAL_FIRST = 1,
-    MINIMAL_SMALLEST = 2
+    ALL = 0,
+    FIRST_ONLY = 1,
 };
 
 struct SolvingConfiguration
 {
     SolvingStrategy solving_strategy = NON_AUXILIARY_RULES;
-    LoopFormulasStrategy loop_formulas_strategy = MAXIMAL;
+    LoopFormulasStrategy loop_formulas_strategy = ALL;
 };
 
 void solve(Program &program, SolvingConfiguration &solving_configuration);

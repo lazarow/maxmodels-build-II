@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
         auto print_only = parser.AddFlag("print", 'p', "Print the program only and exit");
         auto skip_simplification = parser.AddFlag("skip-simplification", "Skip the simplification step");
         auto solving_strategy = parser.AddArg<int>("solving-strategy", 's', "The solving strategy to use [0=baseline, 1=all rules, 2=non-extended rules, 3=lazy]").Default(2);
-        auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=maximal]").Default(0);
+        auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=all, 1=first only]").Default(0);
         parser.ParseArgs(argc, argv);
 
         cout << VERSION << endl;
