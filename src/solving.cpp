@@ -15,7 +15,6 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
 
     AtomMapper atom_mapper;
     unordered_map<BodyIndex, unsigned int> body_to_variable;
-    unordered_set<BodyIndex> bodies_to_lazy_strategy;
     unordered_map<Atom, unsigned int> atom_to_nof_bodies;
 
     // #region Step 1: Encoding normal rules.
@@ -245,6 +244,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                         atoms_to_exclude.insert(best);
                     }
                     // #endregion
+                    unordered_set<BodyIndex> excluded_bodies;
                     for (Atom atom : atoms_to_exclude)
                     {
                         for (BodyIndex body_index : program.heads.at(atom))
@@ -264,6 +264,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                             if (touches_loop == false)
                             {
                                 ipamir_add_hard(solver, body_to_variable[body_index]);
+                                excluded_bodies.insert(body_index);
                             }
                         }
                         ipamir_add_hard(solver, -atom_mapper.get_variable(atom));

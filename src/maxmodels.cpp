@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
         solving_configuration.solving_strategy = static_cast<SolvingStrategy>(*solving_strategy);
         if (*solving_strategy < 0 || *solving_strategy > 2)
         {
-            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules), or 2 (non-extended rules)." << endl;
+            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules) or 2 (non-extended rules)." << endl;
             return 1;
         }
         solving_configuration.loop_formulas_strategy = static_cast<LoopFormulasStrategy>(*loop_formulas_strategy);
