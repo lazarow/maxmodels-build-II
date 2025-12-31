@@ -194,19 +194,6 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                     supporting_model.insert(head);
             }
 
-            /**
-             * To enable ipamir_print_wcnf, the following changes need to be made to vendor/incremental-maxhs:
-             *
-             * 1. In vendor/incremental-maxhs/src/ipamir/ipamir.h:
-             *    - Add the function declaration: IPAMIR_API void ipamir_print_wcnf(void *solver);
-             *    - Place it after ipamir_set_terminate and before the closing extern "C" block.
-             *
-             * 2. In vendor/incremental-maxhs/src/ipamir/IpamirMaxHS.cc:
-             *    - Add a print_wcnf() method to the IpamirMaxHS class (in the public section):
-             *      void print_wcnf() { formula->printFormula(); }
-             *    - Add the C wrapper function in the extern "C" block:
-             *      void ipamir_print_wcnf(void *solver) { import(solver)->print_wcnf(); }
-             */
             // ipamir_print_wcnf(solver);
             // uint64_t obj = ipamir_val_obj(solver);
 

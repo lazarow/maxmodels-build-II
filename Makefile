@@ -47,6 +47,8 @@ prepare:
 	@echo "[prepare] Preparing build environment ... "
 	@echo -n "[prepare] Updating git submodules ... "
 	@git submodule update --init 1>/dev/null && echo "OK"
+	@echo -n "[prepare] Copying iMaxHS's header files from src/incremental-maxhs ... "
+	@cp -r src/incremental-maxhs/* vendor/incremental-maxhs/src/ipamir && echo "OK"
 	@echo -n "[prepare] Building dependencies ... "
 	@cd vendor/incremental-maxhs/src && LINUX_CPLEXLIBDIR=$(CPLEX_LIB_DIR) LINUX_CPLEXINCDIR=$(CPLEX_INC_DIR) $(MAKE) ipamir 1>/dev/null && echo "OK"
 	@echo "[prepare] ... successfully prepared build environment."
