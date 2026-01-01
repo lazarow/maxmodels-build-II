@@ -37,9 +37,10 @@ void simplify(Program &program)
                  * Keep in mind that the order is important!
                  */
                 // If a literal is a head, then the body is falsified.
-                if (abs(literal) && program.body_to_head[body_index] == (Atom)literal)
+                if (program.body_to_head[body_index] == (Atom)abs(literal))
                 {
                     body[0] = -1;
+                    literal = 0;
                     has_changed = true;
                     break;
                 }
@@ -50,6 +51,7 @@ void simplify(Program &program)
                      (program.heads.contains(literal) == false && program.facts.contains(literal) == false)))
                 {
                     body[0] = -1;
+                    literal = 0;
                     has_changed = true;
                     break;
                 }
@@ -60,6 +62,7 @@ void simplify(Program &program)
                      program.required_atoms.contains(-literal)))
                 {
                     body[0] = -1;
+                    literal = 0;
                     has_changed = true;
                     break;
                 }
@@ -209,7 +212,7 @@ void simplify(Program &program)
                 if (program.required_atoms.contains(head))
                     program.required_atoms.erase(head); // Remove the head from the required atoms, as it is a fact now.
                 if (program.forbidden_atoms.contains(head))
-                    throw unsatisfied_exception("A head is both fact and forbidden in the program.");
+                    throw unsatisfied_exception("A head " + program.symbols[head] + " is both fact and forbidden in the program.");
                 program.facts.emplace(head);
                 // Set all bodies related to the head as satisfied (will be ignored in the simplification and encoding).
                 for (const auto &body_index : body_indices)
@@ -222,7 +225,7 @@ void simplify(Program &program)
             else if (is_falsified)
             {
                 if (program.required_atoms.contains(head))
-                    throw unsatisfied_exception("A head is both required and forbidden in the program.");
+                    throw unsatisfied_exception("A head " + to_string(head) + " (" + program.symbols[head] + ") is both required and forbidden in the program.");
                 program.forbidden_atoms.emplace(head);
                 forbidden_atoms_to_check.push_back(head);
                 should_erase = true;

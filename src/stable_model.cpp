@@ -1,5 +1,3 @@
-#include <queue>
-
 #include "stable_model.hpp"
 
 Model compute_consequences(const Program &program, const Model &model)

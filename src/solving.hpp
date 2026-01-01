@@ -1,6 +1,11 @@
+#pragma once
+
 #include <unordered_map>
+#include <string>
 #include "internal_representation.hpp"
 #include "stable_model.hpp"
+
+using namespace std;
 
 class AtomMapper
 {
@@ -28,8 +33,9 @@ enum LoopFormulasStrategy
 
 struct SolvingConfiguration
 {
-    SolvingStrategy solving_strategy = NON_AUXILIARY_RULES;
-    LoopFormulasStrategy loop_formulas_strategy = ALL;
+    SolvingStrategy solving_strategy = SolvingStrategy::ALL_RULES;
+    LoopFormulasStrategy loop_formulas_strategy = LoopFormulasStrategy::ALL;
+    string wmaxcdcl_solver_path = "";
 };
 
-void solve(Program &program, SolvingConfiguration &solving_configuration);
+void solve(const Program &program, const SolvingConfiguration &solving_configuration);

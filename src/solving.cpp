@@ -1,17 +1,18 @@
-#include <cstdint>
-#include <ipamir.h>
 #include <cmath>
-#include <queue>
-#include <unordered_map>
-#include <vector>
-#include <limits>
+#include <memory>
 #include "solving.hpp"
 #include "stable_model.hpp"
 #include "loop_formulas.hpp"
+#include "wcnf.hpp"
 
-void solve(Program &program, SolvingConfiguration &solving_configuration)
+void solve(const Program &program, const SolvingConfiguration &solving_configuration)
 {
-    void *solver = ipamir_init();
+    unique_ptr<WCNF> wcnf;
+    if (solving_configuration.wmaxcdcl_solver_path.empty() == false)
+        wcnf = make_unique<WMaxCDCLWCNF>();
+    else
+        wcnf = make_unique<IpamirWCNF>();
+    wcnf->init();
 
     AtomMapper atom_mapper;
     unordered_map<BodyIndex, unsigned int> body_to_variable;
@@ -56,9 +57,9 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             // Skip if `a` is known to be true, i.e., (¬r1 ∨ true) = true.
             if (program.required_atoms.contains(head) == false)
             {
-                ipamir_add_hard(solver, -body_variable);
-                ipamir_add_hard(solver, atom_mapper.get_variable(head));
-                ipamir_add_hard(solver, 0);
+                wcnf->add_hard(-body_variable);
+                wcnf->add_hard(atom_mapper.get_variable(head));
+                wcnf->add_hard(0);
             }
 
             // (b ∨ ¬r1) ∧ (¬c ∨ ¬r1)
@@ -67,21 +68,21 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             {
                 if (body[literal_index] != 0) // Skip if a literal is determined.
                 {
-                    ipamir_add_hard(solver, atom_mapper.get_variable(body[literal_index]));
-                    ipamir_add_hard(solver, -body_variable);
-                    ipamir_add_hard(solver, 0);
+                    wcnf->add_hard(atom_mapper.get_variable(body[literal_index]));
+                    wcnf->add_hard(-body_variable);
+                    wcnf->add_hard(0);
                 }
             }
             // (r1 ∨ ¬b ∨ c)
-            ipamir_add_hard(solver, body_variable);
             for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
                 if (body[literal_index] != 0) // Skip if a literal is determined.
                 {
-                    ipamir_add_hard(solver, -atom_mapper.get_variable(body[literal_index]));
+                    wcnf->add_hard(-atom_mapper.get_variable(body[literal_index]));
                 }
             }
-            ipamir_add_hard(solver, 0);
+            wcnf->add_hard(body_variable);
+            wcnf->add_hard(0);
         }
         if (body_variables.empty())
             // A head must have at least one active rule.
@@ -94,33 +95,33 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
          */
         for (unsigned int body_variable : body_variables)
         {
-            ipamir_add_hard(solver, body_variable);
+            wcnf->add_hard(body_variable);
         }
         if (program.required_atoms.contains(head) == false)
         {
-            ipamir_add_hard(solver, -atom_mapper.get_variable(head));
+            wcnf->add_hard(-atom_mapper.get_variable(head));
         }
-        ipamir_add_hard(solver, 0);
+        wcnf->add_hard(0);
 
         // #region The First Level of Weights: Solving strategy
         if (solving_configuration.solving_strategy == SolvingStrategy::ALL_RULES)
         {
             for (unsigned int body_variable : body_variables)
-                ipamir_add_soft_lit(solver, -body_variable, 1);
+                wcnf->add_soft(-body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
         }
         else if (solving_configuration.solving_strategy == SolvingStrategy::NON_AUXILIARY_RULES &&
                  program.symbols.contains(head))
         {
             for (unsigned int body_variable : body_variables)
-                ipamir_add_soft_lit(solver, -body_variable, 1);
+                wcnf->add_soft(-body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
         }
         else if (solving_configuration.solving_strategy == SolvingStrategy::SELECTIVE &&
                  body_variables.size() > 1)
         {
             for (unsigned int body_variable : body_variables)
-                ipamir_add_soft_lit(solver, -body_variable, 1);
+                wcnf->add_soft(-body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
         }
         // #endregion
@@ -141,10 +142,10 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
         {
             if (body[literal_index] != 0) // Skip if a literal is determined.
             {
-                ipamir_add_hard(solver, -atom_mapper.get_variable(body[literal_index]));
+                wcnf->add_hard(-atom_mapper.get_variable(body[literal_index]));
             }
         }
-        ipamir_add_hard(solver, 0);
+        wcnf->add_hard(0);
     }
     // #endregion
 
@@ -158,7 +159,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             Atom atom = literal < 0 ? -literal : literal;
             if (program.heads.contains(atom))
             {
-                ipamir_add_soft_lit(solver, atom_mapper.get_variable(literal), weight * bounded_weights);
+                wcnf->add_soft(atom_mapper.get_variable(literal), weight * bounded_weights);
                 nof_second_level_soft_clauses++;
             }
         }
@@ -171,7 +172,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
     unsigned int nof_iterations = 0;
     while (true)
     {
-        int32_t result = ipamir_solve(solver);
+        int32_t result = wcnf->solve(solving_configuration);
         nof_iterations++;
         if (result == 10)
             throw unsatisfied_exception("The program is unsatisfied.");
@@ -181,14 +182,10 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             for (const auto &[head, body_indices] : program.heads)
             {
                 if (
-                    ipamir_val_lit(solver, atom_mapper.get_variable(head)) > 0 ||
+                    wcnf->val_lit(atom_mapper.get_variable(head)) > 0 ||
                     program.required_atoms.contains(head))
                     supporting_model.insert(head);
             }
-
-            // ipamir_print_wcnf(solver);
-            // uint64_t obj = ipamir_val_obj(solver);
-
             Model consequences = compute_consequences(program, supporting_model);
             Model M_minus;
             for (Atom atom : supporting_model)
@@ -226,12 +223,12 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
                             }
                             if (touches_loop == false)
                             {
-                                ipamir_add_hard(solver, body_to_variable[body_index]);
+                                wcnf->add_hard(body_to_variable[body_index]);
                             }
                         }
-                        ipamir_add_hard(solver, -atom_mapper.get_variable(atom));
+                        wcnf->add_hard(-atom_mapper.get_variable(atom));
                     }
-                    ipamir_add_hard(solver, 0);
+                    wcnf->add_hard(0);
                 }
                 cout << "% Iteration " << nof_iterations << " completed. " << loop_formulas.size() << " loops found." << endl;
             }
@@ -240,7 +237,7 @@ void solve(Program &program, SolvingConfiguration &solving_configuration)
             throw logic_error("Unknown result of the solver.");
     }
     // #endregion
-    ipamir_release(solver);
+    wcnf->clear();
 }
 
 unsigned int AtomMapper::get_next_variable()
