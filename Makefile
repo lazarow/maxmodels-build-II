@@ -1,5 +1,6 @@
 CPLEX_LIB_DIR ?=
 CPLEX_INC_DIR ?=
+DEBUG_LOGGING ?= 0
 
 IPAMIRLIBDIR := ./vendor/incremental-maxhs/src/build/release/lib
 
@@ -12,7 +13,10 @@ OBJS := $(SRCS:$(SRC_DIRS)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++20 -O3 -MMD -MP -fopenmp
+CXXFLAGS := -Wall -Wextra -std=c++20 -MMD -MP -fopenmp -O3
+ifeq ($(DEBUG_LOGGING), 1)
+	CXXFLAGS += -DDEBUG
+endif
 CXXFLAGS += -I./vendor/incremental-maxhs/src/ipamir
 CXXFLAGS += -I./vendor/argparse/argparse
 LDFLAGS := -flto=auto -lipamirmaxhs -L$(IPAMIRLIBDIR) -lz -L$(CPLEX_LIB_DIR) -lcplex -lpthread -ldl -fopenmp
@@ -60,6 +64,11 @@ build: $(OBJS)
 	end_time=$$(date +%s.%N); \
 	elapsed=$$(echo "$$end_time - $$start_time" | bc); \
 	echo "OK ($$elapsed seconds)"
+
+rebuild:
+	@echo "[rebuild] Rebuilding all object files..."
+	@rm -f $(OBJS)
+	@make build
 
 $(BUILD_DIR)/%.o: $(SRC_DIRS)/%.cpp
 	@echo -n "[build] Compiling $*.cpp ... "

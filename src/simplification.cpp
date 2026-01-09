@@ -1,6 +1,7 @@
 #include <vector>
 #include <omp.h>
 #include <cmath>
+#include <sstream>
 #include "simplification.hpp"
 
 void simplify(Program &program)
@@ -19,74 +20,91 @@ void simplify(Program &program)
         has_changed = false;
 
         // #region Simplification of bodies (either rules or constraints)
-#pragma omp parallel for reduction(|| : has_changed)
-        for (BodyIndex body_index = 1; body_index < nof_bodies; body_index++)
+#pragma omp parallel reduction(|| : has_changed)
         {
-            auto &body = program.bodies[body_index];
-            if (body[0] <= 0) // Skip if a body is falsified or satisfied already.
+#ifdef DEBUG
+            std::ostringstream dbg;
+#endif
+#pragma omp for
+            for (BodyIndex body_index = 1; body_index < nof_bodies; body_index++)
             {
-                continue;
-            }
-            unsigned int body_size = body.size();
-            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
-            {
-                auto &literal = body[literal_index];
-                if (literal == 0) // Skip if a literal is determined.
+
+                auto &body = program.bodies[body_index];
+                if (body[0] <= 0) // Skip if a body is falsified or satisfied already.
+                {
                     continue;
-                /**
-                 * Keep in mind that the order is important!
-                 */
-                // If a literal is a head, then the body is falsified.
-                if (program.body_to_head[body_index] == (Atom)abs(literal))
-                {
-                    body[0] = -1;
-                    literal = 0;
-                    has_changed = true;
-                    break;
                 }
-                // If a positive literal is a forbidden atom or doesn't have a related head and it's not a fact, then the body is falsified.
-                else if (
-                    literal > 0 &&
-                    (program.forbidden_atoms.contains(literal) ||
-                     (program.heads.contains(literal) == false && program.facts.contains(literal) == false)))
+                unsigned int body_size = body.size();
+                for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
                 {
-                    body[0] = -1;
-                    literal = 0;
-                    has_changed = true;
-                    break;
-                }
-                // If a negative literal is a fact or a required atom, then the body is falsified.
-                else if (
-                    literal < 0 &&
-                    (program.facts.contains(-literal) ||
-                     program.required_atoms.contains(-literal)))
-                {
-                    body[0] = -1;
-                    literal = 0;
-                    has_changed = true;
-                    break;
-                }
-                // If a positive literal is a fact or a required atom, then the literal is determined.
-                else if (
-                    literal > 0 &&
-                    (program.facts.contains(literal) ||
-                     program.required_atoms.contains(literal)))
-                {
-                    body[0]--;
-                    literal = 0;
-                    has_changed = true;
-                }
-                // If a negative literal is a forbidden atom or doesn't have a related head, then the literal is determined.
-                else if (
-                    literal < 0 &&
-                    (program.forbidden_atoms.contains(-literal) ||
-                     (program.heads.contains(-literal) == false && program.facts.contains(-literal) == false)))
-                {
-                    body[0]--;
-                    literal = 0;
-                    has_changed = true;
+                    auto &literal = body[literal_index];
+                    if (literal == 0) // Skip if a literal is determined.
+                        continue;
+                    /**
+                     * Keep in mind that the order is important!
+                     */
+
+                    // If a positive literal is a forbidden atom or doesn't have a related head and it's not a fact, then the body is falsified.
+                    if (
+                        literal > 0 &&
+                        (program.forbidden_atoms.contains(literal) ||
+                         (program.heads.contains(literal) == false && program.facts.contains(literal) == false)))
+                    {
+#ifdef DEBUG
+                        dbg << "Body " << body_index << " has been falsified due to literal " << literal << " being a forbidden atom or not having a related head and not being a fact" << endl;
+#endif
+                        body[0] = -1;
+                        literal = 0;
+                        has_changed = true;
+                        break;
+                    }
+                    // If a negative literal is a fact or a required atom, then the body is falsified.
+                    else if (
+                        literal < 0 &&
+                        (program.facts.contains(-literal) ||
+                         program.required_atoms.contains(-literal)))
+                    {
+#ifdef DEBUG
+                        dbg << "Body " << body_index << " has been falsified due to literal " << literal << " being a fact or a required atom" << endl;
+#endif
+                        body[0] = -1;
+                        literal = 0;
+                        has_changed = true;
+                        break;
+                    }
+                    // If a positive literal is a fact or a required atom, then the literal is determined.
+                    else if (
+                        literal > 0 &&
+                        (program.facts.contains(literal) ||
+                         program.required_atoms.contains(literal)))
+                    {
+#ifdef DEBUG
+                        dbg << "Body " << body_index << " has been simplified by means of determining literal " << literal << " to be a fact or a required atom" << endl;
+#endif
+                        body[0]--;
+                        literal = 0;
+                        has_changed = true;
+                    }
+                    // If a negative literal is a forbidden atom or doesn't have a related head, then the literal is determined.
+                    else if (
+                        literal < 0 &&
+                        (program.forbidden_atoms.contains(-literal) ||
+                         (program.heads.contains(-literal) == false && program.facts.contains(-literal) == false)))
+                    {
+#ifdef DEBUG
+                        dbg << "Body " << body_index << " has been simplified by means of determining literal " << literal << " to be a forbidden atom or not having a related head" << endl;
+#endif
+                        body[0]--;
+                        literal = 0;
+                        has_changed = true;
+                    }
                 }
             }
+#ifdef DEBUG
+#pragma omp critical(debug_output)
+            cout << dbg.str();
+            cout << "The parallel region has finished." << endl;
+#endif
         }
         // #endregion
 
@@ -100,6 +118,9 @@ void simplify(Program &program)
                 for (const auto &body_index : it->second)
                 {
                     program.constraints.insert(body_index);
+#ifdef DEBUG
+                    cout << "Body " << body_index << " has been converted to a constraint as head " << forbidden_atom << " is a forbidden atom" << endl;
+#endif
                 }
                 program.heads.erase(it); // Remove the head from the heads.
             }
@@ -150,6 +171,9 @@ void simplify(Program &program)
                         throw unsatisfied_exception("A single-literal constraint with a positive literal contains a required atom.");
                     program.forbidden_atoms.emplace(literal);
                     forbidden_atoms_to_check.push_back(literal);
+#ifdef DEBUG
+                    cout << "Literal " << literal << " has been converted to a forbidden atom as it is a required atom in a single-literal constraint " << body_index << endl;
+#endif
                 }
                 else if (literal < 0)
                 {
@@ -159,6 +183,9 @@ void simplify(Program &program)
                     if (program.heads.contains(-literal) == false)
                         throw unsatisfied_exception("A single-literal constraint with a negative literal doesn't have a related head.");
                     program.required_atoms.emplace(-literal);
+#ifdef DEBUG
+                    cout << "Literal " << literal << " has been converted to a required atom as it is a forbidden atom in a single-literal constraint " << body_index << endl;
+#endif
                 }
                 body[0] = 0; // The body is determined.
                 should_erase = true;
@@ -184,6 +211,12 @@ void simplify(Program &program)
             bool is_falsified = true;
             bool should_erase = false;
 
+            if (body_indices.empty())
+            {
+                // A head should always have at least one body - this is an error condition
+                throw unsatisfied_exception("A head " + to_string(head) + " (" + program.symbols[head] + ") has no bodies.");
+            }
+
             for (auto body_it = body_indices.begin(); body_it != body_indices.end();)
             {
                 BodyIndex body_index = *body_it;
@@ -197,6 +230,9 @@ void simplify(Program &program)
                     if (body[0] == 0)
                     {
                         is_fact = true;
+#ifdef DEBUG
+                        cout << "Head " << head << " is a fact due to body " << body_index << " being satisfied" << endl;
+#endif
                         break;
                     }
                     if (body[0] > 0)
@@ -224,12 +260,16 @@ void simplify(Program &program)
             }
             else if (is_falsified)
             {
+                // Head has bodies but all are falsified - mark as forbidden
                 if (program.required_atoms.contains(head))
                     throw unsatisfied_exception("A head " + to_string(head) + " (" + program.symbols[head] + ") is both required and forbidden in the program.");
                 program.forbidden_atoms.emplace(head);
                 forbidden_atoms_to_check.push_back(head);
                 should_erase = true;
                 has_changed = true;
+#ifdef DEBUG
+                cout << "Head " << head << " has been converted to a forbidden atom as it is falsified by all its bodies." << endl;
+#endif
             }
             if (should_erase)
             {

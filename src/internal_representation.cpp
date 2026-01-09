@@ -85,12 +85,18 @@ void read_basic_rule(istream &in, Program &program)
                 program.bodies[body_index][0] = 0;
             }
             program.heads.erase(head);
+#ifdef DEBUG
+            cout << head << " has been added to facts" << endl;
+#endif
         }
         else
         {
             program.bodies.emplace_back(move(body));
             program.heads[head].insert(program.bodies.size() - 1);
             program.body_to_head[program.bodies.size() - 1] = head;
+#ifdef DEBUG
+            cout << "Body " << (program.bodies.size() - 1) << " has been added to head " << head << endl;
+#endif
         }
     }
 }
@@ -175,7 +181,6 @@ void read_compute_statements(istream &in, Program &program)
 {
     Atom atom;
     string header;
-    long long int expected_nof_models;
 
     in >> header;
     if (header != "B+")
@@ -188,7 +193,12 @@ void read_compute_statements(istream &in, Program &program)
 
         // Skip if an atom is a fact, as all its rules should be removed now.
         if (program.facts.contains(atom) == false)
+        {
             program.required_atoms.emplace(atom);
+#ifdef DEBUG
+            cout << atom << " has been added to required atoms" << endl;
+#endif
+        }
 
         in >> atom;
     }
@@ -202,11 +212,11 @@ void read_compute_statements(istream &in, Program &program)
         if (program.facts.contains(atom) || program.required_atoms.contains(atom))
             throw unsatisfied_exception("B-'s atom " + to_string(atom) + " is a fact or required in the program");
         program.forbidden_atoms.emplace(atom);
+#ifdef DEBUG
+        cout << atom << " has been added to forbidden atoms" << endl;
+#endif
         in >> atom;
     }
-
-    in >> expected_nof_models;
-    (void)expected_nof_models; // Suppress unused variable warning
 }
 
 void Program::print() const

@@ -4,3 +4,5 @@
 !/bin/.gitkeep
 /build/*
 !/build/.gitkeep
+WARP.md
+out.log
