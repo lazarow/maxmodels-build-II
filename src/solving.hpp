@@ -27,15 +27,14 @@ enum SolvingStrategy
 
 enum LoopFormulasStrategy
 {
-    ALL = 0,
-    FIRST_ONLY = 1,
+    ALL = 0
 };
 
 struct SolvingConfiguration
 {
     SolvingStrategy solving_strategy = SolvingStrategy::ALL_RULES;
     LoopFormulasStrategy loop_formulas_strategy = LoopFormulasStrategy::ALL;
-    string wmaxcdcl_solver_path = "";
+    string external_solver_path = "";
 };
 
 void solve(const Program &program, const SolvingConfiguration &solving_configuration);

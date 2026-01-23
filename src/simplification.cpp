@@ -22,13 +22,9 @@ void simplify(Program &program)
         // #region Simplification of bodies (either rules or constraints)
 #pragma omp parallel reduction(|| : has_changed)
         {
-#ifdef DEBUG
-            std::ostringstream dbg;
-#endif
 #pragma omp for
             for (BodyIndex body_index = 1; body_index < nof_bodies; body_index++)
             {
-
                 auto &body = program.bodies[body_index];
                 if (body[0] <= 0) // Skip if a body is falsified or satisfied already.
                 {
@@ -50,9 +46,6 @@ void simplify(Program &program)
                         (program.forbidden_atoms.contains(literal) ||
                          (program.heads.contains(literal) == false && program.facts.contains(literal) == false)))
                     {
-#ifdef DEBUG
-                        dbg << "Body " << body_index << " has been falsified due to literal " << literal << " being a forbidden atom or not having a related head and not being a fact" << endl;
-#endif
                         body[0] = -1;
                         literal = 0;
                         has_changed = true;
@@ -64,9 +57,6 @@ void simplify(Program &program)
                         (program.facts.contains(-literal) ||
                          program.required_atoms.contains(-literal)))
                     {
-#ifdef DEBUG
-                        dbg << "Body " << body_index << " has been falsified due to literal " << literal << " being a fact or a required atom" << endl;
-#endif
                         body[0] = -1;
                         literal = 0;
                         has_changed = true;
@@ -78,9 +68,6 @@ void simplify(Program &program)
                         (program.facts.contains(literal) ||
                          program.required_atoms.contains(literal)))
                     {
-#ifdef DEBUG
-                        dbg << "Body " << body_index << " has been simplified by means of determining literal " << literal << " to be a fact or a required atom" << endl;
-#endif
                         body[0]--;
                         literal = 0;
                         has_changed = true;
@@ -91,20 +78,12 @@ void simplify(Program &program)
                         (program.forbidden_atoms.contains(-literal) ||
                          (program.heads.contains(-literal) == false && program.facts.contains(-literal) == false)))
                     {
-#ifdef DEBUG
-                        dbg << "Body " << body_index << " has been simplified by means of determining literal " << literal << " to be a forbidden atom or not having a related head" << endl;
-#endif
                         body[0]--;
                         literal = 0;
                         has_changed = true;
                     }
                 }
             }
-#ifdef DEBUG
-#pragma omp critical(debug_output)
-            cout << dbg.str();
-            cout << "The parallel region has finished." << endl;
-#endif
         }
         // #endregion
 
@@ -118,9 +97,6 @@ void simplify(Program &program)
                 for (const auto &body_index : it->second)
                 {
                     program.constraints.insert(body_index);
-#ifdef DEBUG
-                    cout << "Body " << body_index << " has been converted to a constraint as head " << forbidden_atom << " is a forbidden atom" << endl;
-#endif
                 }
                 program.heads.erase(it); // Remove the head from the heads.
             }
@@ -171,9 +147,6 @@ void simplify(Program &program)
                         throw unsatisfied_exception("A single-literal constraint with a positive literal contains a required atom.");
                     program.forbidden_atoms.emplace(literal);
                     forbidden_atoms_to_check.push_back(literal);
-#ifdef DEBUG
-                    cout << "Literal " << literal << " has been converted to a forbidden atom as it is a required atom in a single-literal constraint " << body_index << endl;
-#endif
                 }
                 else if (literal < 0)
                 {
@@ -183,9 +156,6 @@ void simplify(Program &program)
                     if (program.heads.contains(-literal) == false)
                         throw unsatisfied_exception("A single-literal constraint with a negative literal doesn't have a related head.");
                     program.required_atoms.emplace(-literal);
-#ifdef DEBUG
-                    cout << "Literal " << literal << " has been converted to a required atom as it is a forbidden atom in a single-literal constraint " << body_index << endl;
-#endif
                 }
                 body[0] = 0; // The body is determined.
                 should_erase = true;
@@ -230,9 +200,6 @@ void simplify(Program &program)
                     if (body[0] == 0)
                     {
                         is_fact = true;
-#ifdef DEBUG
-                        cout << "Head " << head << " is a fact due to body " << body_index << " being satisfied" << endl;
-#endif
                         break;
                     }
                     if (body[0] > 0)
@@ -267,9 +234,6 @@ void simplify(Program &program)
                 forbidden_atoms_to_check.push_back(head);
                 should_erase = true;
                 has_changed = true;
-#ifdef DEBUG
-                cout << "Head " << head << " has been converted to a forbidden atom as it is falsified by all its bodies." << endl;
-#endif
             }
             if (should_erase)
             {

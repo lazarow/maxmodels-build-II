@@ -15,19 +15,16 @@ int main(int argc, char *argv[])
     {
         argparse::Parser parser;
         auto print_only = parser.AddFlag("print", 'p', "Print the program only and exit");
-        auto skip_simplification = parser.AddFlag("skip-simplification", "Skip the simplification step");
         auto solving_strategy = parser.AddArg<int>("solving-strategy", 's', "The solving strategy to use [0=baseline, 1=all rules, 2=non-extended rules, 3=selective]").Default(1);
         auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=all, 1=first only]").Default(0);
-        auto wmaxcdcl_solver_path = parser.AddArg<string>("wmaxcdcl", "The path to the WMaxCDCL solver").Default("");
+        auto external_solver_path = parser.AddArg<string>("external-solver", "The path to the external solver").Default("");
         parser.ParseArgs(argc, argv);
 
         cout << VERSION << endl;
         cout << COPYRIGHT << endl;
         cout << "% Reading a logic program in the smodels internal format from stdin..." << endl;
         Program program = read_input(cin);
-        // Simplify the program unless the "--skip-simplification" flag is set
-        if ((bool)(*skip_simplification) == false)
-            simplify(program);
+        simplify(program);
         // Print the program only if the "--print" flag is set
         if ((bool)(*print_only))
             program.print();
@@ -35,19 +32,19 @@ int main(int argc, char *argv[])
         solving_configuration.solving_strategy = static_cast<SolvingStrategy>(*solving_strategy);
         if (*solving_strategy < 0 || *solving_strategy > 3)
         {
-            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules), 2 (non-extended rules) or 3 (selective)." << endl;
+            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules), 2 (non-extended rules), 3 (selective)." << endl;
             return 1;
         }
         solving_configuration.loop_formulas_strategy = static_cast<LoopFormulasStrategy>(*loop_formulas_strategy);
-        if (*loop_formulas_strategy < 0 || *loop_formulas_strategy > 2)
+        if (*loop_formulas_strategy < 0 || *loop_formulas_strategy > 0)
         {
-            cerr << "Error: The loop formulas strategy must be one of 0 (maximal), 1 (minimal first), or 2 (minimal smallest)." << endl;
+            cerr << "Error: The loop formulas strategy must be one of 0 (all)." << endl;
             return 1;
         }
-        solving_configuration.wmaxcdcl_solver_path = *wmaxcdcl_solver_path;
+        solving_configuration.external_solver_path = *external_solver_path;
         cout << "% Solving strategy = " << (int)(solving_configuration.solving_strategy) << endl;
         cout << "% Loop formulas strategy = " << (int)(solving_configuration.loop_formulas_strategy) << endl;
-        cout << "% WMaxCDCL solver path = " << solving_configuration.wmaxcdcl_solver_path << endl;
+        cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
         solve(program, solving_configuration);
         return 0;
     }

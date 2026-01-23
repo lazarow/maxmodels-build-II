@@ -34,18 +34,22 @@ private:
     void *solver;
 };
 
-class WMaxCDCLWCNF : public WCNF
+class ExternalSolverWrapperWCNF : public WCNF
 {
 public:
     void init() override;
     void clear() override;
+    void clear_soft_clauses();
     void add_hard(Literal literal_or_zero) override;
+    void add_soft(Literal literal_or_zero);
     void add_soft(Literal literal, Weight weight) override;
     int32_t solve(const SolvingConfiguration &solving_configuration) override;
     int32_t val_lit(Literal literal) override;
 
 private:
     string wcnf;
+    string soft_clauses;
     bool is_hard_clause_open = false;
+    bool is_soft_clause_open = false;
     unordered_map<unsigned int, int32_t> variable_to_value;
 };

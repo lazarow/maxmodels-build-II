@@ -8,8 +8,8 @@
 void solve(const Program &program, const SolvingConfiguration &solving_configuration)
 {
     unique_ptr<WCNF> wcnf;
-    if (solving_configuration.wmaxcdcl_solver_path.empty() == false)
-        wcnf = make_unique<WMaxCDCLWCNF>();
+    if (solving_configuration.external_solver_path.empty() == false)
+        wcnf = make_unique<ExternalSolverWrapperWCNF>();
     else
         wcnf = make_unique<IpamirWCNF>();
     wcnf->init();
@@ -118,8 +118,9 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             nof_first_level_soft_clauses += body_variables.size();
         }
         else if (solving_configuration.solving_strategy == SolvingStrategy::SELECTIVE &&
-                 body_variables.size() > 1)
+                 body_variables.size() > 1 && program.required_atoms.contains(head))
         {
+            cout << "SELECTIVE: " << head << endl;
             for (unsigned int body_variable : body_variables)
                 wcnf->add_soft(-body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
@@ -157,7 +158,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
         for (const auto &[literal, weight] : program.weights)
         {
             Atom atom = literal < 0 ? -literal : literal;
-            if (program.heads.contains(atom))
+            if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
             {
                 wcnf->add_soft(atom_mapper.get_variable(literal), weight * bounded_weights);
                 nof_second_level_soft_clauses++;
@@ -197,12 +198,6 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             {
                 vector<Model> loop_formulas;
                 loop_formulas = compute_maximal_loop_formulas(program, M_minus);
-                // #region Loop formulas strategy
-                if (solving_configuration.loop_formulas_strategy == LoopFormulasStrategy::FIRST_ONLY)
-                {
-                    loop_formulas = {loop_formulas.front()};
-                }
-                // #endregion
                 for (const auto &loop_formula : loop_formulas)
                 {
                     for (Atom atom : loop_formula)

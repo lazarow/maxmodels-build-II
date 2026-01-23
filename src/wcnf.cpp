@@ -37,18 +37,25 @@ int32_t IpamirWCNF::val_lit(Literal literal)
 }
 // #endregion
 
-// #region WMaxCDCL
-void WMaxCDCLWCNF::init()
+// #region External Solver
+void ExternalSolverWrapperWCNF::init()
 {
     wcnf = "";
+    soft_clauses = "";
 }
 
-void WMaxCDCLWCNF::clear()
+void ExternalSolverWrapperWCNF::clear()
 {
     wcnf = "";
+    soft_clauses = "";
 }
 
-void WMaxCDCLWCNF::add_hard(Literal literal_or_zero)
+void ExternalSolverWrapperWCNF::clear_soft_clauses()
+{
+    soft_clauses = "";
+}
+
+void ExternalSolverWrapperWCNF::add_hard(Literal literal_or_zero)
 {
     if (is_hard_clause_open == false)
     {
@@ -66,23 +73,41 @@ void WMaxCDCLWCNF::add_hard(Literal literal_or_zero)
     }
 }
 
-void WMaxCDCLWCNF::add_soft(Literal literal, Weight weight)
+void ExternalSolverWrapperWCNF::add_soft(Literal literal_or_zero)
 {
-    wcnf += to_string(weight) + " " + to_string(-literal) + " 0\n";
+    if (is_soft_clause_open == false)
+    {
+        soft_clauses += to_string(literal_or_zero);
+        is_soft_clause_open = true;
+    }
+    else if (literal_or_zero == 0)
+    {
+        soft_clauses += " 0\n";
+        is_soft_clause_open = false;
+    }
+    else
+    {
+        soft_clauses += " " + to_string(-literal_or_zero);
+    }
 }
 
-int32_t WMaxCDCLWCNF::solve(const SolvingConfiguration &solving_configuration)
+void ExternalSolverWrapperWCNF::add_soft(Literal literal, Weight weight)
 {
-    ExecResult result = run_solver(solving_configuration.wmaxcdcl_solver_path, {}, wcnf);
+    soft_clauses += to_string(weight) + " " + to_string(-literal) + " 0\n";
+}
+
+int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_configuration)
+{
+    ExecResult result = run_solver(solving_configuration.external_solver_path, {}, wcnf + soft_clauses);
     if (result.exit_code != 0)
-        throw runtime_error("Failed to solve the WCNF with WMaxCDCL.");
+        throw runtime_error("Failed to solve the WCNF with the external solver.");
     bool isTimeout = result.stdout_data.find("Segmentation fault") != string::npos;
     isTimeout = isTimeout || result.stdout_data.find("segmentation fault") != string::npos;
     isTimeout = isTimeout || result.stdout_data.find("Segmentation Fault") != string::npos;
     isTimeout = isTimeout || result.stdout_data.find("TIMEOUT") != string::npos;
     if (isTimeout)
     {
-        throw runtime_error("WMaxCDCL timed out.");
+        throw runtime_error("The external solver timed out.");
     }
     if (result.stdout_data.find("s UNSATISFIABLE") != string::npos)
     {
@@ -91,7 +116,7 @@ int32_t WMaxCDCLWCNF::solve(const SolvingConfiguration &solving_configuration)
     size_t model_position = result.stdout_data.find("\nv ");
     if (model_position == string::npos)
     {
-        throw runtime_error("WMaxCDCL's result has not been found.");
+        throw runtime_error("The external solver's result has not been found.");
     }
     unsigned int variable = 1;
     auto output_length = result.stdout_data.length();
@@ -102,7 +127,7 @@ int32_t WMaxCDCLWCNF::solve(const SolvingConfiguration &solving_configuration)
     return 30;
 }
 
-int32_t WMaxCDCLWCNF::val_lit(Literal variable)
+int32_t ExternalSolverWrapperWCNF::val_lit(Literal variable)
 {
     if (variable < 0)
         return variable_to_value.at(-variable) == 0 ? 1 : 0;
