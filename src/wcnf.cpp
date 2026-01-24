@@ -24,6 +24,12 @@ void IpamirWCNF::add_soft(Literal literal, Weight weight)
     ipamir_add_soft_lit(solver, literal, weight);
 }
 
+void IpamirWCNF::add_soft2(Literal literal_or_zero)
+{
+    (void)literal_or_zero;
+    throw logic_error("IpamirWCNF::add_soft2 is not implemented.");
+}
+
 int32_t IpamirWCNF::solve(const SolvingConfiguration &solving_configuration)
 {
     // Mark as unused to avoid compiler warning
@@ -73,7 +79,7 @@ void ExternalSolverWrapperWCNF::add_hard(Literal literal_or_zero)
     }
 }
 
-void ExternalSolverWrapperWCNF::add_soft(Literal literal_or_zero)
+void ExternalSolverWrapperWCNF::add_soft2(Literal literal_or_zero)
 {
     if (is_soft_clause_open == false)
     {

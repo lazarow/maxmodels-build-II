@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
         auto solving_strategy = parser.AddArg<int>("solving-strategy", 's', "The solving strategy to use [0=baseline, 1=all rules, 2=non-extended rules, 3=selective]").Default(1);
         auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=all, 1=first only]").Default(0);
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to the external solver").Default("");
+        auto utmh = parser.AddFlag("utmh", 't', "Use trivially mutually dependent heads simplified encoding");
         parser.ParseArgs(argc, argv);
 
         cout << VERSION << endl;
@@ -27,7 +28,10 @@ int main(int argc, char *argv[])
         simplify(program);
         // Print the program only if the "--print" flag is set
         if ((bool)(*print_only))
+        {
             program.print();
+            return 0;
+        }
         SolvingConfiguration solving_configuration;
         solving_configuration.solving_strategy = static_cast<SolvingStrategy>(*solving_strategy);
         if (*solving_strategy < 0 || *solving_strategy > 3)
@@ -42,9 +46,11 @@ int main(int argc, char *argv[])
             return 1;
         }
         solving_configuration.external_solver_path = *external_solver_path;
+        solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding = *utmh;
         cout << "% Solving strategy = " << (int)(solving_configuration.solving_strategy) << endl;
         cout << "% Loop formulas strategy = " << (int)(solving_configuration.loop_formulas_strategy) << endl;
         cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
+        cout << "% Use trivially mutually dependent heads simplified encoding = " << (solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding ? "true" : "false") << endl;
         solve(program, solving_configuration);
         return 0;
     }

@@ -16,6 +16,7 @@ public:
     virtual void clear() = 0;
     virtual void add_hard(Literal literal_or_zero) = 0;
     virtual void add_soft(Literal literal, Weight weight) = 0;
+    virtual void add_soft2(Literal literal_or_zero) = 0;
     virtual int32_t solve(const SolvingConfiguration &solving_configuration) = 0;
     virtual int32_t val_lit(Literal literal) = 0;
 };
@@ -27,6 +28,7 @@ public:
     void clear() override;
     void add_hard(Literal literal_or_zero) override;
     void add_soft(Literal literal, Weight weight) override;
+    void add_soft2(Literal literal_or_zero) override;
     int32_t solve(const SolvingConfiguration &solving_configuration) override;
     int32_t val_lit(Literal literal) override;
 
@@ -41,8 +43,8 @@ public:
     void clear() override;
     void clear_soft_clauses();
     void add_hard(Literal literal_or_zero) override;
-    void add_soft(Literal literal_or_zero);
     void add_soft(Literal literal, Weight weight) override;
+    void add_soft2(Literal literal_or_zero);
     int32_t solve(const SolvingConfiguration &solving_configuration) override;
     int32_t val_lit(Literal literal) override;
 

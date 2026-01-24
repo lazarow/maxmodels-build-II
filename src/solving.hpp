@@ -35,6 +35,7 @@ struct SolvingConfiguration
     SolvingStrategy solving_strategy = SolvingStrategy::ALL_RULES;
     LoopFormulasStrategy loop_formulas_strategy = LoopFormulasStrategy::ALL;
     string external_solver_path = "";
+    bool use_trivially_mutually_dependent_heads_simplified_encoding = false;
 };
 
 void solve(const Program &program, const SolvingConfiguration &solving_configuration);
