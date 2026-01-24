@@ -120,7 +120,6 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
         else if (solving_configuration.solving_strategy == SolvingStrategy::SELECTIVE &&
                  body_variables.size() > 1 && program.required_atoms.contains(head))
         {
-            cout << "SELECTIVE: " << head << endl;
             for (unsigned int body_variable : body_variables)
                 wcnf->add_soft(-body_variable, 1);
             nof_first_level_soft_clauses += body_variables.size();
