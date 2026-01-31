@@ -1,57 +1,63 @@
+#ifndef GIT_VERSION
+#define GIT_VERSION "{placeholder-git-version}"
+#endif
+
+#ifndef EXTERNAL_SOLVER_PATH
+#define EXTERNAL_SOLVER_PATH ""
+#endif
+
 #include <iostream>
-#include <argparse.h>
+
+#include "argparse.h"
 #include "internal_representation.hpp"
 #include "simplification.hpp"
 #include "solving.hpp"
 
 using namespace std;
 
-const string VERSION = "% maxmodels (build II) 1.0.0";
-const string COPYRIGHT = "% Copyright (c) 2025, Arkadiusz Nowakowski and Wojciech Wieczorek";
+const string VERSION = "% maxmodels (build II) " + string(GIT_VERSION);
+const string COPYRIGHT = "% Copyright (c) 2026, Arkadiusz Nowakowski and Wojciech Wieczorek";
 
 int main(int argc, char *argv[])
 {
     try
     {
         argparse::Parser parser;
-        auto print_only = parser.AddFlag("print", 'p', "Print the program only and exit");
-        auto solving_strategy = parser.AddArg<int>("solving-strategy", 's', "The solving strategy to use [0=baseline, 1=all rules, 2=non-extended rules, 3=selective]").Default(1);
-        auto loop_formulas_strategy = parser.AddArg<int>("loop-formulas-strategy", 'l', "The loop formulas strategy to use [0=all, 1=first only]").Default(0);
-        auto external_solver_path = parser.AddArg<string>("external-solver", "The path to the external solver").Default("");
-        auto utmh = parser.AddFlag("utmh", 't', "Use trivially mutually dependent heads simplified encoding");
+        auto simplification = parser.AddFlag("simplify", "Simplify the program");
+        auto solving = parser.AddFlag("solve", "Encode and solve the program");
+        auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         parser.ParseArgs(argc, argv);
+
+        Program program = read_input(cin);
+
+        if (*simplification)
+        {
+            simplify(program);
+            if (*solving == false)
+            {
+                print_program_in_internal_format(program);
+                return 0;
+            }
+        }
+        else
+        {
+            just_constraints(program);
+        }
 
         cout << VERSION << endl;
         cout << COPYRIGHT << endl;
-        cout << "% Reading a logic program in the smodels internal format from stdin..." << endl;
-        Program program = read_input(cin);
-        simplify(program);
-        // Print the program only if the "--print" flag is set
-        if ((bool)(*print_only))
+
+        if (*solving)
         {
-            program.print();
-            return 0;
+            SolvingConfiguration solving_configuration;
+            solving_configuration.external_solver_path = *external_solver_path;
+            if (solving_configuration.external_solver_path.empty())
+                solving_configuration.external_solver_path = string(EXTERNAL_SOLVER_PATH);
+            if (solving_configuration.external_solver_path.empty())
+                throw runtime_error("The external solver path is not set.");
+            cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
+            solve(program, solving_configuration);
         }
-        SolvingConfiguration solving_configuration;
-        solving_configuration.solving_strategy = static_cast<SolvingStrategy>(*solving_strategy);
-        if (*solving_strategy < 0 || *solving_strategy > 3)
-        {
-            cerr << "Error: The solving strategy must be one of 0 (baseline), 1 (all rules), 2 (non-extended rules), 3 (selective)." << endl;
-            return 1;
-        }
-        solving_configuration.loop_formulas_strategy = static_cast<LoopFormulasStrategy>(*loop_formulas_strategy);
-        if (*loop_formulas_strategy < 0 || *loop_formulas_strategy > 0)
-        {
-            cerr << "Error: The loop formulas strategy must be one of 0 (all)." << endl;
-            return 1;
-        }
-        solving_configuration.external_solver_path = *external_solver_path;
-        solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding = *utmh;
-        cout << "% Solving strategy = " << (int)(solving_configuration.solving_strategy) << endl;
-        cout << "% Loop formulas strategy = " << (int)(solving_configuration.loop_formulas_strategy) << endl;
-        cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
-        cout << "% Use trivially mutually dependent heads simplified encoding = " << (solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding ? "true" : "false") << endl;
-        solve(program, solving_configuration);
         return 0;
     }
     catch (const unsatisfied_exception &error)

@@ -5,7 +5,6 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
-#include <limits>
 
 using namespace std;
 
@@ -14,7 +13,6 @@ using Literal = int;
 using Body = vector<Literal>;
 using BodyIndex = unsigned int;
 using Weight = unsigned long long int;
-const Weight MAX_WEIGHT = numeric_limits<Weight>::max();
 using Model = unordered_set<Atom>;
 
 /**
@@ -23,26 +21,26 @@ using Model = unordered_set<Atom>;
 struct Program
 {
     /**
-     * The bodies of the program. `bi` denotes a body index.
-     * Each body's first element is the number of undetermined literals.
-     * If the first element is -1, then the body is unsatisfied.
-     * On the contrary, if the first element is 0, then the body is satisfied.
+     * Body description:
+     * - Each body's first element is the number of undetermined literals.
+     * - If the first element is -1, then the body is unsatisfied.
+     * - If the first element is 0, then the body is satisfied.
      */
-    vector<Body> bodies;                                 // { b_1, b_2, ..., b_n }
+    unordered_set<Atom> atoms;                           // { a_1, a_2, ..., a_n }
     unordered_map<Atom, unordered_set<BodyIndex>> heads; // h -> { bi_1, bi_2, ..., bi_n }
     unordered_set<BodyIndex> constraints;                // { bi_1, bi_2, ..., bi_n }
+    vector<Body> bodies;                                 // { b_1, b_2, ..., b_n }
     unordered_set<Atom> facts;                           // { a_1, a_2, ..., a_n }
     unordered_set<Atom> required_atoms;                  // B+ = { a_1, a_2, ..., a_n }
     unordered_set<Atom> forbidden_atoms;                 // B- = { a_1, a_2, ..., a_n }
+    unordered_set<Atom> extended_atoms;                  // { a_1, a_2, ..., a_n }
     unordered_map<Literal, Weight> weights;              // l -> w
     unordered_map<Atom, string> symbols;                 // a -> s
-    unordered_map<BodyIndex, Atom> body_to_head;         // bi -> h
 
     Program();
-    /**
-     * Print the program in the form of the internal representation to the console.
-     */
-    void print() const;
+
+    // Helpers
+    vector<string> minimization_rules;
 };
 
 void read_basic_rule(istream &in, Program &program);
@@ -51,6 +49,8 @@ void read_rules(istream &in, Program &program);
 void read_symbols(istream &in, Program &program);
 void read_compute_statements(istream &in, Program &program);
 Program read_input(istream &in);
+
+void print_program_in_internal_format(const Program &program);
 
 class unsatisfied_exception : public logic_error
 {
@@ -68,6 +68,7 @@ public:
     satisfied_exception(const Program &program, const Model &stable_model) : logic_error("The program is satisfied.")
     {
         cout << "ANSWER" << endl;
+
         unordered_set<Atom> answer_set;
         for (const auto &atom : program.facts)
             answer_set.insert(atom);
@@ -81,6 +82,7 @@ public:
                 cout << program.symbols.at(atom) << " ";
         }
         cout << endl;
+
         if (program.weights.size() > 0)
         {
             Weight cost = 0;

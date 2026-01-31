@@ -5,167 +5,39 @@
 #include "stable_model.hpp"
 #include "loop_formulas.hpp"
 #include "wcnf.hpp"
+#include "encoding.hpp"
 
-pair<unordered_set<Atom>, unordered_set<Atom>> extract_trivially_mutually_dependent_heads(const Program &program);
+using namespace std;
 
 void solve(const Program &program, const SolvingConfiguration &solving_configuration)
 {
-    unique_ptr<WCNF> wcnf;
-    if (solving_configuration.external_solver_path.empty() == false)
-        wcnf = make_unique<ExternalSolverWrapperWCNF>();
-    else
-        wcnf = make_unique<IpamirWCNF>();
+    unique_ptr<WCNF> wcnf = make_unique<ExternalSolverWrapperWCNF>();
     wcnf->init();
 
     AtomMapper atom_mapper;
     unordered_map<BodyIndex, unsigned int> body_to_variable;
-    unordered_map<Atom, unsigned int> atom_to_nof_bodies;
 
-    unordered_set<Atom> weighted_heads_with_trivial_mutual_dependency;
-    unordered_set<Atom> unweighted_heads_with_trivial_mutual_dependency;
-    if (solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding)
-    {
-        tie(weighted_heads_with_trivial_mutual_dependency,
-            unweighted_heads_with_trivial_mutual_dependency) = extract_trivially_mutually_dependent_heads(program);
-    }
-
-    // #region Step 1: Encoding normal rules.
-    unsigned int nof_first_level_soft_clauses = 0;
-    /**
-     * Consider:
-     * a <- b, not c.
-     * a <- not d.
-     * a <- e.
-     * Completion:
-     * (a ⇔ r1 ∨ r2 ∨ r3) ∧ (r1 ⇔ b ∧ ¬c) ∧ (r2 ⇔ ¬d) ∧ (r3 ⇔ e)
-     * CNF:
-     * (r1 ∨ r2 ∨ r3 ∨ ¬a) ∧ (¬r1 ∨ a) ∧ (¬r2 ∨ a) ∧ (¬r3 ∨ a) ∧
-     * (r1 ∨ ¬b ∨ c) ∧ (b ∨ ¬r1) ∧ (¬c ∨ ¬r1) ∧
-     * (r2 ∨ d) ∧ (¬d ∨ ¬r2) ∧
-     * (r3 ∨ ¬e) ∧ (e ∨ ¬r3)
-     * where r1, r2 and r3 are additional variables denoted rules' bodies.
-     */
-    for (const auto &[head, body_indices] : program.heads)
-    {
-        if (solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding)
-        {
-            // Assume weighted_heads_with_trivial_mutual_dependency is available in this scope
-            if (weighted_heads_with_trivial_mutual_dependency.contains(head))
-            {
-                wcnf->add_hard(atom_mapper.get_variable(head));
-                wcnf->add_hard(-atom_mapper.get_variable(head));
-                wcnf->add_hard(0);
-                continue;
-            }
-            if (unweighted_heads_with_trivial_mutual_dependency.contains(head))
-                continue;
-        }
-
-        // List of bodies for a head (the Tseitin transformation).
-        vector<unsigned int> body_variables;
-        for (const auto &body_index : body_indices)
-        {
-            const auto &body = program.bodies[body_index];
-            if (body[0] < 0)
-                // All falsified rules should be removed during the simplification.
-                throw logic_error("A rule should be removed during the simplification.");
-            else if (body[0] == 0)
-                // Justifying a fact during the simplification should remove a head and its related bodies.
-                throw logic_error("An encoded rule cannot be a fact.");
-
-            // Create a new variable for a body.
-            unsigned int body_variable = atom_mapper.get_next_variable();
-            body_variables.push_back(body_variable);
-            body_to_variable[body_index] = body_variable;
-
-            // (¬r1 ∨ a)
-            // Skip if `a` is known to be true, i.e., (¬r1 ∨ true) = true.
-            if (program.required_atoms.contains(head) == false)
-            {
-                wcnf->add_hard(-body_variable);
-                wcnf->add_hard(atom_mapper.get_variable(head));
-                wcnf->add_hard(0);
-            }
-
-            // (b ∨ ¬r1) ∧ (¬c ∨ ¬r1)
-            unsigned int body_size = body.size();
-            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
-            {
-                if (body[literal_index] != 0) // Skip if a literal is determined.
-                {
-                    wcnf->add_hard(atom_mapper.get_variable(body[literal_index]));
-                    wcnf->add_hard(-body_variable);
-                    wcnf->add_hard(0);
-                }
-            }
-            // (r1 ∨ ¬b ∨ c)
-            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
-            {
-                if (body[literal_index] != 0) // Skip if a literal is determined.
-                {
-                    wcnf->add_hard(-atom_mapper.get_variable(body[literal_index]));
-                }
-            }
-            wcnf->add_hard(body_variable);
-            wcnf->add_hard(0);
-        }
-        if (body_variables.empty())
-            // A head must have at least one active rule.
-            throw logic_error("An encoded head has no body.");
-
-        /**
-         * (r1 ∨ r2 ∨ r3 ∨ ¬a)
-         * If `a` is true then:
-         * (r1 ∨ r2 ∨ r3 ∨ ¬a) = (r1 ∨ r2 ∨ r3 ∨ false) = (r1 ∨ r2 ∨ r3)
-         */
-        for (unsigned int body_variable : body_variables)
-        {
-            wcnf->add_hard(body_variable);
-        }
-        if (program.required_atoms.contains(head) == false)
-        {
-            wcnf->add_hard(-atom_mapper.get_variable(head));
-        }
-        wcnf->add_hard(0);
-
-        // #region The First Level of Weights: Solving strategy
-        if (solving_configuration.solving_strategy == SolvingStrategy::ALL_RULES)
-        {
-            for (unsigned int body_variable : body_variables)
-                wcnf->add_soft(-body_variable, 1);
-            nof_first_level_soft_clauses += body_variables.size();
-        }
-        else if (solving_configuration.solving_strategy == SolvingStrategy::NON_AUXILIARY_RULES &&
-                 program.symbols.contains(head))
-        {
-            for (unsigned int body_variable : body_variables)
-                wcnf->add_soft(-body_variable, 1);
-            nof_first_level_soft_clauses += body_variables.size();
-        }
-        else if (solving_configuration.solving_strategy == SolvingStrategy::SELECTIVE &&
-                 body_variables.size() > 1 && program.required_atoms.contains(head))
-        {
-            for (unsigned int body_variable : body_variables)
-                wcnf->add_soft(-body_variable, 1);
-            nof_first_level_soft_clauses += body_variables.size();
-        }
-        // #endregion
-    }
+    // #region Encoding
+    if (program.extended_atoms.empty() == false)
+        lp2sat_like(program, wcnf, body_to_variable, atom_mapper);
+    else
+        clark_completion(program, wcnf, body_to_variable, atom_mapper);
     // #endregion
 
-    // #region Step 2: Encoding Constraints.
+    // #region Constraints
     for (const auto &body_index : program.constraints)
     {
         const auto &body = program.bodies[body_index];
         if (body[0] < 0)
-            continue;
+            throw logic_error("A constraint should be removed during the simplification.");
         else if (body[0] == 0)
-            throw logic_error("An encoded constraint cannot be satisfied.");
+            throw logic_error("A constraint is satisfied.");
 
         unsigned int body_size = body.size();
         for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
         {
-            if (body[literal_index] != 0) // Skip if a literal is determined.
+            // Skip if a literal is determined.
+            if (body[literal_index] != 0)
             {
                 wcnf->add_hard(-atom_mapper.get_variable(body[literal_index]));
             }
@@ -174,10 +46,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     }
     // #endregion
 
-    // #region Step 3: The Second Level of Weights (optimization).
-    unsigned int nof_second_level_soft_clauses = 0;
-    unsigned int bounded_weights = nof_first_level_soft_clauses + 1;
-
+    // #region Soft Clauses
     if (program.weights.size() > 0)
     {
         for (const auto &[literal, weight] : program.weights)
@@ -185,16 +54,13 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             Atom atom = literal < 0 ? -literal : literal;
             if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
             {
-                wcnf->add_soft(atom_mapper.get_variable(literal), weight * bounded_weights);
-                nof_second_level_soft_clauses++;
+                wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
             }
         }
     }
-    cout << "% The number of soft clauses of 1st level: " << nof_first_level_soft_clauses << endl;
-    cout << "% The number of soft clauses of 2nd level: " << nof_second_level_soft_clauses << endl;
     // #endregion
 
-    // #region Step 4: Solving the problem by means of iMaxHS.
+    // #region Step 4: Solving
     unsigned int nof_iterations = 0;
     while (true)
     {
@@ -207,16 +73,23 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             Model supporting_model;
             for (const auto &[head, body_indices] : program.heads)
             {
-                if (solving_configuration.use_trivially_mutually_dependent_heads_simplified_encoding)
-                {
-                    if (unweighted_heads_with_trivial_mutual_dependency.contains(head))
-                        continue;
-                }
                 if (
                     wcnf->val_lit(atom_mapper.get_variable(head)) > 0 ||
                     program.required_atoms.contains(head))
+                {
                     supporting_model.insert(head);
+                }
             }
+
+            /**
+             * When using level ranking (extended_atoms), the solver returns a stable model
+             * in a single call, so we skip loop formula checking.
+             */
+            if (program.extended_atoms.empty() == false)
+            {
+                throw satisfied_exception(program, supporting_model);
+            }
+
             Model consequences = compute_consequences(program, supporting_model);
             Model M_minus;
             for (Atom atom : supporting_model)
@@ -278,52 +151,4 @@ unsigned int AtomMapper::get_variable(Literal literal)
         atom_to_variable[atom] = get_next_variable();
     }
     return literal < 0 ? -atom_to_variable.at(atom) : atom_to_variable.at(atom);
-}
-
-Atom extract_only_negative_literal_of_head(const Program &program, Atom head)
-{
-    // Head must be a head!
-    if (program.heads.contains(head) == false)
-        return 0;
-    // Head must have only one body!
-    if (program.heads.at(head).size() > 1)
-        return 0;
-    const auto &body = program.bodies[*program.heads.at(head).begin()];
-    // Body must have exactly one undetermined literal!
-    if (body[0] != 1)
-        return 0;
-    unsigned int body_size = body.size();
-    for (unsigned int i = 1; i < body_size; ++i)
-    {
-        if (body[i] < 0)
-        {
-            return (Atom)-body[i];
-            break;
-        }
-    }
-    return 0;
-}
-
-pair<unordered_set<Atom>, unordered_set<Atom>> extract_trivially_mutually_dependent_heads(const Program &program)
-{
-    unordered_set<Atom> weighted_heads_with_trivial_mutual_dependency;
-    unordered_set<Atom> unweighted_heads_with_trivial_mutual_dependency;
-    auto has_weight = [&](Atom atom) -> bool
-    {
-        return program.weights.contains(atom) || program.weights.contains(-atom);
-    };
-    for (const auto &[w_head, body_indices] : program.heads)
-    {
-        if (has_weight(w_head) == false)
-            continue;
-        Atom uw_head = extract_only_negative_literal_of_head(program, w_head);
-        if (has_weight(uw_head))
-            continue;
-        if (w_head == extract_only_negative_literal_of_head(program, uw_head))
-        {
-            weighted_heads_with_trivial_mutual_dependency.insert(w_head);
-            unweighted_heads_with_trivial_mutual_dependency.insert(uw_head);
-        }
-    }
-    return make_pair(weighted_heads_with_trivial_mutual_dependency, unweighted_heads_with_trivial_mutual_dependency);
 }

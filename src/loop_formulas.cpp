@@ -62,7 +62,8 @@ vector<Model> compute_maximal_loop_formulas(const Program &program, const Model 
             const Body &body = program.bodies[body_index];
             if (body[0] < 0)
                 continue;
-            for (unsigned int literal_index = 1; literal_index < body.size(); literal_index++)
+            unsigned int body_size = body.size();
+            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
                 Literal literal = body[literal_index];
                 if (literal > 0 && M_minus.contains(literal))

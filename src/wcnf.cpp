@@ -1,47 +1,5 @@
-#include <ipamir.h>
-
 #include "wcnf.hpp"
 #include "process.hpp"
-
-// #region IPAMIR (iMaxHS)
-void IpamirWCNF::init()
-{
-    solver = ipamir_init();
-}
-
-void IpamirWCNF::clear()
-{
-    ipamir_release(solver);
-}
-
-void IpamirWCNF::add_hard(Literal literal_or_zero)
-{
-    ipamir_add_hard(solver, literal_or_zero);
-}
-
-void IpamirWCNF::add_soft(Literal literal, Weight weight)
-{
-    ipamir_add_soft_lit(solver, literal, weight);
-}
-
-void IpamirWCNF::add_soft2(Literal literal_or_zero)
-{
-    (void)literal_or_zero;
-    throw logic_error("IpamirWCNF::add_soft2 is not implemented.");
-}
-
-int32_t IpamirWCNF::solve(const SolvingConfiguration &solving_configuration)
-{
-    // Mark as unused to avoid compiler warning
-    (void)solving_configuration;
-    return ipamir_solve(solver);
-}
-
-int32_t IpamirWCNF::val_lit(Literal literal)
-{
-    return ipamir_val_lit(solver, literal);
-}
-// #endregion
 
 // #region External Solver
 void ExternalSolverWrapperWCNF::init()
@@ -79,7 +37,7 @@ void ExternalSolverWrapperWCNF::add_hard(Literal literal_or_zero)
     }
 }
 
-void ExternalSolverWrapperWCNF::add_soft2(Literal literal_or_zero)
+void ExternalSolverWrapperWCNF::add_complex_soft(Literal literal_or_zero)
 {
     if (is_soft_clause_open == false)
     {
@@ -93,13 +51,13 @@ void ExternalSolverWrapperWCNF::add_soft2(Literal literal_or_zero)
     }
     else
     {
-        soft_clauses += " " + to_string(-literal_or_zero);
+        soft_clauses += " " + to_string(literal_or_zero);
     }
 }
 
 void ExternalSolverWrapperWCNF::add_soft(Literal literal, Weight weight)
 {
-    soft_clauses += to_string(weight) + " " + to_string(-literal) + " 0\n";
+    soft_clauses += to_string(weight) + " " + to_string(literal) + " 0\n";
 }
 
 int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_configuration)

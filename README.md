@@ -4,7 +4,7 @@ This project is an extended version of the original [maxmodels](https://github.c
 
 ## Installation and compiling
 
-To build **maxmodels (build II)**, you'll need a working Linux, C++20 compiler, GNU make, and access to the CPLEX library (headers and static library). The build process also uses git submodules for dependencies.
+To build **maxmodels (build II)**, you'll need a working Linux, C++20 compiler and GNU make.
 
 ### 1. Clone the repository
 
@@ -13,30 +13,7 @@ git clone <this-repo>
 cd <this-repo>
 ```
 
-### 2. Configure CPLEX environment
-
-Set the following environment variables or edit the Makefile to specify the paths to your CPLEX installation:
-
--   `CPLEX_LIB_DIR`: Absolute or relative path to the CPLEX static libraries (should contain `libcplex.a`)
--   `CPLEX_INC_DIR`: Path to the CPLEX headers (should contain the subdirectory `ilcplex/`)
-
-### 3. Prepare the build environment
-
-Run the following to initialize git submodules and build dependencies:
-
-```sh
-make prepare
-```
-
-### 4. Check prerequisites
-
-Before building, you can verify everything is set up via:
-
-```sh
-make prereqs
-```
-
-### 5. Build the main executable
+### 2. Build the executable file
 
 To build the project, run:
 
@@ -44,4 +21,27 @@ To build the project, run:
 make build
 ```
 
-The main executable will be placed at `bin/maxmodels`.
+The solver will be placed at `bin/maxmodels`.
+
+## Running
+
+You can strictly simplify or encode & solve or both:
+
+-   simplification via `bin/maxmodels --simplify` (returns Smodels Internal Format),
+-   encoding and solving via `bin/maxmodels --solve`,
+-   both: `bin/maxmodels --simplify --solve`.
+
+The solving requires an external MaxSAT solver compatible with the standard WCNF format (after 2022). There two ways of providing a path to the external solver:
+
+1. In `Makefile`, there is the variable `EXTERNAL_SOLVER_PATH`, which put the default path during compilation. By default, the script looks after `wmaxcdcl` in `PATH`.
+2. You can provided the path via `--external-solver=...`.
+
+The solver expects a logic program in Smodels Internal Format. Hence, the example usage of `gringo` and `idlv` is:
+
+-   `gringo --output=smodels program.lp | bin/maxmodels --simplify --solve`,
+-   `dlv --mode=idlv program.lp | bin/maxmodels --simplify --solve`.
+
+The default encoding is Clark Completion and [ASSAT](https://cse.hkust.edu.hk/assat/)-like loop formulas.
+
+There is also [lp2sat](http://www.tcs.hut.fi/Software/lp2sat/)-like compact completion for a program extended with level rankings by means of [lp2lp2](http://www.tcs.hut.fi/Software/lp2sat/), call it like below:  
+`gringo --output=smodels program.lp | bin/maxmodels --simplify | lp2lp2 | bin/maxmodels --solve`

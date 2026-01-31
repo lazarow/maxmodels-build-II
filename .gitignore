@@ -4,4 +4,5 @@
 !/bin/.gitkeep
 /build/*
 !/build/.gitkeep
-out.log
+
+*.log

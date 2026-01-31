@@ -1,3 +1,6 @@
+#include <cmath>
+#include <iostream>
+
 #include "internal_representation.hpp"
 
 Program::Program()
@@ -15,6 +18,37 @@ Program read_input(istream &in)
     return program;
 }
 
+void read_rules(istream &in, Program &program)
+{
+    unsigned int rule_type;
+    in >> rule_type;
+    while (rule_type != 0)
+    {
+        switch (rule_type)
+        {
+        case 1:
+            read_basic_rule(in, program);
+            break;
+        case 2:
+            throw logic_error("Unsupported rule type 2");
+        case 3:
+            throw logic_error("Unsupported rule type 3");
+        case 4:
+            throw logic_error("Unsupported rule type 4");
+        case 5:
+            throw logic_error("Unsupported rule type 5");
+        case 6:
+            read_minimization_rule(in, program);
+            break;
+        case 7:
+            throw logic_error("Unsupported rule type 7");
+        default:
+            throw logic_error("Unsupported rule type: " + to_string(rule_type));
+        }
+        in >> rule_type;
+    }
+}
+
 void read_basic_rule(istream &in, Program &program)
 {
     Atom head;
@@ -27,6 +61,8 @@ void read_basic_rule(istream &in, Program &program)
     in >> head >> nof_literals >> nof_negative_literals;
     // Checking if a head is a fact
     is_fact = program.facts.contains(head);
+    //
+    program.atoms.emplace(head);
 
     // Checking if a head is already mapped
     if (is_fact == false && program.heads.contains(head) == false)
@@ -43,6 +79,9 @@ void read_basic_rule(istream &in, Program &program)
         // If a literal is a head, then skip a body, i.e., a :- a. a :- not a.
         if (literal == head)
             skip_body = true;
+
+        // Adding the literal (here is always positive) to the set of atoms.
+        program.atoms.emplace(literal);
 
         // No need to process literals.
         if (skip_body || is_fact)
@@ -90,25 +129,27 @@ void read_basic_rule(istream &in, Program &program)
         {
             program.bodies.emplace_back(move(body));
             program.heads[head].insert(program.bodies.size() - 1);
-            program.body_to_head[program.bodies.size() - 1] = head;
         }
     }
 }
 
 void read_minimization_rule(istream &in, Program &program)
 {
-    Atom head;
+    string minimization_rule;
+    Atom zero;
     unsigned int nof_literals;
     unsigned int nof_negative_literals;
     Atom literal;
     Weight weight = 0;
     vector<Literal> literals;
-    in >> head >> nof_literals >> nof_negative_literals;
+    in >> zero >> nof_literals >> nof_negative_literals;
+    minimization_rule = "6 " + to_string(zero) + " " + to_string(nof_literals) + " " + to_string(nof_negative_literals);
     literals.reserve(nof_literals);
 
     for (unsigned int i = 0; i < nof_literals; i++)
     {
         in >> literal;
+        minimization_rule += " " + to_string(literal);
         if (nof_negative_literals > 0)
         {
             literals.push_back(-literal);
@@ -123,39 +164,10 @@ void read_minimization_rule(istream &in, Program &program)
     for (unsigned int i = 0; i < nof_literals; i++)
     {
         in >> weight;
+        minimization_rule += " " + to_string(weight);
         program.weights[literals[i]] = weight;
     }
-}
-
-void read_rules(istream &in, Program &program)
-{
-    unsigned int rule_type;
-    in >> rule_type;
-    while (rule_type != 0)
-    {
-        switch (rule_type)
-        {
-        case 1:
-            read_basic_rule(in, program);
-            break;
-        case 2:
-            throw logic_error("Unsupported rule type 2");
-        case 3:
-            throw logic_error("Unsupported rule type 3");
-        case 4:
-            throw logic_error("Unsupported rule type 4");
-        case 5:
-            throw logic_error("Unsupported rule type 5");
-        case 6:
-            read_minimization_rule(in, program);
-            break;
-        case 7:
-            throw logic_error("Unsupported rule type 7");
-        default:
-            throw logic_error("Unsupported rule type: " + to_string(rule_type));
-        }
-        in >> rule_type;
-    }
+    program.minimization_rules.push_back(minimization_rule);
 }
 
 void read_symbols(istream &in, Program &program)
@@ -183,13 +195,11 @@ void read_compute_statements(istream &in, Program &program)
     while (atom != 0)
     {
         if (program.heads.contains(atom) == false && program.facts.contains(atom) == false)
-            throw unsatisfied_exception("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
+            throw logic_error("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
 
-        // Skip if an atom is a fact, as all its rules should be removed now.
+        // Skip if an atom is known as a fact already.
         if (program.facts.contains(atom) == false)
-        {
             program.required_atoms.emplace(atom);
-        }
 
         in >> atom;
     }
@@ -201,59 +211,130 @@ void read_compute_statements(istream &in, Program &program)
     while (atom != 0)
     {
         if (program.facts.contains(atom) || program.required_atoms.contains(atom))
-            throw unsatisfied_exception("B-'s atom " + to_string(atom) + " is a fact or required in the program");
+            throw logic_error("B-'s atom " + to_string(atom) + " is a fact or required in the program");
         program.forbidden_atoms.emplace(atom);
         in >> atom;
     }
+    in >> header;
+    if (header == "E")
+    {
+        in >> atom;
+        while (atom != 0)
+        {
+            program.extended_atoms.emplace(atom);
+            in >> atom;
+        }
+    }
 }
 
-void Program::print() const
+void print_program_in_internal_format(const Program &program)
 {
-    cout << "Facts:" << endl;
-    for (const auto &fact : facts)
+    // It shouldn't happen!
+    if (program.constraints.empty() == false && program.forbidden_atoms.empty())
+        throw logic_error("A program with constraints should have at least one forbidden atom.");
+
+    // #region Facts
+    for (const auto &atom : program.facts)
+        cout << "1 " << atom << " 0 0" << endl;
+    // #endregion
+
+    // #region Constraints
+    Atom constraint_head;
+    if (program.constraints.empty() == false)
     {
-        cout << fact << " ";
+        constraint_head = *program.forbidden_atoms.begin();
+        for (const auto &body_index : program.constraints)
+        {
+            unsigned int nof_literals = 0;
+            unsigned int nof_negative_literals = 0;
+            const auto &body = program.bodies[body_index];
+            // Note: Falsified constraints should be removed by the simplification.
+            unsigned int body_size = body.size();
+            // Note: Literals should be ordered.
+
+            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
+            {
+                if (body[literal_index] != 0)
+                {
+                    nof_literals++;
+                    if (body[literal_index] < 0)
+                        nof_negative_literals++;
+                }
+            }
+            cout << "1 " << constraint_head << " " << nof_literals << " " << nof_negative_literals;
+            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
+            {
+                if (body[literal_index] != 0)
+                {
+                    cout << " " << abs(body[literal_index]);
+                }
+            }
+            cout << endl;
+        }
     }
-    cout << endl;
-    cout << "Required:" << endl;
-    for (const auto &required : required_atoms)
-    {
-        cout << required << " ";
-    }
-    cout << endl;
-    cout << "Forbidden:" << endl;
-    for (const auto &forbidden : forbidden_atoms)
-    {
-        cout << forbidden << " ";
-    }
-    cout << endl;
-    cout << "Weights:" << endl;
-    for (const auto &weight : weights)
-    {
-        cout << weight.first << "@" << weight.second << " ";
-    }
-    cout << endl;
-    cout << "Rules:" << endl;
-    for (const auto &[head, body_indices] : heads)
+    // #endregion
+
+    // #region Rules
+    for (const auto &[head, body_indices] : program.heads)
     {
         for (const auto &body_index : body_indices)
         {
-            cout << head << " <-";
-            for (unsigned int i = 1; i < bodies[body_index].size(); i++)
+            unsigned int nof_literals = 0;
+            unsigned int nof_negative_literals = 0;
+            const auto &body = program.bodies[body_index];
+            // Note: Falsified constraints should be removed by the simplification.
+            unsigned int body_size = body.size();
+            // Note: Literals should be ordered.
+
+            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
             {
-                cout << " " << bodies[body_index][i];
+                if (body[literal_index] != 0)
+                {
+                    nof_literals++;
+                    if (body[literal_index] < 0)
+                        nof_negative_literals++;
+                }
             }
-            cout << " (" << bodies[body_index][0] << " undetermined literals)" << "." << endl;
+            cout << "1 " << head << " " << nof_literals << " " << nof_negative_literals;
+            for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
+            {
+                if (body[literal_index] != 0)
+                {
+                    cout << " " << abs(body[literal_index]);
+                }
+            }
+            cout << endl;
         }
     }
-    cout << "Constraints:" << endl;
-    for (const auto &body_index : constraints)
-    {
-        cout << "<-";
-        for (unsigned int i = 1; i < bodies[body_index].size(); i++)
-        {
-            cout << " " << bodies[body_index][i];
-        }
-        cout << " (" << bodies[body_index][0] << " undetermined literals)" << "." << endl;
-    }
+    // #endregion
+
+    // #region Optimization Rule
+    for (const auto &minimization_rule : program.minimization_rules)
+        cout << minimization_rule << endl;
+    // #endregion
+
+    cout << "0" << endl;
+
+    // #region Symbols
+    for (const auto &[atom, symbol] : program.symbols)
+        cout << atom << " " << symbol << endl;
+    cout << "0" << endl;
+    // #endregion
+
+    // #region B+
+    cout << "B+" << endl;
+    for (const auto &atom : program.required_atoms)
+        cout << atom << endl;
+    cout << "0" << endl;
+    // #endregion
+
+    // #region B-
+    cout << "B-" << endl;
+    if (program.constraints.empty() == false)
+        cout << constraint_head << endl;
+    cout << "0" << endl;
+    // #endregion
+
+    // The number of models. I don't use it.
+    cout << 1 << endl;
 }

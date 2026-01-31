@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
 #include <unordered_map>
 
 #include "internal_representation.hpp"
@@ -9,6 +7,7 @@
 
 using namespace std;
 
+// The remain after IPAMIR.
 class WCNF
 {
 public:
@@ -16,24 +15,9 @@ public:
     virtual void clear() = 0;
     virtual void add_hard(Literal literal_or_zero) = 0;
     virtual void add_soft(Literal literal, Weight weight) = 0;
-    virtual void add_soft2(Literal literal_or_zero) = 0;
+    virtual void add_complex_soft(Literal literal_or_zero) = 0;
     virtual int32_t solve(const SolvingConfiguration &solving_configuration) = 0;
     virtual int32_t val_lit(Literal literal) = 0;
-};
-
-class IpamirWCNF : public WCNF
-{
-public:
-    void init() override;
-    void clear() override;
-    void add_hard(Literal literal_or_zero) override;
-    void add_soft(Literal literal, Weight weight) override;
-    void add_soft2(Literal literal_or_zero) override;
-    int32_t solve(const SolvingConfiguration &solving_configuration) override;
-    int32_t val_lit(Literal literal) override;
-
-private:
-    void *solver;
 };
 
 class ExternalSolverWrapperWCNF : public WCNF
@@ -44,7 +28,7 @@ public:
     void clear_soft_clauses();
     void add_hard(Literal literal_or_zero) override;
     void add_soft(Literal literal, Weight weight) override;
-    void add_soft2(Literal literal_or_zero);
+    void add_complex_soft(Literal literal_or_zero) override;
     int32_t solve(const SolvingConfiguration &solving_configuration) override;
     int32_t val_lit(Literal literal) override;
 

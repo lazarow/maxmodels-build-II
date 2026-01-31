@@ -2,10 +2,15 @@
 
 #include <unordered_map>
 #include <string>
+
 #include "internal_representation.hpp"
-#include "stable_model.hpp"
 
 using namespace std;
+
+struct SolvingConfiguration
+{
+    string external_solver_path = "";
+};
 
 class AtomMapper
 {
@@ -15,27 +20,6 @@ class AtomMapper
 public:
     unsigned int get_next_variable();
     unsigned int get_variable(Literal literal);
-};
-
-enum SolvingStrategy
-{
-    BASELINE = 0,
-    ALL_RULES = 1,
-    NON_AUXILIARY_RULES = 2,
-    SELECTIVE = 3
-};
-
-enum LoopFormulasStrategy
-{
-    ALL = 0
-};
-
-struct SolvingConfiguration
-{
-    SolvingStrategy solving_strategy = SolvingStrategy::ALL_RULES;
-    LoopFormulasStrategy loop_formulas_strategy = LoopFormulasStrategy::ALL;
-    string external_solver_path = "";
-    bool use_trivially_mutually_dependent_heads_simplified_encoding = false;
 };
 
 void solve(const Program &program, const SolvingConfiguration &solving_configuration);
