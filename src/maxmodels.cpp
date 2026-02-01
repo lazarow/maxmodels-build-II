@@ -96,7 +96,9 @@ int main(int argc, char *argv[])
     {
         if (print_benchmark)
         {
-            cerr << benchmark.time << " s. " << benchmark.nof_iterations << " it." << "\t";
+            cerr << fixed;
+            cerr.precision(3);
+            cerr << benchmark.time << " " << benchmark.nof_iterations << " " << "\t";
         }
         return 0;
     }
@@ -104,6 +106,8 @@ int main(int argc, char *argv[])
     {
         if (print_benchmark)
         {
+            cerr << fixed;
+            cerr.precision(3);
             cerr << benchmark.time << " " << benchmark.nof_iterations << " " << "\t";
         }
         return 0;
