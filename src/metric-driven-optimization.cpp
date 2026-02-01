@@ -202,9 +202,9 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     for (auto &[literal, profile] : metric_profiles)
     {
         if (max_score == 0.0)
-            profile.bucket_score = 0;
+            profile.bucket_score = max_metrics_weight;
         else
-            profile.bucket_score = static_cast<int>(floor(max_metrics_weight * profile.score / max_score));
+            profile.bucket_score = static_cast<int>(floor(max_metrics_weight * (1 - profile.score / max_score)));
     }
 
     return metric_profiles;
