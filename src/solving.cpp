@@ -99,8 +99,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             for (const auto &[head, body_indices] : program.heads)
             {
                 if (
-                    wcnf->val_lit(atom_mapper.get_variable(head)) > 0 ||
-                    program.required_atoms.contains(head))
+                    program.required_atoms.contains(head) || wcnf->val_lit(atom_mapper.get_variable(head)) > 0)
                 {
                     supporting_model.insert(head);
                 }
