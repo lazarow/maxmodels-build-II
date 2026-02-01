@@ -52,19 +52,20 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     // #endregion
 
     // #region Soft Clauses
+    unordered_map<Literal, MetricProfile> metric_profiles;
     if (program.weights.size() > 0)
     {
         if (solving_configuration.use_metrics)
         {
-            unordered_map<Literal, MetricProfile> metric_profiles = compute_metric_profiles(program,
-                                                                                            solving_configuration.metric_weights,
-                                                                                            solving_configuration.max_metrics_weight);
+            metric_profiles = compute_metric_profiles(program,
+                                                      solving_configuration.metric_weights,
+                                                      solving_configuration.max_metrics_weight);
             for (const auto &[literal, weight] : program.weights)
             {
                 Atom atom = literal < 0 ? -literal : literal;
                 if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
                 {
-                    wcnf->add_soft(-atom_mapper.get_variable(literal), (solving_configuration.max_metrics_weight + 1) * weight + metric_profiles[literal].bucket_score);
+                    wcnf->add_soft(-atom_mapper.get_variable(literal), solving_configuration.max_metrics_weight * weight + metric_profiles[literal].bucket_score);
                 }
             }
         }

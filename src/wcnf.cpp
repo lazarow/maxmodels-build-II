@@ -63,7 +63,7 @@ void ExternalSolverWrapperWCNF::add_soft(Literal literal, Weight weight)
 int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_configuration)
 {
     ExecResult result = run_solver(solving_configuration.external_solver_path, {}, wcnf + soft_clauses);
-    if (result.exit_code != 0)
+    if (result.exit_code != 0 && result.exit_code != 10 && result.exit_code != 20 && result.exit_code != 30)
         throw runtime_error("Failed to solve the WCNF with the external solver.");
     bool isTimeout = result.stdout_data.find("Segmentation fault") != string::npos;
     isTimeout = isTimeout || result.stdout_data.find("segmentation fault") != string::npos;

@@ -65,6 +65,7 @@ public:
 class satisfied_exception : public logic_error
 {
 public:
+    Weight cost;
     satisfied_exception(const Program &program, const Model &stable_model) : logic_error("The program is satisfied.")
     {
         cout << "ANSWER" << endl;
@@ -85,7 +86,7 @@ public:
 
         if (program.weights.size() > 0)
         {
-            Weight cost = 0;
+            cost = 0;
             Weight maximum_cost = 0;
             for (const auto &[literal, weight] : program.weights)
             {
