@@ -1,6 +1,7 @@
 #include <cmath>
 #include <memory>
 #include <utility>
+#include <chrono>
 #include "solving.hpp"
 #include "stable_model.hpp"
 #include "loop_formulas.hpp"
@@ -9,9 +10,12 @@
 #include "metric-driven-optimization.hpp"
 
 using namespace std;
+using namespace chrono;
 
-void solve(const Program &program, const SolvingConfiguration &solving_configuration)
+void solve(const Program &program, const SolvingConfiguration &solving_configuration, SolvingBenchmark &benchmark)
 {
+    auto start_time = high_resolution_clock::now();
+
     unique_ptr<WCNF> wcnf = make_unique<ExternalSolverWrapperWCNF>();
     wcnf->init();
 
@@ -85,7 +89,10 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
         int32_t result = wcnf->solve(solving_configuration);
         nof_iterations++;
         if (result == 10)
+        {
+            benchmark.time = duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() / 1000.0;
             throw unsatisfied_exception("The program is unsatisfied.");
+        }
         else if (result == 20 || result == 30)
         {
             Model supporting_model;
@@ -105,6 +112,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
              */
             if (program.extended_atoms.empty() == false)
             {
+                benchmark.time = duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() / 1000.0;
                 throw satisfied_exception(program, supporting_model);
             }
 
@@ -114,7 +122,10 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
                 if (consequences.contains(atom) == false)
                     M_minus.insert(atom);
             if (M_minus.empty())
+            {
+                benchmark.time = duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() / 1000.0;
                 throw satisfied_exception(program, supporting_model);
+            }
             else
             {
                 vector<Model> loop_formulas;
@@ -147,6 +158,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
                     wcnf->add_hard(0);
                 }
                 cout << "% Iteration " << nof_iterations << " completed. " << loop_formulas.size() << " loops found." << endl;
+                benchmark.nof_iterations++;
             }
         }
         else

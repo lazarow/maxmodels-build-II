@@ -21,6 +21,9 @@ const string COPYRIGHT = "% Copyright (c) 2026, Arkadiusz Nowakowski and Wojciec
 
 int main(int argc, char *argv[])
 {
+    SolvingBenchmark benchmark;
+    bool print_benchmark = false;
+
     try
     {
         argparse::Parser parser;
@@ -30,6 +33,7 @@ int main(int argc, char *argv[])
         auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
         auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(5);
         auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
+        auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -82,17 +86,26 @@ int main(int argc, char *argv[])
                 cout << weight << " ";
             }
             cout << endl;
+            print_benchmark = *benchmark_flag;
 
-            solve(program, solving_configuration);
+            solve(program, solving_configuration, benchmark);
         }
         return 0;
     }
     catch (const unsatisfied_exception &error)
     {
+        if (print_benchmark)
+        {
+            cerr << benchmark.time << " s. " << benchmark.nof_iterations << " it." << "\t";
+        }
         return 0;
     }
     catch (const satisfied_exception &error)
     {
+        if (print_benchmark)
+        {
+            cerr << benchmark.time << " " << benchmark.nof_iterations << " " << "\t";
+        }
         return 0;
     }
     catch (const logic_error &error)

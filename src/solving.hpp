@@ -15,6 +15,12 @@ struct SolvingConfiguration
     vector<double> metric_weights = {1.0, 1.0, 1.5, 0.5, 1.2, 1.0, 1.5, 2.0, 1.0, 1.5};
 };
 
+struct SolvingBenchmark
+{
+    int nof_iterations = 0;
+    double time = 0.0;
+};
+
 class AtomMapper
 {
     unsigned int current_variable = 1;
@@ -25,4 +31,4 @@ public:
     unsigned int get_variable(Literal literal);
 };
 
-void solve(const Program &program, const SolvingConfiguration &solving_configuration);
+void solve(const Program &program, const SolvingConfiguration &solving_configuration, SolvingBenchmark &benchmark);
