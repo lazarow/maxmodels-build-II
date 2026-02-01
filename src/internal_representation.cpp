@@ -195,7 +195,7 @@ void read_compute_statements(istream &in, Program &program)
     while (atom != 0)
     {
         if (program.heads.contains(atom) == false && program.facts.contains(atom) == false)
-            throw logic_error("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
+            throw unsatisfied_exception("B+'s atom " + to_string(atom) + " is not a head or fact in the program");
 
         // Skip if an atom is known as a fact already.
         if (program.facts.contains(atom) == false)
@@ -211,7 +211,7 @@ void read_compute_statements(istream &in, Program &program)
     while (atom != 0)
     {
         if (program.facts.contains(atom) || program.required_atoms.contains(atom))
-            throw logic_error("B-'s atom " + to_string(atom) + " is a fact or required in the program");
+            throw unsatisfied_exception("B-'s atom " + to_string(atom) + " is a fact or required in the program");
         program.forbidden_atoms.emplace(atom);
         in >> atom;
     }
