@@ -14,7 +14,7 @@ MetricProfile::MetricProfile()
     metrics[SUPPORT_WEIGHT_SUM] = numeric_limits<double>::max();
 }
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights)
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight)
 {
     unordered_map<Literal, MetricProfile> metric_profiles;
 
@@ -204,7 +204,7 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         if (max_score == 0.0)
             profile.bucket_score = 0;
         else
-            profile.bucket_score = static_cast<int>(floor(9.0 * profile.score / max_score));
+            profile.bucket_score = static_cast<int>(floor(max_metrics_weight * profile.score / max_score));
     }
 
     return metric_profiles;

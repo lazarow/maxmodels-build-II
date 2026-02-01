@@ -52,14 +52,15 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     {
         if (solving_configuration.use_metrics)
         {
-            vector<double> metric_weights = {1.0, 1.0, 1.5, 0.5, 1.2, 1.0, 2.0, 1.5, 2.0, 1.0, 1.5};
-            unordered_map<Literal, MetricProfile> metric_profiles = compute_metric_profiles(program, metric_weights);
+            unordered_map<Literal, MetricProfile> metric_profiles = compute_metric_profiles(program,
+                                                                                            solving_configuration.metric_weights,
+                                                                                            solving_configuration.max_metrics_weight);
             for (const auto &[literal, weight] : program.weights)
             {
                 Atom atom = literal < 0 ? -literal : literal;
                 if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
                 {
-                    wcnf->add_soft(-atom_mapper.get_variable(literal), 10 * weight + metric_profiles[literal].bucket_score);
+                    wcnf->add_soft(-atom_mapper.get_variable(literal), (solving_configuration.max_metrics_weight + 1) * weight + metric_profiles[literal].bucket_score);
                 }
             }
         }

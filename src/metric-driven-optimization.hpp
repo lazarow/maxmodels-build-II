@@ -26,4 +26,4 @@ enum Metric
     MIN_ALT_COST,
 };
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights);
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight);

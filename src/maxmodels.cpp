@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
         auto solving = parser.AddFlag("solve", "Encode and solve the program");
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
-        auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(9);
-        auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("1.0,1.0,1.5,0.5,1.2,1.0,1.5,2.0,1.0,1.5");
+        auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(5);
+        auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -65,18 +65,17 @@ int main(int argc, char *argv[])
             cout << "% Has level ranking = " << (program.extended_atoms.empty() == false ? "true" : "false") << endl;
             solving_configuration.max_metrics_weight = *max_metrics_weight;
             cout << "% Maximum metrics weight = " << solving_configuration.max_metrics_weight << endl;
-            if (solving_configuration.metric_weights.size() != NOF_METRICS)
-                throw runtime_error("The number of metric weights is not equal to the number of metrics.");
 
             vector<double> metric_weights_vector;
             metric_weights_vector.reserve(NOF_METRICS);
             stringstream ss(*metric_weights);
             string weight;
             while (getline(ss, weight, ','))
-            {
                 metric_weights_vector.push_back(stod(weight));
-            }
-            solving_configuration.metric_weights = metric_weights_vector;
+            for (size_t i = 0; i < metric_weights_vector.size(); i++)
+                solving_configuration.metric_weights[i] = metric_weights_vector[i];
+            if (solving_configuration.metric_weights.size() != NOF_METRICS)
+                throw runtime_error("The number of metric weights is not equal to the number of metrics. Expected " + to_string(NOF_METRICS) + " weights, got " + to_string(solving_configuration.metric_weights.size()));
             cout << "% Metric weights = ";
             for (const auto &weight : solving_configuration.metric_weights)
             {
