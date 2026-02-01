@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
         auto simplification = parser.AddFlag("simplify", "Simplify the program");
         auto solving = parser.AddFlag("solve", "Encode and solve the program");
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
+        auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
             if (solving_configuration.external_solver_path.empty())
                 throw runtime_error("The external solver path is not set.");
             cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
+            solving_configuration.use_metrics = *use_metrics;
             solve(program, solving_configuration);
         }
         return 0;

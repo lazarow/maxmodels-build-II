@@ -10,6 +10,7 @@ using namespace std;
 struct SolvingConfiguration
 {
     string external_solver_path = "";
+    bool use_metrics = false;
 };
 
 class AtomMapper

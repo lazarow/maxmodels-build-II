@@ -6,6 +6,7 @@
 #include "loop_formulas.hpp"
 #include "wcnf.hpp"
 #include "encoding.hpp"
+#include "metric-driven-optimization.hpp"
 
 using namespace std;
 
@@ -49,12 +50,28 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     // #region Soft Clauses
     if (program.weights.size() > 0)
     {
-        for (const auto &[literal, weight] : program.weights)
+        if (solving_configuration.use_metrics)
         {
-            Atom atom = literal < 0 ? -literal : literal;
-            if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
+            vector<double> metric_weights = {1.0, 1.0, 1.5, 0.5, 1.2, 1.0, 2.0, 1.5, 2.0, 1.0, 1.5};
+            unordered_map<Literal, MetricProfile> metric_profiles = compute_metric_profiles(program, metric_weights);
+            for (const auto &[literal, weight] : program.weights)
             {
-                wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
+                Atom atom = literal < 0 ? -literal : literal;
+                if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
+                {
+                    wcnf->add_soft(-atom_mapper.get_variable(literal), 10 * weight + metric_profiles[literal].bucket_score);
+                }
+            }
+        }
+        else
+        {
+            for (const auto &[literal, weight] : program.weights)
+            {
+                Atom atom = literal < 0 ? -literal : literal;
+                if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
+                {
+                    wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
+                }
             }
         }
     }
