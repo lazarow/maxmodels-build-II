@@ -25,7 +25,6 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     for (const auto &[literal, weight] : program.weights)
     {
         MetricProfile metric_profile;
-        metric_profile.metrics[WEIGHT] = weight;
         metric_profiles[literal] = metric_profile;
         literals.insert(literal);
         atoms.insert(literal < 0 ? -literal : literal);
@@ -134,7 +133,7 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     for (const auto &[literal, weight] : program.weights)
     {
         // weight_density
-        metric_profiles[literal].metrics[WEIGHT_DENSITY] = metric_profiles[literal].metrics[WEIGHT] / (occ[literal] + 1);
+        metric_profiles[literal].metrics[WEIGHT_DENSITY] = weight / (occ[literal] + 1);
 
         // alt_support_count
         metric_profiles[literal].metrics[ALT_SUPPORT_COUNT] = max(.0, metric_profiles[literal].metrics[SUPPORT_COUNT] - 1);

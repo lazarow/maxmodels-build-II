@@ -12,6 +12,7 @@
 #include "internal_representation.hpp"
 #include "simplification.hpp"
 #include "solving.hpp"
+#include "metric-driven-optimization.hpp"
 
 using namespace std;
 
@@ -27,6 +28,8 @@ int main(int argc, char *argv[])
         auto solving = parser.AddFlag("solve", "Encode and solve the program");
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
+        auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(9);
+        auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("1.0,1.0,1.5,0.5,1.2,1.0,1.5,2.0,1.0,1.5");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -58,6 +61,29 @@ int main(int argc, char *argv[])
                 throw runtime_error("The external solver path is not set.");
             cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
             solving_configuration.use_metrics = *use_metrics;
+            cout << "% Use metrics = " << (solving_configuration.use_metrics ? "true" : "false") << endl;
+            cout << "% Has level ranking = " << (program.extended_atoms.empty() == false ? "true" : "false") << endl;
+            solving_configuration.max_metrics_weight = *max_metrics_weight;
+            cout << "% Maximum metrics weight = " << solving_configuration.max_metrics_weight << endl;
+            if (solving_configuration.metric_weights.size() != NOF_METRICS)
+                throw runtime_error("The number of metric weights is not equal to the number of metrics.");
+
+            vector<double> metric_weights_vector;
+            metric_weights_vector.reserve(NOF_METRICS);
+            stringstream ss(*metric_weights);
+            string weight;
+            while (getline(ss, weight, ','))
+            {
+                metric_weights_vector.push_back(stod(weight));
+            }
+            solving_configuration.metric_weights = metric_weights_vector;
+            cout << "% Metric weights = ";
+            for (const auto &weight : solving_configuration.metric_weights)
+            {
+                cout << weight << " ";
+            }
+            cout << endl;
+
             solve(program, solving_configuration);
         }
         return 0;

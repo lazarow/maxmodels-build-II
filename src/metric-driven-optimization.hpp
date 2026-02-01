@@ -11,7 +11,7 @@ struct MetricProfile
     MetricProfile();
 };
 
-const int NOF_METRICS = 11;
+const int NOF_METRICS = 10;
 enum Metric
 {
     OCC_BODY_POS,
@@ -20,7 +20,6 @@ enum Metric
     MIN_BODY_SIZE,
     SUPPORT_COUNT,
     MIN_SUPPORT_BODY_SIZE,
-    WEIGHT,
     WEIGHT_DENSITY,
     SUPPORT_WEIGHT_SUM,
     ALT_SUPPORT_COUNT,
