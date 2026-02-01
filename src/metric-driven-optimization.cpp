@@ -194,17 +194,20 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         }
     }
     double max_score = numeric_limits<double>::lowest();
+    double min_score = numeric_limits<double>::max();
     for (const auto &[literal, profile] : metric_profiles)
     {
         if (profile.score > max_score)
             max_score = profile.score;
+        if (profile.score < min_score)
+            min_score = profile.score;
     }
     for (auto &[literal, profile] : metric_profiles)
     {
-        if (max_score == 0.0)
+        if (max_score == 0.0 || min_score == max_score)
             profile.bucket_score = max_metrics_weight;
         else
-            profile.bucket_score = static_cast<int>(floor(max_metrics_weight * (1 - profile.score / max_score)));
+            profile.bucket_score = static_cast<int>(floor(max_metrics_weight * (1 - (profile.score - min_score) / (max_score - min_score))));
     }
 
     return metric_profiles;
