@@ -9,4 +9,4 @@
 /benchmarks/*/*.lp
 !/benchmarks/*/encoding.lp
 
-/outputs/*
+*sqlite3

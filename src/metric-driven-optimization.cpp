@@ -22,13 +22,18 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     unordered_set<Atom> atoms;
     unordered_map<Literal, unsigned int> occ;
     unordered_map<Literal, vector<double>> support_weight_sums;
+    unordered_map<Atom, unsigned int> avg_body_size_count;
+    unordered_map<Atom, unsigned int> avg_support_body_size_count;
     for (const auto &[literal, weight] : program.weights)
     {
         MetricProfile metric_profile;
+        Atom atom = literal < 0 ? -literal : literal;
         metric_profiles[literal] = metric_profile;
         literals.insert(literal);
-        atoms.insert(literal < 0 ? -literal : literal);
+        atoms.insert(atom);
         occ[literal] = 0;
+        avg_body_size_count[atom] = 0;
+        avg_support_body_size_count[atom] = 0;
     }
 
     for (const auto &[head, body_indices] : program.heads)
@@ -55,6 +60,18 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             if (literals.contains(-head) && body[0] < metric_profiles[-head].metrics[MIN_SUPPORT_BODY_SIZE])
                 metric_profiles[-head].metrics[MIN_SUPPORT_BODY_SIZE] = body[0];
 
+            // avg_support_body_size
+            if (literals.contains(head))
+            {
+                metric_profiles[head].metrics[AVG_SUPPORT_BODY_SIZE] += body[0];
+                avg_support_body_size_count[head]++;
+            }
+            if (literals.contains(-head))
+            {
+                metric_profiles[-head].metrics[AVG_SUPPORT_BODY_SIZE] += body[0];
+                avg_support_body_size_count[-head]++;
+            }
+
             Weight support_weight_sum = 0;
 
             for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
@@ -74,6 +91,18 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
                         metric_profiles[literal].metrics[MIN_BODY_SIZE] = body[0];
                     if (literals.contains(-literal) && body[0] < metric_profiles[-literal].metrics[MIN_BODY_SIZE])
                         metric_profiles[-literal].metrics[MIN_BODY_SIZE] = body[0];
+
+                    // avg_body_size
+                    if (literals.contains(literal))
+                    {
+                        metric_profiles[literal].metrics[AVG_BODY_SIZE] += body[0];
+                        avg_body_size_count[atom]++;
+                    }
+                    if (literals.contains(-literal))
+                    {
+                        metric_profiles[-literal].metrics[AVG_BODY_SIZE] += body[0];
+                        avg_body_size_count[atom]++;
+                    }
 
                     if (literal > 0)
                     {
@@ -135,9 +164,6 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         // weight_density
         metric_profiles[literal].metrics[WEIGHT_DENSITY] = weight / (occ[literal] + 1);
 
-        // alt_support_count
-        metric_profiles[literal].metrics[ALT_SUPPORT_COUNT] = max(.0, metric_profiles[literal].metrics[SUPPORT_COUNT] - 1);
-
         // min_alt_cost
         auto it = find(support_weight_sums[literal].begin(), support_weight_sums[literal].end(), metric_profiles[literal].metrics[SUPPORT_WEIGHT_SUM]);
         if (it != support_weight_sums[literal].end())
@@ -156,6 +182,13 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             }
             metric_profiles[literal].metrics[MIN_ALT_COST] = min_value;
         }
+
+        // avg_body_size
+        Atom atom = literal < 0 ? -literal : literal;
+        if (avg_body_size_count[atom] > 0)
+            metric_profiles[literal].metrics[AVG_BODY_SIZE] /= avg_body_size_count[atom];
+        if (avg_support_body_size_count[atom] > 0)
+            metric_profiles[literal].metrics[AVG_SUPPORT_BODY_SIZE] /= avg_support_body_size_count[atom];
     }
 
     // Normalize all metrics in metric_profiles to 0-1 by (m - min) / (max - min)
