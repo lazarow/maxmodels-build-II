@@ -113,7 +113,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             if (program.extended_atoms.empty() == false)
             {
                 benchmark.time = duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() / 1000.0;
-                throw satisfied_exception(program, supporting_model);
+                throw satisfied_with_metrics_exception(program, supporting_model, metric_profiles);
             }
 
             Model consequences = compute_consequences(program, supporting_model);
@@ -124,7 +124,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             if (M_minus.empty())
             {
                 benchmark.time = duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() / 1000.0;
-                throw satisfied_exception(program, supporting_model);
+                throw satisfied_with_metrics_exception(program, supporting_model, metric_profiles);
             }
             else
             {
