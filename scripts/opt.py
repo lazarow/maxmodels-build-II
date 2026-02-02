@@ -1,0 +1,34 @@
+import optuna
+import subprocess
+import time
+
+instances_filepath=[
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p1.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p2.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p3.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p4.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p5.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p6.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p7.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p8.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p9.lp",
+    "/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/p10.lp"
+]
+encoding_filepath="/mnt/d/Workspaces/research-workspace/2025-aspek-benchmarks/longest-circuit/encoding.lp"
+
+def objective(trial) -> float:
+    input_vector = [trial.suggest_float(f'v{i}', -2, 2) for i in range(10)]
+    start_time = time.perf_counter()
+    for instance_filepath in instances_filepath:
+        result = subprocess.run(
+            ["bash", "maxmodels3.sh", instance_filepath, encoding_filepath] + [",".join([str(x) for x in input_vector])],
+            capture_output=True,
+            text=True
+        )
+    elapsed = time.perf_counter() - start_time
+    return elapsed
+
+study = optuna.create_study()
+study.optimize(objective, n_trials=100)
+
+print(study.best_trial.value, study.best_trial.params)

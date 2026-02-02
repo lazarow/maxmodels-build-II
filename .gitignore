@@ -8,3 +8,5 @@
 *.log
 /benchmarks/*/*.lp
 !/benchmarks/*/encoding.lp
+
+/outputs/*
