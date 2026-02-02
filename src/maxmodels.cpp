@@ -83,12 +83,12 @@ int main(int argc, char *argv[])
             if (solving_configuration.metric_weights.size() != NOF_METRICS)
                 throw runtime_error("The number of metric weights is not equal to the number of metrics. Expected " + to_string(NOF_METRICS) + " weights, got " + to_string(solving_configuration.metric_weights.size()));
 
-            // Generate random metric weights in the range -2 to 2
+            // Generate random metric weights in the range -1 to 1
             if (*random_metric_weights)
             {
                 random_device rd;
                 mt19937 gen(rd());
-                uniform_real_distribution<double> dist(-2.0, 2.0);
+                uniform_real_distribution<double> dist(-1.0, 1.0);
                 solving_configuration.metric_weights.resize(NOF_METRICS);
                 for (size_t i = 0; i < NOF_METRICS; ++i)
                 {
@@ -97,8 +97,15 @@ int main(int argc, char *argv[])
             }
 
             cout << "% Metric weights = ";
+            bool first = true;
             for (const auto &weight : solving_configuration.metric_weights)
-                cout << weight << " ";
+            {
+                if (first)
+                    cout << weight;
+                else
+                    cout << "," << weight;
+                first = false;
+            }
             cout << endl;
 
             print_benchmark = *benchmark_flag;
