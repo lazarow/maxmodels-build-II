@@ -60,12 +60,17 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             metric_profiles = compute_metric_profiles(program,
                                                       solving_configuration.metric_weights,
                                                       solving_configuration.max_metrics_weight);
+            unsigned int bound_factor = 1;
+            for (const auto &[literal, profile] : metric_profiles)
+            {
+                bound_factor += profile.bucket_score;
+            }
             for (const auto &[literal, weight] : program.weights)
             {
                 Atom atom = literal < 0 ? -literal : literal;
                 if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
                 {
-                    wcnf->add_soft(-atom_mapper.get_variable(literal), solving_configuration.max_metrics_weight * weight + metric_profiles[literal].bucket_score);
+                    wcnf->add_soft(-atom_mapper.get_variable(literal), bound_factor * weight + metric_profiles[literal].bucket_score);
                 }
             }
         }
