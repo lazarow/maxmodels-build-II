@@ -7,6 +7,7 @@
 #endif
 
 #include <iostream>
+#include <random>
 
 #include "argparse.h"
 #include "internal_representation.hpp"
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
         auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
         auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(5);
         auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
+        auto random_metric_weights = parser.AddFlag("use-random-metric-weights", "Generate random metric weights in the range -2 to 2");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         parser.ParseArgs(argc, argv);
 
@@ -80,12 +82,25 @@ int main(int argc, char *argv[])
                 solving_configuration.metric_weights[i] = metric_weights_vector[i];
             if (solving_configuration.metric_weights.size() != NOF_METRICS)
                 throw runtime_error("The number of metric weights is not equal to the number of metrics. Expected " + to_string(NOF_METRICS) + " weights, got " + to_string(solving_configuration.metric_weights.size()));
+
+            // Generate random metric weights in the range -2 to 2
+            if (*random_metric_weights)
+            {
+                random_device rd;
+                mt19937 gen(rd());
+                uniform_real_distribution<double> dist(-2.0, 2.0);
+                solving_configuration.metric_weights.resize(NOF_METRICS);
+                for (size_t i = 0; i < NOF_METRICS; ++i)
+                {
+                    solving_configuration.metric_weights[i] = dist(gen);
+                }
+            }
+
             cout << "% Metric weights = ";
             for (const auto &weight : solving_configuration.metric_weights)
-            {
                 cout << weight << " ";
-            }
             cout << endl;
+
             print_benchmark = *benchmark_flag;
 
             solve(program, solving_configuration, benchmark);
