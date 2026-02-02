@@ -6,3 +6,5 @@
 !/build/.gitkeep
 
 *.log
+/benchmarks/*/*.lp
+!/benchmarks/*/encoding.lp
