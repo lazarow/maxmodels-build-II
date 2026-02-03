@@ -216,11 +216,6 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             for (auto &[literal, profile] : metric_profiles)
                 profile.metrics[metric_idx] = (profile.metrics[metric_idx] - min_value) / denom;
         }
-        if (metric_weights[metric_idx] < 0.0)
-        {
-            for (auto &[literal, profile] : metric_profiles)
-                profile.metrics[metric_idx] = 1.0 - profile.metrics[metric_idx];
-        }
     }
 
     for (auto &[literal, profile] : metric_profiles)
@@ -228,7 +223,7 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         profile.score = 0.0;
         for (int metric_idx = 0; metric_idx < NOF_METRICS; ++metric_idx)
         {
-            profile.score += abs(metric_weights[metric_idx]) * profile.metrics[metric_idx];
+            profile.score += metric_weights[metric_idx] * profile.metrics[metric_idx];
         }
     }
     double max_score = numeric_limits<double>::lowest();
@@ -242,8 +237,8 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     }
     for (auto &[literal, profile] : metric_profiles)
     {
-        if (max_score == 0.0 || min_score == max_score)
-            profile.bucket_score = max_metrics_weight;
+        if (min_score == max_score)
+            profile.bucket_score = 0;
         else
             profile.bucket_score = static_cast<int>(floor(max_metrics_weight * (1 - (profile.score - min_score) / (max_score - min_score))));
     }

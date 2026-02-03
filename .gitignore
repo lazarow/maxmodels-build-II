@@ -10,3 +10,4 @@
 !/benchmarks/*/encoding.lp
 
 *sqlite3
+/scripts/*.lp
