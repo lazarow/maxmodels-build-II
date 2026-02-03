@@ -1,6 +1,7 @@
 #include <limits>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include "metric-driven-optimization.hpp"
 
@@ -14,7 +15,7 @@ MetricProfile::MetricProfile()
     metrics[SUPPORT_WEIGHT_SUM] = numeric_limits<double>::max();
 }
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight)
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights)
 {
     unordered_map<Literal, MetricProfile> metric_profiles;
 
@@ -235,6 +236,21 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         if (profile.score < min_score)
             min_score = profile.score;
     }
+    double delta = 0;
+    for (const auto &weight : metric_weights)
+    {
+        delta += abs(weight);
+    }
+    double rho = (max_score - min_score) / delta;
+    unsigned int max_metrics_weight = 0;
+    if (rho < 0.05)
+        max_metrics_weight = 1;
+    else if (rho < 0.15)
+        max_metrics_weight = 3;
+    else
+        max_metrics_weight = 5;
+    cout << "% Max metrics weight = " << max_metrics_weight << endl;
+
     for (auto &[literal, profile] : metric_profiles)
     {
         if (min_score == max_score)

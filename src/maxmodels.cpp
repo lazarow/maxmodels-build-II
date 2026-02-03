@@ -7,7 +7,6 @@
 #endif
 
 #include <iostream>
-#include <random>
 
 #include "argparse.h"
 #include "internal_representation.hpp"
@@ -32,9 +31,7 @@ int main(int argc, char *argv[])
         auto solving = parser.AddFlag("solve", "Encode and solve the program");
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
-        auto max_metrics_weight = parser.AddArg<int>("max-metrics-weight", "The maximum metrics weight").Default(5);
         auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
-        auto random_metric_weights = parser.AddFlag("use-random-metric-weights", "Generate random metric weights in the range -2 to 2");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         parser.ParseArgs(argc, argv);
 
@@ -69,8 +66,6 @@ int main(int argc, char *argv[])
             solving_configuration.use_metrics = *use_metrics;
             cout << "% Use metrics = " << (solving_configuration.use_metrics ? "true" : "false") << endl;
             cout << "% Has level ranking = " << (program.extended_atoms.empty() == false ? "true" : "false") << endl;
-            solving_configuration.max_metrics_weight = *max_metrics_weight;
-            cout << "% Maximum metrics weight = " << solving_configuration.max_metrics_weight << endl;
 
             vector<double> metric_weights_vector;
             metric_weights_vector.reserve(NOF_METRICS);
@@ -82,20 +77,6 @@ int main(int argc, char *argv[])
                 solving_configuration.metric_weights[i] = metric_weights_vector[i];
             if (solving_configuration.metric_weights.size() != NOF_METRICS)
                 throw runtime_error("The number of metric weights is not equal to the number of metrics. Expected " + to_string(NOF_METRICS) + " weights, got " + to_string(solving_configuration.metric_weights.size()));
-
-            // Generate random metric weights in the range -1 to 1
-            if (*random_metric_weights)
-            {
-                random_device rd;
-                mt19937 gen(rd());
-                uniform_real_distribution<double> dist(-1.0, 1.0);
-                solving_configuration.metric_weights.resize(NOF_METRICS);
-                for (size_t i = 0; i < NOF_METRICS; ++i)
-                {
-                    solving_configuration.metric_weights[i] = dist(gen);
-                }
-            }
-
             cout << "% Metric weights = ";
             bool first = true;
             for (const auto &weight : solving_configuration.metric_weights)

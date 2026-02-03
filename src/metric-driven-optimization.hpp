@@ -27,7 +27,7 @@ enum Metric
     MIN_ALT_COST,
 };
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight);
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights);
 
 class satisfied_with_metrics_exception : public satisfied_exception
 {
