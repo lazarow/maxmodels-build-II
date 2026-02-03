@@ -1,6 +1,7 @@
 #pragma once
 
 #include "internal_representation.hpp"
+#include "solving.hpp"
 
 struct MetricProfile
 {
@@ -11,23 +12,25 @@ struct MetricProfile
     MetricProfile();
 };
 
-const int NOF_METRICS = 11;
+const int NOF_METRICS = 13;
 enum Metric
 {
+    WEIGHT_DENSITY,
+    OCC_CONSTRAINT,
+    GLOBAL_IMPACT,
+    CONSTRAINT_PRESSURE,
     OCC_BODY_POS,
     OCC_BODY_NEG,
-    OCC_CONSTRAINT,
     MIN_BODY_SIZE,
     AVG_BODY_SIZE,
     SUPPORT_COUNT,
     MIN_SUPPORT_BODY_SIZE,
     AVG_SUPPORT_BODY_SIZE,
-    WEIGHT_DENSITY,
     SUPPORT_WEIGHT_SUM,
-    MIN_ALT_COST,
+    MIN_ALT_COST
 };
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight);
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const SolvingConfiguration &solving_configuration);
 
 class satisfied_with_metrics_exception : public satisfied_exception
 {

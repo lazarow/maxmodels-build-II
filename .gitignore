@@ -11,3 +11,4 @@
 
 *sqlite3
 /scripts/*.lp
+__pycache__

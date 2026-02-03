@@ -57,9 +57,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     {
         if (solving_configuration.use_metrics)
         {
-            metric_profiles = compute_metric_profiles(program,
-                                                      solving_configuration.metric_weights,
-                                                      solving_configuration.max_metrics_weight);
+            metric_profiles = compute_metric_profiles(program, solving_configuration);
             unsigned int bound_factor = 1;
             for (const auto &[literal, profile] : metric_profiles)
             {

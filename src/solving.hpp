@@ -11,8 +11,8 @@ struct SolvingConfiguration
 {
     string external_solver_path = "";
     bool use_metrics = false;
-    int max_metrics_weight = 9;
-    vector<double> metric_weights = {1.5, 1.5, 1.5, -1.5, -1.5, -2.0, -1.5, -1.5, 1.5, 1.5, 1.5};
+    bool debug_metrics = false;
+    vector<double> metric_weights = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 };
 
 struct SolvingBenchmark

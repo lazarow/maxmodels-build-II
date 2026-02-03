@@ -1,6 +1,7 @@
 #include <limits>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include "metric-driven-optimization.hpp"
 
@@ -14,7 +15,7 @@ MetricProfile::MetricProfile()
     metrics[SUPPORT_WEIGHT_SUM] = numeric_limits<double>::max();
 }
 
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights, const int max_metrics_weight)
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const SolvingConfiguration &solving_configuration)
 {
     unordered_map<Literal, MetricProfile> metric_profiles;
 
@@ -140,22 +141,50 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         }
     }
 
+    unordered_map<Literal, unordered_set<Literal>> co_occurs;
+    unordered_map<Literal, double> constraint_pressures;
     for (const auto &body_index : program.constraints)
     {
         const auto &body = program.bodies[body_index];
         if (body[0] <= 0)
             continue;
         unsigned int body_size = body.size();
+        vector<Literal> co_occurring_literals;
         for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
         {
             Literal literal = body[literal_index];
             if (literal == 0)
                 continue;
+
+            // co_occurs
+            if (co_occurring_literals.size() > 0)
+            {
+                for (const auto &other_literal : co_occurring_literals)
+                {
+                    if (literal != other_literal)
+                    {
+                        co_occurs[literal].insert(other_literal);
+                        co_occurs[other_literal].insert(literal);
+                    }
+                }
+            }
+            co_occurring_literals.push_back(literal);
+
             // occ_constraint
             if (literals.contains(literal))
                 metric_profiles[literal].metrics[OCC_CONSTRAINT]++;
             if (literals.contains(-literal))
                 metric_profiles[-literal].metrics[OCC_CONSTRAINT]++;
+        }
+
+        // constraint_pressure
+        double contrib = 1.0 / co_occurring_literals.size();
+        for (const auto &literal : co_occurring_literals)
+        {
+            if (constraint_pressures.contains(literal))
+                constraint_pressures[literal] += contrib;
+            else
+                constraint_pressures[literal] = contrib;
         }
     }
 
@@ -189,6 +218,18 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             metric_profiles[literal].metrics[AVG_BODY_SIZE] /= avg_body_size_count[atom];
         if (avg_support_body_size_count[atom] > 0)
             metric_profiles[literal].metrics[AVG_SUPPORT_BODY_SIZE] /= avg_support_body_size_count[atom];
+
+        // global_impact
+        if (co_occurs.contains(literal))
+            metric_profiles[literal].metrics[GLOBAL_IMPACT] = co_occurs[literal].size();
+        else
+            metric_profiles[literal].metrics[GLOBAL_IMPACT] = 0;
+
+        // constraint_pressure
+        if (constraint_pressures.contains(literal))
+            metric_profiles[literal].metrics[CONSTRAINT_PRESSURE] = constraint_pressures[literal];
+        else
+            metric_profiles[literal].metrics[CONSTRAINT_PRESSURE] = 0;
     }
 
     // Normalize all metrics in metric_profiles to 0-1 by (m - min) / (max - min)
@@ -216,6 +257,11 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             for (auto &[literal, profile] : metric_profiles)
                 profile.metrics[metric_idx] = (profile.metrics[metric_idx] - min_value) / denom;
         }
+
+        if (solving_configuration.debug_metrics && denom != 0.0)
+        {
+            cout << "% Metric " << metric_idx << " min value = " << min_value << ", max value = " << max_value << ", denom = " << denom << endl;
+        }
     }
 
     for (auto &[literal, profile] : metric_profiles)
@@ -223,7 +269,7 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         profile.score = 0.0;
         for (int metric_idx = 0; metric_idx < NOF_METRICS; ++metric_idx)
         {
-            profile.score += metric_weights[metric_idx] * profile.metrics[metric_idx];
+            profile.score += solving_configuration.metric_weights[metric_idx] * profile.metrics[metric_idx];
         }
     }
     double max_score = numeric_limits<double>::lowest();
@@ -235,12 +281,32 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
         if (profile.score < min_score)
             min_score = profile.score;
     }
+    double delta = 0;
+    for (const auto &weight : solving_configuration.metric_weights)
+    {
+        delta += abs(weight);
+    }
+    double rho = (max_score - min_score) / delta;
+    unsigned int max_metrics_weight = 0;
+    if (rho < 0.05)
+        max_metrics_weight = 1;
+    else if (rho < 0.15)
+        max_metrics_weight = 3;
+    else
+        max_metrics_weight = 5;
+
     for (auto &[literal, profile] : metric_profiles)
     {
         if (min_score == max_score)
             profile.bucket_score = 0;
         else
             profile.bucket_score = static_cast<int>(floor(max_metrics_weight * (1 - (profile.score - min_score) / (max_score - min_score))));
+    }
+
+    if (solving_configuration.debug_metrics)
+    {
+        cout << "% Max metrics weight = " << max_metrics_weight << endl;
+        throw logic_error("Debug metrics");
     }
 
     return metric_profiles;
