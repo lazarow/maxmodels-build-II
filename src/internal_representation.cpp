@@ -239,7 +239,7 @@ void print_program_in_internal_format(const Program &program)
     // #endregion
 
     // #region Constraints
-    Atom constraint_head;
+    Atom constraint_head = 0;
     if (program.constraints.empty() == false)
     {
         constraint_head = *program.forbidden_atoms.begin();
