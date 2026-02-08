@@ -77,6 +77,8 @@ int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_con
     {
         return 10;
     }
+    // Maybe later...
+    // cout << "% External solver result = " << result.stdout_data << endl;
     size_t model_position = result.stdout_data.find("\nv ");
     if (model_position == string::npos)
     {

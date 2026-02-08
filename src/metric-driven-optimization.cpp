@@ -306,7 +306,20 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
     if (solving_configuration.debug_metrics)
     {
         cout << "% Max metrics weight = " << max_metrics_weight << endl;
-        throw logic_error("Debug metrics");
+
+        for (const auto &[literal, profile] : metric_profiles)
+        {
+            Atom atom = literal < 0 ? -literal : literal;
+            string symbol = program.symbols.contains(atom) ? program.symbols.at(atom) : to_string(atom);
+            cout << "% " << (literal > 0 ? "" : "-") << symbol << "," << literal << "," << profile.score << "," << profile.bucket_score;
+            for (int metric_idx = 0; metric_idx < NOF_METRICS; ++metric_idx)
+            {
+                cout << "," << profile.metrics[metric_idx];
+            }
+            cout << endl;
+        }
+
+        throw logic_error("Debug metrics. Skipping the rest of the program.");
     }
 
     return metric_profiles;
