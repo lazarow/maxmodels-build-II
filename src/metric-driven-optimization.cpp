@@ -15,10 +15,7 @@ MetricProfile::MetricProfile()
     metrics[SUPPORT_WEIGHT_SUM] = numeric_limits<double>::max();
 }
 
-<<<<<<< HEAD
-unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const SolvingConfiguration &solving_configuration) == == == =
-                                                                                                                                                      unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const vector<double> &metric_weights)
->>>>>>> 5b59b8b6064a1adc66a4213c8a3f55b620354dd8
+unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &program, const SolvingConfiguration &solving_configuration)
 {
     unordered_map<Literal, MetricProfile> metric_profiles;
 
