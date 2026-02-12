@@ -27,9 +27,9 @@ The solver will be placed at `bin/maxmodels`.
 
 You can strictly simplify or encode & solve or both:
 
--   simplification via `bin/maxmodels --simplify` (returns Smodels Internal Format),
--   encoding and solving via `bin/maxmodels --solve`,
--   both: `bin/maxmodels --simplify --solve`.
+- simplification via `bin/maxmodels --simplify` (returns Smodels Internal Format),
+- encoding and solving via `bin/maxmodels --solve`,
+- both: `bin/maxmodels --simplify --solve`.
 
 The solving requires an external MaxSAT solver compatible with the standard WCNF format (after 2022). There two ways of providing a path to the external solver:
 
@@ -38,10 +38,21 @@ The solving requires an external MaxSAT solver compatible with the standard WCNF
 
 The solver expects a logic program in Smodels Internal Format. Hence, the example usage of `gringo` and `idlv` is:
 
--   `gringo --output=smodels program.lp | bin/maxmodels --simplify --solve`,
--   `dlv --mode=idlv program.lp | bin/maxmodels --simplify --solve`.
+- `gringo --output=smodels program.lp | bin/maxmodels --simplify --solve`,
+- `dlv --mode=idlv program.lp | bin/maxmodels --simplify --solve`.
 
 The default encoding is Clark Completion and [ASSAT](https://cse.hkust.edu.hk/assat/)-like loop formulas.
 
 There is also [lp2sat](http://www.tcs.hut.fi/Software/lp2sat/)-like compact completion for a program extended with level rankings by means of [lp2lp2](http://www.tcs.hut.fi/Software/lp2sat/), call it like below:  
 `gringo --output=smodels program.lp | bin/maxmodels --simplify | lp2lp2 | bin/maxmodels --solve`
+
+## Datasets
+
+To generate datasets (logic programs of 10 well-known problems) run the below commands.
+
+```
+cd datasets/generator
+python generate_from_jsonl.py
+```
+
+The datasets' configuration are encoded as \*.jsonl files. The generated logic programs are placed in the `datasets/data` directory.
