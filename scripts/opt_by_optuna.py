@@ -18,7 +18,7 @@ instances_filepath=[
     "../datasets/data/longest-circuit/p22.lp",
 ]
 
-BASELINE_TIME = 1234.56
+BASELINE_TIME = 409.60
 INSTANCE_TIMEOUT = 600.0
 
 def objective(trial):
@@ -63,7 +63,7 @@ def objective(trial):
 
 sampler = optuna.samplers.CmaEsSampler()
 study = optuna.create_study(
-    study_name="opt_by_optuna",
+    study_name="longest-circuit",
     storage="sqlite:///db.sqlite3",
     direction="minimize",
     sampler=sampler
