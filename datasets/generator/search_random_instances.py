@@ -1,5 +1,7 @@
 import json
+import os
 import random
+import signal
 import subprocess
 import time
 from pathlib import Path
@@ -195,14 +197,26 @@ GENERATOR_BY_PROBLEM = {
 def run_test_instance(logic_program: str, timeout: int, script_path: Path) -> Optional[float]:
     start_time = time.perf_counter()
     try:
-        subprocess.run(
+        proc = subprocess.Popen(
             ["bash", str(script_path)],
-            input=logic_program,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             text=True,
-            capture_output=True,
-            timeout=timeout,
+            start_new_session=True,  # Process group so we can kill entire pipeline on timeout
         )
+        proc.communicate(input=logic_program, timeout=timeout)
     except subprocess.TimeoutExpired:
+        # Kill entire process group (bash + gringo + smodels + maxmodels + wmaxcdcl chain)
+        # Prevents orphaned processes from accumulating on the server
+        if hasattr(os, "killpg"):
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except (ProcessLookupError, OSError):
+                pass
+        else:
+            proc.kill()
+        proc.wait()
         return None
     return time.perf_counter() - start_time
 
