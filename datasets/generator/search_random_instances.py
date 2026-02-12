@@ -84,8 +84,8 @@ def build_minimum_test_set(scale: float, rng: random.Random) -> Dict[str, Any]:
 
 
 def build_weight_bounded_dominating_set(scale: float, rng: random.Random) -> Dict[str, Any]:
-    nof_nodes = int(_lerp(30, 200, scale))
-    edge_prob = _clamp(_jitter(rng, _lerp(0.05, 0.35, scale), 0.05), 0.02, 0.9)
+    nof_nodes = int(_lerp(30, 250, scale))
+    edge_prob = _clamp(_jitter(rng, _lerp(0.05, 0.45, scale), 0.05), 0.02, 0.9)
     max_weight = int(_lerp(3, 12, scale))
     bound_ratio = _clamp(_jitter(rng, _lerp(0.25, 0.65, scale), 0.07), 0.1, 0.9)
     weight_bound = int(max(1, nof_nodes * bound_ratio))
@@ -100,8 +100,8 @@ def build_weight_bounded_dominating_set(scale: float, rng: random.Random) -> Dic
 
 
 def build_visit_all(scale: float, rng: random.Random) -> Dict[str, Any]:
-    rows = int(_lerp(4, 18, scale))
-    cols = int(_lerp(4, 18, scale))
+    rows = int(_lerp(3, 18, scale))
+    cols = int(_lerp(3, 18, scale))
     hole_prob = _clamp(_jitter(rng, _lerp(0.0, 0.25, scale), 0.05), 0.0, 0.7)
     cells = max(1, rows * cols)
     steps = int(cells * _lerp(1.4, 4.0, scale))
@@ -141,8 +141,8 @@ def build_longest_circuit(scale: float, rng: random.Random) -> Dict[str, Any]:
 
 
 def build_stacker_crane(scale: float, rng: random.Random) -> Dict[str, Any]:
-    nof_locations = int(_lerp(6, 30, scale))
-    nof_requests = int(_lerp(6, 45, scale))
+    nof_locations = int(_lerp(4, 30, scale))
+    nof_requests = int(_lerp(4, 45, scale))
     max_distance = int(_lerp(10, 60, scale))
     return {
         "seed": _rand_int(rng, 0, 400000000),
