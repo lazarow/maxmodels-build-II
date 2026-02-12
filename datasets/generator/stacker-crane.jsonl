@@ -4,6 +4,10 @@
 {"config": {"max_distance": 10, "nof_locations": 6, "nof_requests": 6, "seed": 276063022}, "elapsed_seconds": 24.73864628560841, "problem": "stacker-crane", "target_range": [10, 30]}
 {"config": {"max_distance": 10, "nof_locations": 6, "nof_requests": 6, "seed": 229659567}, "elapsed_seconds": 28.507240997627378, "problem": "stacker-crane", "target_range": [10, 30]}
 {"config": {"max_distance": 10, "nof_locations": 6, "nof_requests": 6, "seed": 319496568}, "elapsed_seconds": 21.049806295894086, "problem": "stacker-crane", "target_range": [10, 30]}
+{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 65930728}, "elapsed_seconds": 10.459018789231777, "problem": "stacker-crane", "target_range": [10, 30]}
+{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 5, "seed": 1910793}, "elapsed_seconds": 10.94486482348293, "problem": "stacker-crane", "target_range": [10, 30]}
+{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 5, "seed": 363193595}, "elapsed_seconds": 13.146047183312476, "problem": "stacker-crane", "target_range": [10, 30]}
+{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 357918928}, "elapsed_seconds": 14.590205405838788, "problem": "stacker-crane", "target_range": [10, 30]}
 {"config": {"max_distance": 10, "nof_locations": 6, "nof_requests": 6, "seed": 82721974}, "elapsed_seconds": 45.80674705468118, "problem": "stacker-crane", "target_range": [30, 120]}
 {"config": {"max_distance": 10, "nof_locations": 6, "nof_requests": 6, "seed": 98519949}, "elapsed_seconds": 40.13586338981986, "problem": "stacker-crane", "target_range": [30, 120]}
 {"config": {"max_distance": 11, "nof_locations": 6, "nof_requests": 6, "seed": 337738916}, "elapsed_seconds": 37.93866174668074, "problem": "stacker-crane", "target_range": [30, 120]}
@@ -24,13 +28,3 @@
 {"config": {"max_distance": 11, "nof_locations": 6, "nof_requests": 7, "seed": 3336779}, "elapsed_seconds": 190.91130967717618, "problem": "stacker-crane", "target_range": [120, 240]}
 {"config": {"max_distance": 11, "nof_locations": 6, "nof_requests": 7, "seed": 341184262}, "elapsed_seconds": 152.22483677975833, "problem": "stacker-crane", "target_range": [120, 240]}
 {"config": {"max_distance": 11, "nof_locations": 6, "nof_requests": 7, "seed": 192039335}, "elapsed_seconds": 194.42469889950007, "problem": "stacker-crane", "target_range": [120, 240]}
-{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 65930728}, "elapsed_seconds": 10.459018789231777, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 5, "seed": 1910793}, "elapsed_seconds": 10.94486482348293, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 5, "seed": 363193595}, "elapsed_seconds": 13.146047183312476, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 357918928}, "elapsed_seconds": 14.590205405838788, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 59130427}, "elapsed_seconds": 10.370158450677991, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 220276763}, "elapsed_seconds": 10.136091070249677, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 11, "nof_locations": 4, "nof_requests": 5, "seed": 321871316}, "elapsed_seconds": 10.145729779265821, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 5, "seed": 296906066}, "elapsed_seconds": 11.075854387134314, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 6, "seed": 170561164}, "elapsed_seconds": 20.611956412903965, "problem": "stacker-crane", "target_range": [10, 30]}
-{"config": {"max_distance": 12, "nof_locations": 5, "nof_requests": 6, "seed": 271497727}, "elapsed_seconds": 21.317526349797845, "problem": "stacker-crane", "target_range": [10, 30]}
