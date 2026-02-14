@@ -1,5 +1,91 @@
+#include <cstring>
+#include <sstream>
+
 #include "wcnf.hpp"
 #include "process.hpp"
+
+using namespace std;
+
+// #region WMaxCDCL
+inline bool extract_int_after(const string &s, const char *key, long &out)
+{
+    auto pos = s.find(key);
+    if (pos == string::npos)
+        return false;
+    pos += strlen(key);
+    out = strtol(s.c_str() + pos, nullptr, 10);
+    return true;
+}
+
+inline bool extract_int_before(const string &s, const char *key, long &out)
+{
+    auto pos = s.find(key);
+    if (pos == string::npos)
+        return false;
+    size_t i = pos;
+    while (i > 0 && !isdigit(s[i - 1]))
+        i--;
+    size_t end = i;
+    while (i > 0 && isdigit(s[i - 1]))
+        i--;
+    if (i == end)
+        return false;
+    out = strtol(s.substr(i, end - i).c_str(), nullptr, 10);
+    return true;
+}
+
+inline bool extract_double_after(const string &s, const char *key, double &out)
+{
+    auto pos = s.find(key);
+    if (pos == string::npos)
+        return false;
+    pos += strlen(key);
+    out = strtod(s.c_str() + pos, nullptr);
+    return true;
+}
+
+vector<UBEvent> parse_wmaxcdcl_log(const string &log)
+{
+    vector<UBEvent> events;
+    istringstream iss(log);
+    string line;
+    UBEvent current;
+    bool have_current = false;
+    while (getline(iss, line))
+    {
+        if (line.rfind("c UB=", 0) == 0)
+        {
+            if (have_current)
+            {
+                events.push_back(current);
+            }
+            current = UBEvent{};
+            have_current = true;
+            auto pos = line.find("UB=");
+            current.ub = std::atoi(line.c_str() + pos + 3);
+            if (line.find("fails") != string::npos)
+            {
+                extract_int_after(line, "cnfls=", current.conflicts);
+                extract_int_after(line, "hcnfls=", current.hard_conflicts);
+            }
+            else
+            {
+                extract_int_after(line, "confls=", current.conflicts);
+                extract_int_after(line, "hconfls=", current.hard_conflicts);
+                extract_int_before(line, " fixed vars at L0", current.fixed_vars_L0);
+            }
+            continue;
+        }
+        if (have_current)
+        {
+            extract_double_after(line, "succRate ", current.succ_rate);
+        }
+    }
+    if (have_current)
+        events.push_back(current);
+    return events;
+}
+// #endregion
 
 // #region External Solver
 void ExternalSolverWrapperWCNF::init()
@@ -63,7 +149,7 @@ void ExternalSolverWrapperWCNF::add_soft(Literal literal, Weight weight)
 int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_configuration)
 {
     ExecResult result = run_solver(solving_configuration.external_solver_path, {}, wcnf + soft_clauses);
-    if (result.exit_code != 0 && result.exit_code != 10 && result.exit_code != 20 && result.exit_code != 30)
+    if (result.exit_code != 0 && result.exit_code != 1 && result.exit_code != 10 && result.exit_code != 20 && result.exit_code != 30)
         throw runtime_error("Failed to solve the WCNF with the external solver.");
     bool isTimeout = result.stdout_data.find("Segmentation fault") != string::npos;
     isTimeout = isTimeout || result.stdout_data.find("segmentation fault") != string::npos;
@@ -77,8 +163,17 @@ int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_con
     {
         return 10;
     }
-    // Maybe later...
-    // cout << "% External solver result = " << result.stdout_data << endl;
+    if (solving_configuration.debug_cdcl)
+    {
+        cout << "% CDCL log = " << result.stdout_data << endl;
+        auto ub_events = parse_wmaxcdcl_log(result.stdout_data);
+        for (const auto &ev : ub_events)
+        {
+            cout << "% UB = " << ev.ub << ", conflicts = " << ev.conflicts << ", hard conflicts = " << ev.hard_conflicts << ", fixed vars at L0 = " << ev.fixed_vars_L0 << ", succ rate = " << ev.succ_rate << endl;
+        }
+        // throw unsatisfied_exception("Debug CDCL. Skipping the rest of the program.");
+    }
+
     size_t model_position = result.stdout_data.find("\nv ");
     if (model_position == string::npos)
     {

@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
         auto debug_metrics = parser.AddFlag("debug-metrics", "Debug metric-driven optimization");
         auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
+        auto debug_cdcl = parser.AddFlag("debug-cdcl", "Debug CDCL");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -93,6 +94,8 @@ int main(int argc, char *argv[])
             solving_configuration.debug_metrics = *debug_metrics;
 
             print_benchmark = *benchmark_flag;
+
+            solving_configuration.debug_cdcl = *debug_cdcl;
 
             solve(program, solving_configuration, benchmark);
         }

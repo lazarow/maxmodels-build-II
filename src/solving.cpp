@@ -30,6 +30,8 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
     // #endregion
 
     // #region Constraints
+    vector<pair<Literal, Literal>> mutex_clauses;
+    unordered_set<Literal> mutex_literals;
     for (const auto &body_index : program.constraints)
     {
         const auto &body = program.bodies[body_index];
@@ -39,15 +41,25 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
             throw logic_error("A constraint is satisfied.");
 
         unsigned int body_size = body.size();
+        vector<Literal> literals;
         for (unsigned int literal_index = 1; literal_index < body_size; literal_index++)
         {
             // Skip if a literal is determined.
             if (body[literal_index] != 0)
             {
+                literals.push_back(body[literal_index]);
                 wcnf->add_hard(-atom_mapper.get_variable(body[literal_index]));
             }
         }
         wcnf->add_hard(0);
+
+        if (
+            literals.size() == 2 && program.weights.contains(-literals[0]) && program.weights.contains(-literals[1]) && program.weights.at(-literals[0]) == program.weights.at(-literals[1]))
+        {
+            mutex_literals.insert(-literals[0]);
+            mutex_literals.insert(-literals[1]);
+            mutex_clauses.push_back(make_pair(literals[0], literals[1]));
+        }
     }
     // #endregion
 
@@ -74,12 +86,36 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
         }
         else
         {
+            unordered_map<Literal, unsigned int> relaxation_var;
             for (const auto &[literal, weight] : program.weights)
             {
                 Atom atom = literal < 0 ? -literal : literal;
-                if (program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
+                if (
+                    program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
                 {
-                    wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
+                    if (mutex_literals.contains(literal))
+                    {
+                        unsigned int atom_var = atom_mapper.get_variable(literal);
+                        unsigned int r = atom_mapper.get_next_variable();
+                        relaxation_var[literal] = r;
+                        wcnf->add_hard(-atom_var);
+                        wcnf->add_hard(r);
+                        wcnf->add_hard(0);
+                        wcnf->add_soft(-r, weight);
+                    }
+                    else
+                    {
+                        wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
+                    }
+                }
+            }
+            for (const auto &[literal1, literal2] : mutex_clauses)
+            {
+                if (relaxation_var.contains(literal1) && relaxation_var.contains(literal2))
+                {
+                    wcnf->add_hard(-relaxation_var[literal1]);
+                    wcnf->add_hard(-relaxation_var[literal2]);
+                    wcnf->add_hard(0);
                 }
             }
         }

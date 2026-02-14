@@ -13,6 +13,7 @@ struct SolvingConfiguration
     bool use_metrics = false;
     bool debug_metrics = false;
     vector<double> metric_weights = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bool debug_cdcl = false;
 };
 
 struct SolvingBenchmark

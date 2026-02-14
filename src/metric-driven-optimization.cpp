@@ -319,7 +319,7 @@ unordered_map<Literal, MetricProfile> compute_metric_profiles(const Program &pro
             cout << endl;
         }
 
-        throw logic_error("Debug metrics. Skipping the rest of the program.");
+        throw unsatisfied_exception("Debug metrics. Skipping the rest of the program.");
     }
 
     return metric_profiles;
