@@ -8,23 +8,6 @@
 
 using namespace std;
 
-// #region CDCL
-struct UBEvent
-{
-    int ub = -1;
-    long conflicts = -1;
-    long hard_conflicts = -1;
-    long fixed_vars_L0 = 0;
-    double succ_rate = -1.0;
-};
-
-inline bool extract_int_after(const string &s, const char *key, long &out);
-inline bool extract_int_before(const string &s, const char *key, long &out);
-inline bool extract_double_after(const string &s, const char *key, double &out);
-
-vector<UBEvent> parse_wmaxcdcl_log(const string &log);
-// #endregion
-
 // The remain after IPAMIR.
 class WCNF
 {

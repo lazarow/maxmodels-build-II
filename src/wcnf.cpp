@@ -6,86 +6,34 @@
 
 using namespace std;
 
-// #region WMaxCDCL
-inline bool extract_int_after(const string &s, const char *key, long &out)
+auto extract_after_colon = [](const string &line) -> string
 {
-    auto pos = s.find(key);
-    if (pos == string::npos)
-        return false;
-    pos += strlen(key);
-    out = strtol(s.c_str() + pos, nullptr, 10);
-    return true;
-}
-
-inline bool extract_int_before(const string &s, const char *key, long &out)
-{
-    auto pos = s.find(key);
-    if (pos == string::npos)
-        return false;
-    size_t i = pos;
-    while (i > 0 && !isdigit(s[i - 1]))
-        i--;
-    size_t end = i;
-    while (i > 0 && isdigit(s[i - 1]))
-        i--;
-    if (i == end)
-        return false;
-    out = strtol(s.substr(i, end - i).c_str(), nullptr, 10);
-    return true;
-}
-
-inline bool extract_double_after(const string &s, const char *key, double &out)
-{
-    auto pos = s.find(key);
-    if (pos == string::npos)
-        return false;
-    pos += strlen(key);
-    out = strtod(s.c_str() + pos, nullptr);
-    return true;
-}
-
-vector<UBEvent> parse_wmaxcdcl_log(const string &log)
-{
-    vector<UBEvent> events;
-    istringstream iss(log);
-    string line;
-    UBEvent current;
-    bool have_current = false;
-    while (getline(iss, line))
+    auto pos = line.find(':');
+    if (pos != string::npos)
     {
-        if (line.rfind("c UB=", 0) == 0)
-        {
-            if (have_current)
-            {
-                events.push_back(current);
-            }
-            current = UBEvent{};
-            have_current = true;
-            auto pos = line.find("UB=");
-            current.ub = std::atoi(line.c_str() + pos + 3);
-            if (line.find("fails") != string::npos)
-            {
-                extract_int_after(line, "cnfls=", current.conflicts);
-                extract_int_after(line, "hcnfls=", current.hard_conflicts);
-            }
-            else
-            {
-                extract_int_after(line, "confls=", current.conflicts);
-                extract_int_after(line, "hconfls=", current.hard_conflicts);
-                extract_int_before(line, " fixed vars at L0", current.fixed_vars_L0);
-            }
-            continue;
-        }
-        if (have_current)
-        {
-            extract_double_after(line, "succRate ", current.succ_rate);
-        }
+        auto rest = line.substr(pos + 1);
+        auto first_digit = rest.find_first_not_of(" \t");
+        if (first_digit != string::npos)
+            rest = rest.substr(first_digit);
+        auto last_digit = rest.find_first_of(" \t\n\r");
+        if (last_digit != string::npos)
+            rest = rest.substr(0, last_digit);
+        rest.erase(rest.find_last_not_of(" \t\r\n") + 1);
+        return rest;
     }
-    if (have_current)
-        events.push_back(current);
-    return events;
-}
-// #endregion
+    return "";
+};
+
+auto extract_full_line = [](const string &keyword, const string &stdout_data) -> string
+{
+    size_t pos = stdout_data.find(keyword);
+    if (pos == string::npos)
+        return "";
+    size_t endpos = stdout_data.find('\n', pos);
+    if (endpos == string::npos)
+        endpos = stdout_data.size();
+    return stdout_data.substr(pos, endpos - pos);
+};
 
 // #region External Solver
 void ExternalSolverWrapperWCNF::init()
@@ -163,15 +111,51 @@ int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_con
     {
         return 10;
     }
+
     if (solving_configuration.debug_cdcl)
     {
-        cout << "% CDCL log = " << result.stdout_data << endl;
-        auto ub_events = parse_wmaxcdcl_log(result.stdout_data);
-        for (const auto &ev : ub_events)
+        // cout << "% CDCL log = " << result.stdout_data << endl;
+
+        // Parse and print relevant stats from the solver output if --debug-cdcl is enabled
+        istringstream iss(result.stdout_data);
+        string line;
+        string cpu_time, conflicts, decisions, propagations, conflict_literals;
+        string la_execution, lam_execution, sla_time;
+        while (getline(iss, line))
         {
-            cout << "% UB = " << ev.ub << ", conflicts = " << ev.conflicts << ", hard conflicts = " << ev.hard_conflicts << ", fixed vars at L0 = " << ev.fixed_vars_L0 << ", succ rate = " << ev.succ_rate << endl;
+            if (line.find("c CPU time") != string::npos && cpu_time.empty())
+                cpu_time = extract_after_colon(line);
+            else if (line.find("c conflicts") != string::npos && conflicts.empty())
+                conflicts = extract_after_colon(line);
+            else if (line.find("c decisions") != string::npos && decisions.empty())
+                decisions = extract_after_colon(line);
+            else if (line.find("c propagations") != string::npos && propagations.empty())
+                propagations = extract_after_colon(line);
+            else if (line.find("c conflict literals") != string::npos && conflict_literals.empty())
+                conflict_literals = extract_after_colon(line);
+            else if (line.find("LA execution") != string::npos && la_execution.empty())
+                la_execution = extract_after_colon(line);
+            else if (line.find("LAM execution") != string::npos && lam_execution.empty())
+                lam_execution = extract_after_colon(line);
+            else if (line.find("SLA time") != string::npos && sla_time.empty())
+                sla_time = extract_after_colon(line);
         }
-        // throw unsatisfied_exception("Debug CDCL. Skipping the rest of the program.");
+        if (!cpu_time.empty())
+            cout << "% CDCL CPU time: " << cpu_time << endl;
+        if (!conflicts.empty())
+            cout << "% CDCL conflicts: " << conflicts << endl;
+        if (!decisions.empty())
+            cout << "% CDCL decisions: " << decisions << endl;
+        if (!propagations.empty())
+            cout << "% CDCL propagations: " << propagations << endl;
+        if (!conflict_literals.empty())
+            cout << "% CDCL conflict literals: " << conflict_literals << endl;
+        if (!la_execution.empty())
+            cout << "% CDCL LA execution (succ rate): " << la_execution << endl;
+        if (!lam_execution.empty())
+            cout << "% CDCL LAM execution (cores found): " << lam_execution << endl;
+        if (!sla_time.empty())
+            cout << "% CDCL SLA time: " << sla_time << endl;
     }
 
     size_t model_position = result.stdout_data.find("\nv ");

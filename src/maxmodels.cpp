@@ -12,7 +12,6 @@
 #include "internal_representation.hpp"
 #include "simplification.hpp"
 #include "solving.hpp"
-#include "metric-driven-optimization.hpp"
 
 using namespace std;
 
@@ -30,11 +29,9 @@ int main(int argc, char *argv[])
         auto simplification = parser.AddFlag("simplify", "Simplify the program");
         auto solving = parser.AddFlag("solve", "Encode and solve the program");
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
-        auto use_metrics = parser.AddFlag("use-metrics", "Use metric-driven optimization");
-        auto debug_metrics = parser.AddFlag("debug-metrics", "Debug metric-driven optimization");
-        auto metric_weights = parser.AddArg<string>("metric-weights", "The weights of the metrics").Default("");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         auto debug_cdcl = parser.AddFlag("debug-cdcl", "Debug CDCL");
+        auto cost_conflict_hoisting_strategy = parser.AddArg<unsigned int>("cost-conflict-hoisting", "The cost conflict hoisting strategy").Default(0);
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -65,37 +62,25 @@ int main(int argc, char *argv[])
             if (solving_configuration.external_solver_path.empty())
                 throw runtime_error("The external solver path is not set.");
             cout << "% External solver path = " << solving_configuration.external_solver_path << endl;
-            solving_configuration.use_metrics = *use_metrics;
-            cout << "% Use metrics = " << (solving_configuration.use_metrics ? "true" : "false") << endl;
-            cout << "% Has level ranking = " << (program.extended_atoms.empty() == false ? "true" : "false") << endl;
-
-            vector<double> metric_weights_vector;
-            metric_weights_vector.reserve(NOF_METRICS);
-            stringstream ss(*metric_weights);
-            string weight;
-            while (getline(ss, weight, ','))
-                metric_weights_vector.push_back(stod(weight));
-            for (size_t i = 0; i < metric_weights_vector.size(); i++)
-                solving_configuration.metric_weights[i] = metric_weights_vector[i];
-            if (solving_configuration.metric_weights.size() != NOF_METRICS)
-                throw runtime_error("The number of metric weights is not equal to the number of metrics. Expected " + to_string(NOF_METRICS) + " weights, got " + to_string(solving_configuration.metric_weights.size()));
-            cout << "% Metric weights = ";
-            bool first = true;
-            for (const auto &weight : solving_configuration.metric_weights)
+            if (program.extended_atoms.empty() == false)
             {
-                if (first)
-                    cout << weight;
-                else
-                    cout << "," << weight;
-                first = false;
+                cout << "% Program has extended atoms (E segment), so it is assumed that level ranking is used." << endl;
             }
-            cout << endl;
-
-            solving_configuration.debug_metrics = *debug_metrics;
-
             print_benchmark = *benchmark_flag;
-
             solving_configuration.debug_cdcl = *debug_cdcl;
+
+            if (*cost_conflict_hoisting_strategy <= 0 && *cost_conflict_hoisting_strategy >= 2)
+                throw runtime_error("The cost conflict hoisting strategy must be 0 or 1.");
+            if (*cost_conflict_hoisting_strategy == 1)
+            {
+                solving_configuration.cost_conflict_hoisting_strategy = BINARY_CONSTRAINTS;
+                cout << "% Cost conflict hoisting strategy = BINARY_CONSTRAINTS" << endl;
+            }
+            else
+            {
+                solving_configuration.cost_conflict_hoisting_strategy = NONE;
+                cout << "% Cost conflict hoisting strategy = NONE" << endl;
+            }
 
             solve(program, solving_configuration, benchmark);
         }
@@ -107,7 +92,7 @@ int main(int argc, char *argv[])
         {
             cerr << fixed;
             cerr.precision(3);
-            cerr << benchmark.time << " " << benchmark.nof_iterations << "\t";
+            cerr << benchmark.time << " " << benchmark.nof_iterations << endl;
         }
         return 0;
     }
@@ -117,7 +102,7 @@ int main(int argc, char *argv[])
         {
             cerr << fixed;
             cerr.precision(3);
-            cerr << benchmark.time << " " << benchmark.nof_iterations << " " << error.cost << "\t";
+            cerr << benchmark.time << " " << benchmark.nof_iterations << endl;
         }
         return 0;
     }

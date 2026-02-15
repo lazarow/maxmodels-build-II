@@ -7,12 +7,16 @@
 
 using namespace std;
 
+enum CostConflictHoistingStrategy
+{
+    NONE,
+    BINARY_CONSTRAINTS
+};
+
 struct SolvingConfiguration
 {
     string external_solver_path = "";
-    bool use_metrics = false;
-    bool debug_metrics = false;
-    vector<double> metric_weights = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    CostConflictHoistingStrategy cost_conflict_hoisting_strategy = NONE;
     bool debug_cdcl = false;
 };
 
