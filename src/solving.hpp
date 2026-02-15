@@ -7,16 +7,10 @@
 
 using namespace std;
 
-enum CostConflictHoistingStrategy
-{
-    NONE,
-    BINARY_CONSTRAINTS
-};
-
 struct SolvingConfiguration
 {
     string external_solver_path = "";
-    CostConflictHoistingStrategy cost_conflict_hoisting_strategy = NONE;
+    bool cost_conflict_encoding = false;
     bool debug_cdcl = false;
 };
 

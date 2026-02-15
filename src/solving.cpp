@@ -65,7 +65,7 @@ void solve(const Program &program, const SolvingConfiguration &solving_configura
         }
         wcnf->add_hard(0);
 
-        if (solving_configuration.cost_conflict_hoisting_strategy == BINARY_CONSTRAINTS && all_weighted && constraint_cost_conflict_literals.size() > 0)
+        if (solving_configuration.cost_conflict_encoding && all_weighted && constraint_cost_conflict_literals.size() > 0)
         {
             vector<Literal> cost_conflict_clause;
             for (const auto &literal : constraint_cost_conflict_literals)

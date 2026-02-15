@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         auto debug_cdcl = parser.AddFlag("debug-cdcl", "Debug CDCL");
-        auto cost_conflict_hoisting_strategy = parser.AddArg<unsigned int>("cost-conflict-hoisting", "The cost conflict hoisting strategy").Default(0);
+        auto cost_conflict_encoding = parser.AddFlag("cost-conflict-encoding", "Encode cost conflict");
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -68,20 +68,11 @@ int main(int argc, char *argv[])
             }
             print_benchmark = *benchmark_flag;
             solving_configuration.debug_cdcl = *debug_cdcl;
-
-            if (*cost_conflict_hoisting_strategy <= 0 && *cost_conflict_hoisting_strategy >= 2)
-                throw runtime_error("The cost conflict hoisting strategy must be 0 or 1.");
-            if (*cost_conflict_hoisting_strategy == 1)
+            solving_configuration.cost_conflict_encoding = *cost_conflict_encoding;
+            if (solving_configuration.cost_conflict_encoding)
             {
-                solving_configuration.cost_conflict_hoisting_strategy = BINARY_CONSTRAINTS;
-                cout << "% Cost conflict hoisting strategy = BINARY_CONSTRAINTS" << endl;
+                cout << "% Cost conflict encoding = true" << endl;
             }
-            else
-            {
-                solving_configuration.cost_conflict_hoisting_strategy = NONE;
-                cout << "% Cost conflict hoisting strategy = NONE" << endl;
-            }
-
             solve(program, solving_configuration, benchmark);
         }
         return 0;
