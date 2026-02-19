@@ -7,7 +7,7 @@ OBJS := $(SRCS:$(SRC_DIRS)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 GIT_VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-EXTERNAL_SOLVER_PATH := /home/an/maxsat-solvers/WMaxCDCL2024/code/simp/wmaxcdcl_static
+EXTERNAL_SOLVER_PATH := /home/an/maxsat-solvers/WMaxCDCL2024/bin/wmaxcdcl_static
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -std=c++20 -MMD -MP -fopenmp -O3

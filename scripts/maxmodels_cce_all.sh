@@ -1,4 +1,4 @@
-for i in $(seq -w 1 30); do
+for i in $(seq -w 1 15); do
     file="p${i}.lp"
     if [ -f "$file" ]; then
         echo "Processing $file"

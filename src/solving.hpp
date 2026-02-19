@@ -30,4 +30,4 @@ public:
     unsigned int get_variable(Literal literal);
 };
 
-void solve(const Program &program, const SolvingConfiguration &solving_configuration, SolvingBenchmark &benchmark);
+void solve(const Program &program, SolvingConfiguration &solving_configuration, SolvingBenchmark &benchmark);
