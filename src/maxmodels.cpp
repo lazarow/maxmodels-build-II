@@ -16,7 +16,7 @@
 using namespace std;
 
 const string VERSION = "% maxmodels (build II) " + string(GIT_VERSION);
-const string COPYRIGHT = "% Copyright (c) 2026, Arkadiusz Nowakowski and Wojciech Wieczorek";
+const string COPYRIGHT = "% Copyright (c) 2026, Arkadiusz Nowakowski";
 
 int main(int argc, char *argv[])
 {
