@@ -10,7 +10,6 @@ using namespace std;
 struct SolvingConfiguration
 {
     string external_solver_path = "";
-    bool cost_conflict_encoding = false;
     bool debug_cdcl = false;
 };
 
