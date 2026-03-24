@@ -79,9 +79,8 @@ public:
             answer_set.insert(atom);
         for (const auto &atom : answer_set)
         {
-            // TODO: Uncomment this when tests are done
-            // if (program.symbols.contains(atom))
-            //    cout << program.symbols.at(atom) << " ";
+            if (program.symbols.contains(atom))
+                cout << program.symbols.at(atom) << " ";
         }
         cout << "!!! Answer set is hidden due to the test implementation !!!";
         cout << endl;
