@@ -15,7 +15,7 @@ CXXFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 CXXFLAGS += -DEXTERNAL_SOLVER_PATH=\"$(EXTERNAL_SOLVER_PATH)\"
 LDFLAGS := -lpthread -ldl -fopenmp
 
-.PHONY: build clean all
+.PHONY: build clean all install_dependencies
 
 build: $(OBJS)
 	@echo -n "[build] Building maxmodels executable ... "

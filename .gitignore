@@ -6,11 +6,7 @@
 !/build/.gitkeep
 
 *.log
-/benchmarks/*/*.lp
-!/benchmarks/*/encoding.lp
-
 *sqlite3
-/scripts/*.lp
 __pycache__
 
 /extras/datasets/data/**/*.lp
