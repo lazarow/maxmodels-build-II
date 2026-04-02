@@ -1,7 +1,7 @@
 .vscode
 
 /bin/*
-!/bin/.gitkeep
+!/bin/maxmodels.sh
 /build/*
 !/build/.gitkeep
 
@@ -13,4 +13,4 @@
 /scripts/*.lp
 __pycache__
 
-/datasets/data/**/*.lp
+/extras/datasets/data/**/*.lp

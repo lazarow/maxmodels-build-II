@@ -1,0 +1,1 @@
+gringo --output=smodels --warn=none | smodels -internal -nolookahead | lp2normal-2.27 | maxmodels --simplify | lp2lp2-1.23 | maxmodels --solve --debug-cdcl --external-solver=/home/an/maxsat-solvers/WMaxCDCL2024/code/simp/wmaxcdcl_static

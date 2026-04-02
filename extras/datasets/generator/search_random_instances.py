@@ -238,7 +238,7 @@ def adaptive_search(
     low, high = scale_min, scale_max
     too_fast_streak = 0
     too_slow_streak = 0
-    script_path = "maxmodels_test.sh"
+    script_path = "maxmodels.sh"
 
     for attempt in range(1, max_attempts + 1):
         if len(found) >= 10:
