@@ -69,8 +69,7 @@ void solve(const Program &program, SolvingConfiguration &solving_configuration, 
                 wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
                 if (solving_configuration.use_initial_activities)
                 {
-                    // wcnf->add_initial_activity(atom_mapper.get_variable(literal), 0.00001);
-                    wcnf->add_initial_activity(atom_mapper.get_variable(literal), 1.0);
+                    wcnf->add_initial_activity(atom_mapper.get_variable(literal), 0.00001);
                 }
             }
         }
