@@ -1,0 +1,24 @@
+# Log report: 2026-04-20 22:02:13
+
+Baseline.
+
+## Results
+
+```
+p01 cpu: 12.2454 conf: 51845 dec: 61034 prop: 13608834 cflit: 1844513 lam: 22831 sla: 1.09309
+p02 cpu: 6.7685 conf: 21047 dec: 37108 prop: 3578951 cflit: 873485 lam: 10688 sla: 0.466885
+p03 cpu: 15.7709 conf: 49034 dec: 61969 prop: 9133866 cflit: 1792101 lam: 33955 sla: 1.9454
+p04 cpu: 5.56933 conf: 19685 dec: 27990 prop: 2897551 cflit: 699581 lam: 11198 sla: 0.521696
+p05 cpu: 30.3414 conf: 82935 dec: 99052 prop: 13849107 cflit: 3345569 lam: 63091 sla: 3.97484
+p06 cpu: 8.14018 conf: 23598 dec: 31367 prop: 3730222 cflit: 962494 lam: 16722 sla: 1.04378
+p07 cpu: 12.2564 conf: 34086 dec: 45468 prop: 5655360 cflit: 1417801 lam: 25998 sla: 1.68408
+p08 cpu: 12.2516 conf: 37239 dec: 58543 prop: 7425299 cflit: 1451848 lam: 20245 sla: 1.28324
+p09 cpu: 10.6741 conf: 42785 dec: 58749 prop: 6458103 cflit: 1507667 lam: 20557 sla: 1.08897
+p10 cpu: 8.93737 conf: 31141 dec: 49422 prop: 6461949 cflit: 1316121 lam: 14953 sla: 0.854274
+p11 cpu: 66.6784 conf: 174746 dec: 203596 prop: 28421083 cflit: 8657373 lam: 138620 sla: 7.99606
+p12 cpu: 74.5502 conf: 214665 dec: 240340 prop: 35583885 cflit: 8600868 lam: 145100 sla: 8.95541
+p13 cpu: 35.5014 conf: 112326 dec: 125485 prop: 23458074 cflit: 4463808 lam: 60854 sla: 3.24629
+p14 cpu: 10.4637 conf: 38410 dec: 51123 prop: 5994179 cflit: 1573556 lam: 21032 sla: 1.08636
+p15 cpu: 22.0673 conf: 58744 dec: 66262 prop: 9034048 cflit: 2472753 lam: 57702 sla: 3.576
+```
+

@@ -102,7 +102,7 @@ void lp2sat_like(
     // Facts clauses
     for (const auto &atom : program.facts)
     {
-        unsigned int atom_var = atom_mapper.get_variable(atom);
+        int atom_var = atom_mapper.get_variable(atom);
         wcnf->add_hard(atom_var);
         wcnf->add_hard(0);
     }
@@ -110,7 +110,7 @@ void lp2sat_like(
     // B+ = Required Atoms clauses
     for (const auto &atom : program.required_atoms)
     {
-        unsigned int atom_var = atom_mapper.get_variable(atom);
+        int atom_var = atom_mapper.get_variable(atom);
         wcnf->add_hard(atom_var);
         wcnf->add_hard(0);
     }

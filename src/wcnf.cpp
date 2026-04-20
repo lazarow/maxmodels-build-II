@@ -96,7 +96,17 @@ void ExternalSolverWrapperWCNF::add_soft(Literal literal, Weight weight)
 
 int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_configuration)
 {
-    ExecResult result = run_solver(solving_configuration.external_solver_path, {}, wcnf + soft_clauses);
+    string initial_activities_line = "";
+    if (initial_activities.empty() == false)
+    {
+        initial_activities_line = "c initial_activity " + to_string(initial_activities.size());
+        for (const auto &[variable, activity] : initial_activities)
+        {
+            initial_activities_line += " " + to_string(variable) + " " + to_string(activity);
+        }
+        initial_activities_line += "\n";
+    }
+    ExecResult result = run_solver(solving_configuration.external_solver_path, {}, initial_activities_line + wcnf + soft_clauses);
     if (result.exit_code != 0 && result.exit_code != 1 && result.exit_code != 10 && result.exit_code != 20 && result.exit_code != 30)
         throw runtime_error("Failed to solve the WCNF with the external solver.");
     bool isTimeout = result.stdout_data.find("Segmentation fault") != string::npos;
@@ -177,5 +187,10 @@ int32_t ExternalSolverWrapperWCNF::val_lit(Literal variable)
     if (variable < 0)
         return variable_to_value.at(-variable) == 0 ? 1 : 0;
     return variable_to_value.at(variable);
+}
+
+void ExternalSolverWrapperWCNF::add_initial_activity(int variable, double activity)
+{
+    initial_activities[abs(variable)] = activity;
 }
 // #endregion

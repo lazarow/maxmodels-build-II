@@ -68,7 +68,7 @@ public:
     Weight cost;
     satisfied_exception(const Program &program, const Model &stable_model) : logic_error("The program is satisfied.")
     {
-        cout << "ANSWER" << endl;
+        // cout << "ANSWER" << endl;
 
         unordered_set<Atom> answer_set;
         for (const auto &atom : program.facts)
@@ -77,13 +77,13 @@ public:
             answer_set.insert(atom);
         for (const auto &atom : stable_model)
             answer_set.insert(atom);
-        for (const auto &atom : answer_set)
-        {
-            if (program.symbols.contains(atom))
-                cout << program.symbols.at(atom) << " ";
-        }
-        cout << "!!! Answer set is hidden due to the test implementation !!!";
-        cout << endl;
+        // for (const auto &atom : answer_set)
+        // {
+        //     if (program.symbols.contains(atom))
+        //         cout << program.symbols.at(atom) << " ";
+        // }
+        // cout << endl;
+        cout << "The answer set is hidden due to testing purposes" << endl;
 
         if (program.weights.size() > 0)
         {

@@ -67,6 +67,11 @@ void solve(const Program &program, SolvingConfiguration &solving_configuration, 
                 program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
             {
                 wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
+                if (solving_configuration.use_initial_activities)
+                {
+                    // wcnf->add_initial_activity(atom_mapper.get_variable(literal), 0.00001);
+                    wcnf->add_initial_activity(atom_mapper.get_variable(literal), 1.0);
+                }
             }
         }
     }
@@ -162,7 +167,7 @@ unsigned int AtomMapper::get_next_variable()
     return current_variable++;
 }
 
-unsigned int AtomMapper::get_variable(Literal literal)
+int AtomMapper::get_variable(Literal literal)
 {
     Atom atom = literal < 0 ? -literal : literal;
     if (atom_to_variable.contains(atom) == false)

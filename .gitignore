@@ -10,3 +10,4 @@
 __pycache__
 
 /extras/datasets/data/**/*.lp
+/extras/datasets/data/**/*.log
