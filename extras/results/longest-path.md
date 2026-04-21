@@ -286,3 +286,51 @@ p14 cpu: 22.9074 conf: 89996 dec: 106701 prop: 13741085 cflit: 3408271 lam: 4836
 p15 cpu: 20.8519 conf: 61853 dec: 69714 prop: 9619175 cflit: 2592521 lam: 53836 sla: 3.12505
 ```
 
+# Log report: 2026-04-21 15:58:18
+
+[v5] Baseline (no initial values).
+
+## Results
+
+```
+p01 cpu: 18.5976 conf: 78245 dec: 91148 prop: 14042931 cflit: 2470582 lam: 29049 sla: 1.58914
+p02 cpu: 6.43364 conf: 25305 dec: 39029 prop: 4153646 cflit: 1016018 lam: 12076 sla: 0.538132
+p03 cpu: 12.0134 conf: 37736 dec: 54834 prop: 7202879 cflit: 1463560 lam: 23745 sla: 1.33787
+p04 cpu: 3.53542 conf: 11268 dec: 18572 prop: 1831977 cflit: 408484 lam: 6233 sla: 0.327462
+p05 cpu: 30.0205 conf: 83950 dec: 98304 prop: 16949636 cflit: 3624432 lam: 66396 sla: 4.08161
+p06 cpu: 14.7399 conf: 43497 dec: 54997 prop: 6789070 cflit: 1864184 lam: 33467 sla: 1.94692
+p07 cpu: 17.2478 conf: 54888 dec: 67745 prop: 8668811 cflit: 2306458 lam: 44222 sla: 2.3953
+p08 cpu: 7.5717 conf: 27301 dec: 49089 prop: 5123710 cflit: 1138933 lam: 13143 sla: 0.737482
+p09 cpu: 16.3724 conf: 58338 dec: 76467 prop: 9229971 cflit: 2584155 lam: 40888 sla: 2.06123
+p10 cpu: 9.96346 conf: 36731 dec: 56521 prop: 6976886 cflit: 1555037 lam: 19767 sla: 0.971815
+p11 cpu: 123.819 conf: 326325 dec: 376002 prop: 51419808 cflit: 16585602 lam: 259635 sla: 14.6679
+p12 cpu: 84.2864 conf: 223706 dec: 251113 prop: 44362611 cflit: 9976863 lam: 178774 sla: 10.6535
+p13 cpu: 20.0057 conf: 79865 dec: 91227 prop: 16594248 cflit: 2873270 lam: 36442 sla: 1.73945
+p14 cpu: 11.6316 conf: 40948 dec: 53161 prop: 6660207 cflit: 1719100 lam: 24423 sla: 1.30434
+p15 cpu: 37.5417 conf: 117624 dec: 129894 prop: 16792896 cflit: 4873613 lam: 95886 sla: 5.47021
+```
+
+# Log report: 2026-04-21 16:05:25
+
+[v5] All weighted atoms (VSIDS).
+
+## Results
+
+```
+p01 cpu: 7.75728 conf: 34174 dec: 40350 prop: 7120663 cflit: 1240075 lam: 15064 sla: 0.724835
+p02 cpu: 6.02953 conf: 23526 dec: 36963 prop: 3984839 cflit: 821447 lam: 11551 sla: 0.497634
+p03 cpu: 16.0884 conf: 49630 dec: 64471 prop: 9293875 cflit: 1803972 lam: 31277 sla: 1.80014
+p04 cpu: 6.96312 conf: 24255 dec: 34979 prop: 3731921 cflit: 925775 lam: 16221 sla: 0.798767
+p05 cpu: 21.2581 conf: 58475 dec: 68266 prop: 11608003 cflit: 2373536 lam: 45091 sla: 2.88124
+p06 cpu: 12.1038 conf: 35005 dec: 43753 prop: 5329834 cflit: 1337781 lam: 26447 sla: 1.53745
+p07 cpu: 9.13888 conf: 30240 dec: 41083 prop: 4866954 cflit: 1188143 lam: 20405 sla: 1.09741
+p08 cpu: 8.27416 conf: 28309 dec: 49008 prop: 5256644 cflit: 1092631 lam: 13043 sla: 0.806173
+p09 cpu: 19.124 conf: 61135 dec: 78710 prop: 11663278 cflit: 2621300 lam: 42901 sla: 2.42711
+p10 cpu: 15.5425 conf: 51833 dec: 73294 prop: 9244622 cflit: 2109884 lam: 30577 sla: 1.51167
+p11 cpu: 141.316 conf: 397213 dec: 454738 prop: 62133339 cflit: 20395599 lam: 305328 sla: 16.2728
+p12 cpu: 70.7231 conf: 260580 dec: 292783 prop: 41868280 cflit: 9498780 lam: 140951 sla: 7.78338
+p13 cpu: 29.2107 conf: 105950 dec: 117992 prop: 21682528 cflit: 3967914 lam: 51219 sla: 2.63051
+p14 cpu: 11.9881 conf: 43620 dec: 55776 prop: 7192941 cflit: 1915835 lam: 27821 sla: 1.45168
+p15 cpu: 29.9993 conf: 86288 dec: 98635 prop: 13790930 cflit: 4036742 lam: 80325 sla: 4.61515
+```
+

@@ -29,13 +29,6 @@ void solve(const Program &program, SolvingConfiguration &solving_configuration, 
     vector<vector<Literal>> all_cost_conflict_clauses;
     unordered_set<Literal> all_cost_conflict_literals;
 
-    // #region Encoding
-    if (program.extended_atoms.empty() == false)
-        lp2sat_like(program, wcnf, body_to_variable, atom_mapper);
-    else
-        clark_completion(program, wcnf, body_to_variable, atom_mapper);
-    // #endregion
-
     // #region Constraints
     for (const auto &body_index : program.constraints)
     {
@@ -56,6 +49,13 @@ void solve(const Program &program, SolvingConfiguration &solving_configuration, 
         }
         wcnf->add_hard(0);
     }
+    // #endregion
+
+    // #region Encoding
+    if (program.extended_atoms.empty() == false)
+        lp2sat_like(program, wcnf, body_to_variable, atom_mapper);
+    else
+        clark_completion(program, wcnf, body_to_variable, atom_mapper);
     // #endregion
 
     // #region Soft Clauses
