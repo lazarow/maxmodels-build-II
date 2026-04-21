@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
         auto external_solver_path = parser.AddArg<string>("external-solver", "The path to an external solver").Default("");
         auto benchmark_flag = parser.AddFlag("benchmark", "Benchmark the program");
         auto debug_cdcl = parser.AddFlag("debug-cdcl", "Debug CDCL");
-        auto use_initial_activities = parser.AddFlag("use-initial-activities", "Use initial activities");
+        auto mode = parser.AddArg<int>("mode", "The mode of the solver").Default(0);
+        auto default_initial_activity = parser.AddArg<double>("default-initial-activity", "The default initial activity").Default(0.00001);
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -68,7 +69,8 @@ int main(int argc, char *argv[])
             }
             print_benchmark = *benchmark_flag;
             solving_configuration.debug_cdcl = *debug_cdcl;
-            solving_configuration.use_initial_activities = *use_initial_activities;
+            solving_configuration.mode = *mode;
+            solving_configuration.default_initial_activity = *default_initial_activity;
             solve(program, solving_configuration, benchmark);
         }
         return 0;

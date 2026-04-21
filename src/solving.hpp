@@ -11,7 +11,8 @@ struct SolvingConfiguration
 {
     string external_solver_path = "";
     bool debug_cdcl = false;
-    bool use_initial_activities = false;
+    int mode = 0;
+    double default_initial_activity = 0.00001;
 };
 
 struct SolvingBenchmark
@@ -22,10 +23,10 @@ struct SolvingBenchmark
 
 class AtomMapper
 {
-    unsigned int current_variable = 1;
     unordered_map<Atom, unsigned int> atom_to_variable;
 
 public:
+    unsigned int current_variable = 1;
     unsigned int get_next_variable();
     int get_variable(Literal literal);
 };

@@ -99,14 +99,43 @@ int32_t ExternalSolverWrapperWCNF::solve(const SolvingConfiguration &solving_con
     string initial_activities_line = "";
     if (initial_activities.empty() == false)
     {
-        initial_activities_line = "c initial_activity " + to_string(initial_activities.size());
-        for (const auto &[variable, activity] : initial_activities)
+        if (solving_configuration.mode == 1)
         {
-            initial_activities_line += " " + to_string(variable) + " " + to_string(activity);
+            // VSIDS
+            initial_activities_line = "c initial_activity 0 " + to_string(solving_configuration.default_initial_activity) + " " + to_string(initial_activities.size());
+            for (const auto &[variable, activity] : initial_activities)
+            {
+                initial_activities_line += " " + to_string(variable) + " " + to_string(activity);
+            }
+            initial_activities_line += "\n";
         }
-        initial_activities_line += "\n";
+        else if (solving_configuration.mode == 2)
+        {
+            // CHB
+            initial_activities_line = "c initial_activity 1 " + to_string(solving_configuration.default_initial_activity) + " " + to_string(initial_activities.size());
+            for (const auto &[variable, activity] : initial_activities)
+            {
+                initial_activities_line += " " + to_string(variable) + " " + to_string(activity);
+            }
+            initial_activities_line += "\n";
+        }
+        else if (solving_configuration.mode == 3)
+        {
+            // VSIDS + CHB
+            initial_activities_line = "c initial_activity 2 " + to_string(solving_configuration.default_initial_activity) + " " + to_string(initial_activities.size());
+            for (const auto &[variable, activity] : initial_activities)
+            {
+                initial_activities_line += " " + to_string(variable) + " " + to_string(activity);
+            }
+            initial_activities_line += "\n";
+        }
     }
-    ExecResult result = run_solver(solving_configuration.external_solver_path, {}, initial_activities_line + wcnf + soft_clauses);
+    vector<string> args;
+    if (solving_configuration.mode == 99)
+    {
+        args.push_back("-rnd-init");
+    }
+    ExecResult result = run_solver(solving_configuration.external_solver_path, args, initial_activities_line + wcnf + soft_clauses);
     if (result.exit_code != 0 && result.exit_code != 1 && result.exit_code != 10 && result.exit_code != 20 && result.exit_code != 30)
         throw runtime_error("Failed to solve the WCNF with the external solver.");
     bool isTimeout = result.stdout_data.find("Segmentation fault") != string::npos;

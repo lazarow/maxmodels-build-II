@@ -93,29 +93,36 @@ void clark_completion(
     }
 }
 
-void lp2sat_like(
+void lp2sat_like_facts(
+    const Program &program,
+    unique_ptr<WCNF> &wcnf,
+    AtomMapper &atom_mapper)
+{
+    for (const auto &atom : program.facts)
+    {
+        wcnf->add_hard(atom_mapper.get_variable(atom));
+        wcnf->add_hard(0);
+    }
+}
+
+void lp2sat_like_required_atoms(
+    const Program &program,
+    unique_ptr<WCNF> &wcnf,
+    AtomMapper &atom_mapper)
+{
+    for (const auto &atom : program.required_atoms)
+    {
+        wcnf->add_hard(atom_mapper.get_variable(atom));
+        wcnf->add_hard(0);
+    }
+}
+
+void lp2sat_like_rules(
     const Program &program,
     unique_ptr<WCNF> &wcnf,
     unordered_map<BodyIndex, unsigned int> &body_to_variable,
     AtomMapper &atom_mapper)
 {
-    // Facts clauses
-    for (const auto &atom : program.facts)
-    {
-        int atom_var = atom_mapper.get_variable(atom);
-        wcnf->add_hard(atom_var);
-        wcnf->add_hard(0);
-    }
-
-    // B+ = Required Atoms clauses
-    for (const auto &atom : program.required_atoms)
-    {
-        int atom_var = atom_mapper.get_variable(atom);
-        wcnf->add_hard(atom_var);
-        wcnf->add_hard(0);
-    }
-
-    // Rules clauses
     for (const auto &[head, body_indices] : program.heads)
     {
         // List of bodies for a head (the Tseitin transformation).
@@ -147,7 +154,6 @@ void lp2sat_like(
             else
             {
                 // Example: a <- b, not c.
-
                 // Example: (¬bt(r1) ∨ a)
                 unsigned int body_variable = atom_mapper.get_next_variable();
                 body_variables.push_back(body_variable);
@@ -188,8 +194,13 @@ void lp2sat_like(
             wcnf->add_hard(0);
         }
     }
+}
 
-    // Other Atoms
+void lp2sat_like_other_atoms(
+    const Program &program,
+    unique_ptr<WCNF> &wcnf,
+    AtomMapper &atom_mapper)
+{
     for (const auto &atom : program.atoms)
     {
         if (program.facts.contains(atom))
@@ -203,4 +214,16 @@ void lp2sat_like(
         wcnf->add_hard(-atom_mapper.get_variable(atom));
         wcnf->add_hard(0);
     }
+}
+
+void lp2sat_like(
+    const Program &program,
+    unique_ptr<WCNF> &wcnf,
+    unordered_map<BodyIndex, unsigned int> &body_to_variable,
+    AtomMapper &atom_mapper)
+{
+    lp2sat_like_rules(program, wcnf, body_to_variable, atom_mapper);
+    lp2sat_like_facts(program, wcnf, atom_mapper);
+    lp2sat_like_required_atoms(program, wcnf, atom_mapper);
+    lp2sat_like_other_atoms(program, wcnf, atom_mapper);
 }
