@@ -8,7 +8,7 @@ GENERATOR_BY_PROBLEM = {
     "longest-path": gen.generate_longest_path,
     "max-cut": gen.generate_max_cut,
     "maximal-clique": gen.generate_maximal_clique,
-    "minimum-test-set": gen.generate_minimum_test_set,
+    #"minimum-test-set": gen.generate_minimum_test_set,
     "weight-bounded-dominating-set": gen.generate_weight_bounded_dominating_set,
     "visit-all": gen.generate_visit_all,
     "minimum-feedback-arc-set": gen.generate_minimum_feedback_arc_set,
