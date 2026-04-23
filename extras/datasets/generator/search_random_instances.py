@@ -32,7 +32,7 @@ def _jitter(rng: random.Random, value: float, span: float) -> float:
 
 
 def build_longest_path(scale: float, rng: random.Random) -> Dict[str, Any]:
-    nof_nodes = int(_lerp(30, 200, scale))
+    nof_nodes = int(_lerp(20, 200, scale))
     edge_prob = _clamp(_jitter(rng, _lerp(0.08, 0.55, scale), 0.05), 0.02, 0.9)
     max_weight = int(_lerp(5, 40, scale))
     return {
@@ -200,19 +200,20 @@ def run_test_instance(logic_program: str, timeout: int, script_path: Path) -> Op
         proc = subprocess.Popen(
             ["bash", str(script_path)],
             stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
             start_new_session=True,  # Process group so we can kill entire pipeline on timeout
         )
-        output, _ = proc.communicate(input=logic_program, timeout=timeout)
-        for line in output.splitlines():
-            if line.startswith("% CDCL CPU time:"):
-                try:
-                    value = float(line.split(":")[1].strip())
-                    return value
-                except Exception:
-                    pass
+        stdout, _ = proc.communicate(input=logic_program, timeout=timeout)
+        if stdout is not None:
+            for line in stdout.splitlines():
+                if line.startswith("% CDCL CPU time:"):
+                    try:
+                        value = float(line.split(":")[1].strip())
+                        return value
+                    except Exception:
+                        pass
     except subprocess.TimeoutExpired:
         # Kill entire process group (bash + gringo + smodels + maxmodels + wmaxcdcl chain)
         # Prevents orphaned processes from accumulating on the server
@@ -238,7 +239,7 @@ def adaptive_search(
     timeout_buffer: int,
     output_path: Path,
     scale_min: float = 0.0,
-    scale_max: float = 3.0,
+    scale_max: float = 1.0,
 ) -> List[Dict[str, Any]]:
     found: List[Dict[str, Any]] = []
     seen_configs = set()
