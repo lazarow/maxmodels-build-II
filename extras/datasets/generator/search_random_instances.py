@@ -205,7 +205,14 @@ def run_test_instance(logic_program: str, timeout: int, script_path: Path) -> Op
             text=True,
             start_new_session=True,  # Process group so we can kill entire pipeline on timeout
         )
-        proc.communicate(input=logic_program, timeout=timeout)
+        output, _ = proc.communicate(input=logic_program, timeout=timeout)
+        for line in output.splitlines():
+            if line.startswith("% CDCL CPU time:"):
+                try:
+                    value = float(line.split(":")[1].strip())
+                    return value
+                except Exception:
+                    pass
     except subprocess.TimeoutExpired:
         # Kill entire process group (bash + gringo + smodels + maxmodels + wmaxcdcl chain)
         # Prevents orphaned processes from accumulating on the server
