@@ -11,8 +11,8 @@ import generator as gen
 
 TARGET_BUCKETS: List[Tuple[int, int]] = [
     (10, 30),
-    (30, 120),
-    (120, 240),
+    (30, 70),
+    (70, 120),
 ]
 
 def _clamp(value: float, min_value: float, max_value: float) -> float:
@@ -231,7 +231,7 @@ def adaptive_search(
     timeout_buffer: int,
     output_path: Path,
     scale_min: float = 0.0,
-    scale_max: float = 1.0,
+    scale_max: float = 3.0,
 ) -> List[Dict[str, Any]]:
     found: List[Dict[str, Any]] = []
     seen_configs = set()

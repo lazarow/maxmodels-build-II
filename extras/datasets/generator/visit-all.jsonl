@@ -1,8 +1,0 @@
-{"config": {"cols": 4, "hole_prob": 0.06501062382827348, "rows": 4, "seed": 397615770, "steps": 25}, "elapsed_seconds": 93.03523888904601, "problem": "visit-all", "target_range": [30, 120]}
-{"config": {"cols": 4, "hole_prob": 0.040272003927987646, "rows": 4, "seed": 369038640, "steps": 25}, "elapsed_seconds": 54.090648256242275, "problem": "visit-all", "target_range": [30, 120]}
-{"config": {"cols": 4, "hole_prob": 0.06129362658600373, "rows": 4, "seed": 241762396, "steps": 25}, "elapsed_seconds": 34.46812123246491, "problem": "visit-all", "target_range": [30, 120]}
-{"config": {"cols": 4, "hole_prob": 0.05827230059710514, "rows": 4, "seed": 107498198, "steps": 25}, "elapsed_seconds": 88.01890369597822, "problem": "visit-all", "target_range": [30, 120]}
-{"config": {"cols": 4, "hole_prob": 0.06224051284700856, "rows": 4, "seed": 114076646, "steps": 25}, "elapsed_seconds": 34.668262742459774, "problem": "visit-all", "target_range": [30, 120]}
-{"config": {"cols": 4, "hole_prob": 0.03872917758308021, "rows": 4, "seed": 162881872, "steps": 26}, "elapsed_seconds": 185.3166471729055, "problem": "visit-all", "target_range": [120, 240]}
-{"config": {"cols": 4, "hole_prob": 0.049074762550609274, "rows": 4, "seed": 184875838, "steps": 25}, "elapsed_seconds": 149.8907820750028, "problem": "visit-all", "target_range": [120, 240]}
-{"config": {"cols": 4, "hole_prob": 0.037333416447638476, "rows": 4, "seed": 320678360, "steps": 25}, "elapsed_seconds": 164.8195653669536, "problem": "visit-all", "target_range": [120, 240]}
