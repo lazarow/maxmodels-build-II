@@ -1,0 +1,10 @@
+{"config": {"edge_prob": 0.6515265217727836, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 277341932}, "elapsed_seconds": 11.8689, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.644975836913635, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 138571571}, "elapsed_seconds": 10.8194, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6357540651063124, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 189628561}, "elapsed_seconds": 11.0446, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6261825923971117, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 336962862}, "elapsed_seconds": 11.1901, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6560590814825644, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 110742327}, "elapsed_seconds": 10.4327, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6525660552822666, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 25468099}, "elapsed_seconds": 10.3302, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6400177796825028, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 129384857}, "elapsed_seconds": 11.9332, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.628584757856687, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 5705877}, "elapsed_seconds": 11.3001, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6465380830255946, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 13236457}, "elapsed_seconds": 10.9566, "problem": "maximal-clique", "target_range": [10, 30]}
+{"config": {"edge_prob": 0.6553352247957878, "max_weight": 24, "min_weight": 1, "nof_nodes": 179, "seed": 341505375}, "elapsed_seconds": 15.6421, "problem": "maximal-clique", "target_range": [10, 30]}

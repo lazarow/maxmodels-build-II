@@ -1,0 +1,10 @@
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 279796909, "test_item_prob": 0.7390163404446194}, "elapsed_seconds": 10.1535, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 221683850, "test_item_prob": 0.7192627702441802}, "elapsed_seconds": 10.1217, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 188332475, "test_item_prob": 0.6392257309742214}, "elapsed_seconds": 13.5095, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 16096323, "test_item_prob": 0.6635860700974359}, "elapsed_seconds": 12.8304, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 94237608, "test_item_prob": 0.6558674182065998}, "elapsed_seconds": 12.513, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 333099107, "test_item_prob": 0.7699261559764468}, "elapsed_seconds": 11.6371, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 115668109, "test_item_prob": 0.6264070855690189}, "elapsed_seconds": 13.9557, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 1273176, "test_item_prob": 0.6209327413525704}, "elapsed_seconds": 13.6885, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 217051412, "test_item_prob": 0.6354006645124061}, "elapsed_seconds": 13.4674, "problem": "minimum-test-set", "target_range": [10, 30]}
+{"config": {"m": 119, "max_weight": 11, "min_weight": 1, "n": 69, "seed": 219523284, "test_item_prob": 0.6902443728998231}, "elapsed_seconds": 11.8627, "problem": "minimum-test-set", "target_range": [10, 30]}
