@@ -71,8 +71,8 @@ def build_maximal_clique(scale: float, rng: random.Random) -> Dict[str, Any]:
 
 
 def build_minimum_test_set(scale: float, rng: random.Random) -> Dict[str, Any]:
-    n = int(_lerp(18, 70, scale))
-    m = int(_lerp(18, 120, scale))
+    n = int(_lerp(10, 100, scale))
+    m = int(_lerp(10, 160, scale))
     test_item_prob = _clamp(_jitter(rng, _lerp(0.25, 0.7, scale), 0.08), 0.05, 0.95)
     max_weight = int(_lerp(3, 12, scale))
     return {
@@ -155,8 +155,8 @@ def build_stacker_crane(scale: float, rng: random.Random) -> Dict[str, Any]:
 
 
 def build_set_packing(scale: float, rng: random.Random) -> Dict[str, Any]:
-    n = int(_lerp(30, 140, scale))
-    m = int(_lerp(40, 220, scale))
+    n = int(_lerp(30, 200, scale))
+    m = int(_lerp(40, 350, scale))
     set_item_prob = _clamp(_jitter(rng, _lerp(0.12, 0.5, scale), 0.08), 0.02, 0.95)
     max_weight = int(_lerp(3, 12, scale))
     return {
