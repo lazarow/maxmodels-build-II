@@ -1,3 +1,12 @@
 {"config": {"cols": 17, "hole_prob": 0.20800691496555307, "rows": 17, "seed": 31668640, "steps": 1155}, "elapsed_seconds": 10.043514417484403, "problem": "visit-all", "target_range": [10, 30]}
 {"config": {"cols": 4, "hole_prob": 0.03964964950216611, "rows": 4, "seed": 237960489, "steps": 25}, "elapsed_seconds": 64.9073, "problem": "visit-all", "target_range": [30, 70]}
 {"config": {"cols": 4, "hole_prob": 0.0647559555804699, "rows": 4, "seed": 106725220, "steps": 25}, "elapsed_seconds": 100.102, "problem": "visit-all", "target_range": [70, 120]}
+{"config": {"cols": 17, "hole_prob": 0.19857524016944478, "rows": 17, "seed": 69779352, "steps": 1151}, "elapsed_seconds": 10.263675481081009, "problem": "visit-all", "target_range": [10, 30]}
+{"config": {"cols": 17, "hole_prob": 0.20171216384427273, "rows": 17, "seed": 343894548, "steps": 1151}, "elapsed_seconds": 10.47283567301929, "problem": "visit-all", "target_range": [10, 30]}
+{"config": {"cols": 4, "hole_prob": 0.05334319413533721, "rows": 4, "seed": 399067439, "steps": 25}, "elapsed_seconds": 57.0143, "problem": "visit-all", "target_range": [30, 70]}
+{"config": {"cols": 4, "hole_prob": 0.06468835845827932, "rows": 4, "seed": 375942687, "steps": 25}, "elapsed_seconds": 63.024, "problem": "visit-all", "target_range": [30, 70]}
+{"config": {"cols": 4, "hole_prob": 0.045582354414733114, "rows": 4, "seed": 270662406, "steps": 25}, "elapsed_seconds": 42.3112, "problem": "visit-all", "target_range": [30, 70]}
+{"config": {"cols": 4, "hole_prob": 0.05045345604120448, "rows": 4, "seed": 259920119, "steps": 25}, "elapsed_seconds": 112.942, "problem": "visit-all", "target_range": [70, 120]}
+{"config": {"cols": 4, "hole_prob": 0.03928962455931165, "rows": 4, "seed": 179696270, "steps": 25}, "elapsed_seconds": 103.012, "problem": "visit-all", "target_range": [70, 120]}
+{"config": {"cols": 4, "hole_prob": 0.039762297017146564, "rows": 4, "seed": 19886403, "steps": 25}, "elapsed_seconds": 113.685, "problem": "visit-all", "target_range": [70, 120]}
+{"config": {"cols": 4, "hole_prob": 0.06535829593442288, "rows": 4, "seed": 52450873, "steps": 25}, "elapsed_seconds": 80.9412, "problem": "visit-all", "target_range": [70, 120]}

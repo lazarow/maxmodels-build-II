@@ -1,0 +1,9 @@
+   30 ./max-cut.jsonl
+   10 ./maximal-clique.jsonl
+   12 ./visit-all.jsonl
+   38 ./longest-circuit.jsonl
+   35 ./longest-path.jsonl
+   25 ./minimum-test-set.jsonl
+   30 ./stacker-crane.jsonl
+   30 ./minimum-feedback-arc-set.jsonl
+  210 total

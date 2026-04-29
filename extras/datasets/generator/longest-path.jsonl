@@ -23,3 +23,13 @@
 {"config": {"edge_prob": 0.16204684894888916, "max_weight": 9, "min_weight": 1, "nof_nodes": 41, "seed": 302212576}, "elapsed_seconds": 97.5439, "problem": "longest-path", "target_range": [70, 120]}
 {"config": {"edge_prob": 0.16419101479772785, "max_weight": 9, "min_weight": 1, "nof_nodes": 40, "seed": 333654106}, "elapsed_seconds": 110.267, "problem": "longest-path", "target_range": [70, 120]}
 {"config": {"edge_prob": 0.15897225643769813, "max_weight": 9, "min_weight": 1, "nof_nodes": 40, "seed": 196280504}, "elapsed_seconds": 73.5994, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.16593338500108945, "max_weight": 8, "min_weight": 1, "nof_nodes": 39, "seed": 13227257}, "elapsed_seconds": 70.014, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.16880545472134356, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 385497848}, "elapsed_seconds": 116.372, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.16328333005068918, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 292958493}, "elapsed_seconds": 96.4143, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.15627074177180186, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 220425256}, "elapsed_seconds": 94.6062, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.1509054568547488, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 301590127}, "elapsed_seconds": 79.5564, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.14165044750567427, "max_weight": 10, "min_weight": 1, "nof_nodes": 47, "seed": 187794169}, "elapsed_seconds": 113.967, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.14857859110898253, "max_weight": 9, "min_weight": 1, "nof_nodes": 42, "seed": 217796507}, "elapsed_seconds": 71.056, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.17583415151845103, "max_weight": 9, "min_weight": 1, "nof_nodes": 44, "seed": 300684934}, "elapsed_seconds": 91.994, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.1502064056821347, "max_weight": 9, "min_weight": 1, "nof_nodes": 44, "seed": 241628883}, "elapsed_seconds": 118.966, "problem": "longest-path", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.16325370074776185, "max_weight": 9, "min_weight": 1, "nof_nodes": 42, "seed": 387921239}, "elapsed_seconds": 116.415, "problem": "longest-path", "target_range": [70, 120]}

@@ -23,3 +23,16 @@
 {"config": {"edge_prob": 0.178716718073905, "max_weight": 8, "min_weight": 1, "nof_nodes": 41, "seed": 312040736}, "elapsed_seconds": 110.435, "problem": "longest-circuit", "target_range": [70, 120]}
 {"config": {"edge_prob": 0.10720653609676098, "max_weight": 9, "min_weight": 1, "nof_nodes": 47, "seed": 268621557}, "elapsed_seconds": 103.368, "problem": "longest-circuit", "target_range": [70, 120]}
 {"config": {"edge_prob": 0.15941519307166713, "max_weight": 9, "min_weight": 1, "nof_nodes": 45, "seed": 362489412}, "elapsed_seconds": 78.9938, "problem": "longest-circuit", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.1083461412776378, "max_weight": 10, "min_weight": 1, "nof_nodes": 48, "seed": 90774494}, "elapsed_seconds": 35.139, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.15699941350520108, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 327840438}, "elapsed_seconds": 57.9046, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.13515238632367585, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 388747239}, "elapsed_seconds": 55.6105, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.13686341872691482, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 235677209}, "elapsed_seconds": 54.9049, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.14235335018738865, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 381608742}, "elapsed_seconds": 51.1545, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.14609018094601028, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 98742811}, "elapsed_seconds": 69.8635, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.1234208020091268, "max_weight": 9, "min_weight": 1, "nof_nodes": 45, "seed": 13642869}, "elapsed_seconds": 42.7298, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.14849225114040043, "max_weight": 9, "min_weight": 1, "nof_nodes": 44, "seed": 141649090}, "elapsed_seconds": 33.4041, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.11493514266897287, "max_weight": 9, "min_weight": 1, "nof_nodes": 44, "seed": 98960134}, "elapsed_seconds": 36.5843, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.13099564896549487, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 65521563}, "elapsed_seconds": 40.8064, "problem": "longest-circuit", "target_range": [30, 70]}
+{"config": {"edge_prob": 0.15441959391503576, "max_weight": 8, "min_weight": 1, "nof_nodes": 41, "seed": 363280404}, "elapsed_seconds": 118.425, "problem": "longest-circuit", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.13119459792574312, "max_weight": 9, "min_weight": 1, "nof_nodes": 44, "seed": 82656707}, "elapsed_seconds": 77.7079, "problem": "longest-circuit", "target_range": [70, 120]}
+{"config": {"edge_prob": 0.15054023126479504, "max_weight": 9, "min_weight": 1, "nof_nodes": 43, "seed": 166938639}, "elapsed_seconds": 91.1109, "problem": "longest-circuit", "target_range": [70, 120]}
