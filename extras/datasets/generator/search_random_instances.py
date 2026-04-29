@@ -373,7 +373,7 @@ def main() -> None:
                 target_min=target_min,
                 target_max=target_max,
                 max_attempts=250,
-                timeout_buffer=5,
+                timeout_buffer=15,
                 output_path=output_path,
             )
             if len(found) + len(existing) < 10:
