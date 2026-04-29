@@ -157,7 +157,7 @@ def build_stacker_crane(scale: float, rng: random.Random) -> Dict[str, Any]:
 def build_set_packing(scale: float, rng: random.Random) -> Dict[str, Any]:
     n = int(_lerp(30, 200, scale))
     m = int(_lerp(40, 350, scale))
-    set_item_prob = _clamp(_jitter(rng, _lerp(0.12, 0.5, scale), 0.08), 0.02, 0.95)
+    set_item_prob = _clamp(_jitter(rng, _lerp(0.2, 0.77, scale), 0.08), 0.02, 0.95)
     max_weight = int(_lerp(3, 12, scale))
     return {
         "seed": _rand_int(rng, 0, 400000000),
@@ -169,16 +169,16 @@ def build_set_packing(scale: float, rng: random.Random) -> Dict[str, Any]:
     }
 
 PROBLEM_BUILDERS = {
+    "set-packing": build_set_packing,
+    "weight-bounded-dominating-set": build_weight_bounded_dominating_set,
     "longest-path": build_longest_path,
     "max-cut": build_max_cut,
     "maximal-clique": build_maximal_clique,
     "minimum-test-set": build_minimum_test_set,
-    "weight-bounded-dominating-set": build_weight_bounded_dominating_set,
     "visit-all": build_visit_all,
     "minimum-feedback-arc-set": build_minimum_feedback_arc_set,
     "longest-circuit": build_longest_circuit,
     "stacker-crane": build_stacker_crane,
-    "set-packing": build_set_packing,
 }
 
 GENERATOR_BY_PROBLEM = {
