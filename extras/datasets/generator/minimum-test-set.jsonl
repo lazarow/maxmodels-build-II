@@ -23,3 +23,6 @@
 {"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 394600738, "test_item_prob": 0.7534196448030522}, "elapsed_seconds": 71.8641, "problem": "minimum-test-set", "target_range": [70, 120]}
 {"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 209960309, "test_item_prob": 0.7103580104994792}, "elapsed_seconds": 81.1949, "problem": "minimum-test-set", "target_range": [70, 120]}
 {"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 110810842, "test_item_prob": 0.7178108228952492}, "elapsed_seconds": 102.933, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 158, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 192559242, "test_item_prob": 0.7467866984756093}, "elapsed_seconds": 86.4318, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 142502165, "test_item_prob": 0.7637219731952621}, "elapsed_seconds": 84.1214, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 3730070, "test_item_prob": 0.7325224870242827}, "elapsed_seconds": 86.972, "problem": "minimum-test-set", "target_range": [70, 120]}

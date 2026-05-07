@@ -10,3 +10,5 @@
 {"config": {"cols": 4, "hole_prob": 0.03928962455931165, "rows": 4, "seed": 179696270, "steps": 25}, "elapsed_seconds": 103.012, "problem": "visit-all", "target_range": [70, 120]}
 {"config": {"cols": 4, "hole_prob": 0.039762297017146564, "rows": 4, "seed": 19886403, "steps": 25}, "elapsed_seconds": 113.685, "problem": "visit-all", "target_range": [70, 120]}
 {"config": {"cols": 4, "hole_prob": 0.06535829593442288, "rows": 4, "seed": 52450873, "steps": 25}, "elapsed_seconds": 80.9412, "problem": "visit-all", "target_range": [70, 120]}
+{"config": {"cols": 4, "hole_prob": 0.05442006154057208, "rows": 4, "seed": 270253800, "steps": 25}, "elapsed_seconds": 69.9073, "problem": "visit-all", "target_range": [30, 70]}
+{"config": {"cols": 4, "hole_prob": 0.0070438789371157565, "rows": 4, "seed": 189745959, "steps": 25}, "elapsed_seconds": 116.676, "problem": "visit-all", "target_range": [70, 120]}

@@ -1,0 +1,10 @@
+{"config": {"m": 319, "max_weight": 11, "min_weight": 1, "n": 183, "seed": 392761759, "set_item_prob": 0.7302924415825819}, "elapsed_seconds": 10.2364, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 390691657, "set_item_prob": 0.7423533803442413}, "elapsed_seconds": 10.7433, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 178650166, "set_item_prob": 0.7306076906275477}, "elapsed_seconds": 10.0659, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 368832156, "set_item_prob": 0.7389328807315555}, "elapsed_seconds": 10.7121, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 264935710, "set_item_prob": 0.7360925234310909}, "elapsed_seconds": 10.4849, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 379823553, "set_item_prob": 0.7419374319401929}, "elapsed_seconds": 10.3343, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 341455773, "set_item_prob": 0.740061415001413}, "elapsed_seconds": 10.1236, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 317, "max_weight": 11, "min_weight": 1, "n": 182, "seed": 97782306, "set_item_prob": 0.7459834666069259}, "elapsed_seconds": 10.424, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 333, "max_weight": 11, "min_weight": 1, "n": 191, "seed": 88713608, "set_item_prob": 0.6818538452433309}, "elapsed_seconds": 10.2409, "problem": "set-packing", "target_range": [10, 30]}
+{"config": {"m": 324, "max_weight": 11, "min_weight": 1, "n": 186, "seed": 379292756, "set_item_prob": 0.7200928754844076}, "elapsed_seconds": 11.0831, "problem": "set-packing", "target_range": [10, 30]}
