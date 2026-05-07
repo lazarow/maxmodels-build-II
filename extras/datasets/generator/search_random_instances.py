@@ -375,8 +375,8 @@ def main() -> None:
                 max_attempts=250,
                 timeout_buffer=15,
                 output_path=output_path,
-                scale_min: float = 0.0,
-                scale_max: float = 2.0,
+                scale_min=0.0,
+                scale_max=2.0
             )
             if len(found) + len(existing) < 10:
                 print(
