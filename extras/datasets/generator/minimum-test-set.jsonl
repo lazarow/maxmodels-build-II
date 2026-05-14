@@ -26,3 +26,13 @@
 {"config": {"m": 158, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 192559242, "test_item_prob": 0.7467866984756093}, "elapsed_seconds": 86.4318, "problem": "minimum-test-set", "target_range": [70, 120]}
 {"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 142502165, "test_item_prob": 0.7637219731952621}, "elapsed_seconds": 84.1214, "problem": "minimum-test-set", "target_range": [70, 120]}
 {"config": {"m": 159, "max_weight": 11, "min_weight": 1, "n": 99, "seed": 3730070, "test_item_prob": 0.7325224870242827}, "elapsed_seconds": 86.972, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 175, "max_weight": 12, "min_weight": 1, "n": 109, "seed": 156075527, "test_item_prob": 0.8125595321740768}, "elapsed_seconds": 78.1906, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 175, "max_weight": 12, "min_weight": 1, "n": 109, "seed": 151363541, "test_item_prob": 0.7788865150717578}, "elapsed_seconds": 73.4411, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 175, "max_weight": 12, "min_weight": 1, "n": 109, "seed": 58830099, "test_item_prob": 0.7571087698423584}, "elapsed_seconds": 74.4253, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 175, "max_weight": 12, "min_weight": 1, "n": 109, "seed": 316099056, "test_item_prob": 0.7088714546384477}, "elapsed_seconds": 73.7739, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 175, "max_weight": 12, "min_weight": 1, "n": 109, "seed": 88280844, "test_item_prob": 0.8145463921150127}, "elapsed_seconds": 86.5257, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 189, "max_weight": 13, "min_weight": 1, "n": 117, "seed": 271145171, "test_item_prob": 0.8063005841753158}, "elapsed_seconds": 79.4029, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 189, "max_weight": 13, "min_weight": 1, "n": 117, "seed": 94208919, "test_item_prob": 0.8231793144620674}, "elapsed_seconds": 102.94, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 189, "max_weight": 13, "min_weight": 1, "n": 117, "seed": 306230744, "test_item_prob": 0.8336578009353792}, "elapsed_seconds": 106.176, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 189, "max_weight": 13, "min_weight": 1, "n": 117, "seed": 126772689, "test_item_prob": 0.7729815651292061}, "elapsed_seconds": 104.457, "problem": "minimum-test-set", "target_range": [70, 120]}
+{"config": {"m": 189, "max_weight": 13, "min_weight": 1, "n": 117, "seed": 345691803, "test_item_prob": 0.777872120112745}, "elapsed_seconds": 111.914, "problem": "minimum-test-set", "target_range": [70, 120]}

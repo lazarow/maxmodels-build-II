@@ -1,10 +1,11 @@
    30 ./max-cut.jsonl
-   10 ./maximal-clique.jsonl
-   14 ./visit-all.jsonl
+   30 ./maximal-clique.jsonl
+   44 ./visit-all.jsonl
    45 ./longest-circuit.jsonl
+   10 ./weight-bounded-dominating-set.jsonl
    35 ./longest-path.jsonl
-   28 ./minimum-test-set.jsonl
+   38 ./minimum-test-set.jsonl
    30 ./stacker-crane.jsonl
    30 ./minimum-feedback-arc-set.jsonl
    10 ./set-packing.jsonl
-  232 total
+  302 total
