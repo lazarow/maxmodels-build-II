@@ -77,13 +77,13 @@ public:
             answer_set.insert(atom);
         for (const auto &atom : stable_model)
             answer_set.insert(atom);
-        // for (const auto &atom : answer_set)
-        // {
-        //     if (program.symbols.contains(atom))
-        //         cout << program.symbols.at(atom) << " ";
-        // }
-        // cout << endl;
-        cout << "The answer set is hidden due to testing purposes" << endl;
+        for (const auto &atom : answer_set)
+        {
+            if (program.symbols.contains(atom))
+                cout << program.symbols.at(atom) << " ";
+        }
+        cout << endl;
+        // cout << "The answer set is hidden due to testing purposes" << endl;
 
         if (program.weights.size() > 0)
         {
