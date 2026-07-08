@@ -160,43 +160,57 @@ def generate_minimum_test_set(config, test=False):
     m = config["m"]
     item_prob = config.get("test_item_prob", 0.5)
     tests = [set() for _ in range(m)]
+    item_masks = [0] * (n + 1)
     for t in range(m):
+        bit = 1 << t
         for i in range(1, n + 1):
             if random.random() < item_prob:
                 tests[t].add(i)
+                item_masks[i] |= bit
         if not tests[t]:
-            tests[t].add(random.randint(1, n))
+            i = random.randint(1, n)
+            tests[t].add(i)
+            item_masks[i] |= bit
     for i in range(1, n):
         for j in range(i + 1, n + 1):
-            if not any(((i in tests[t]) != (j in tests[t])) for t in range(m)):
+            if item_masks[i] == item_masks[j]:
                 t = random.randrange(m)
+                bit = 1 << t
                 tests[t].add(i)
+                item_masks[i] |= bit
                 if j in tests[t]:
                     tests[t].remove(j)
+                    item_masks[j] &= ~bit
     weights = {t + 1: _rand_weight(config, 1, 1) for t in range(m)}
     instance = {
         "config": config,
         "logic_program": "",
     }
-    instance["logic_program"] += f"item(1..{n}).\n"
-    instance["logic_program"] += f"test(1..{m}).\n"
+    logic_program_parts = [
+        f"item(1..{n}).\n",
+        f"test(1..{m}).\n",
+    ]
     for t in range(m):
         for i in tests[t]:
-            instance["logic_program"] += f"contains({t + 1}, {i}).\n"
+            logic_program_parts.append(f"contains({t + 1}, {i}).\n")
     for t, w in weights.items():
-        instance["logic_program"] += f"weight({t}, {w}).\n"
+        logic_program_parts.append(f"weight({t}, {w}).\n")
     for i in range(1, n):
         for j in range(i + 1, n + 1):
-            for t in range(m):
-                if (i in tests[t]) != (j in tests[t]):
-                    instance["logic_program"] += f"separates({t + 1}, {i}, {j}).\n"
-            instance["logic_program"] += f"pair({i}, {j}).\n"
-    instance["logic_program"] += """
+            diff_mask = item_masks[i] ^ item_masks[j]
+            while diff_mask:
+                lsb = diff_mask & -diff_mask
+                t = lsb.bit_length()
+                logic_program_parts.append(f"separates({t}, {i}, {j}).\n")
+                diff_mask ^= lsb
+            logic_program_parts.append(f"pair({i}, {j}).\n")
+    logic_program_parts.append("""
 {choose(T)} :- test(T).
 covered(I,J) :- choose(T), separates(T,I,J).
 :- pair(I,J), not covered(I,J).
 :~ choose(T), weight(T,W). [W@1,T]
-"""
+""")
+    instance["logic_program"] = "".join(logic_program_parts)
     return instance
 
 # Problem definition:

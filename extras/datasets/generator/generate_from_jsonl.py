@@ -42,6 +42,11 @@ def load_configs(jsonl_path: Path) -> list[dict]:
             configs.append(config)
     return configs
 
+try:
+    from tqdm import tqdm
+    use_tqdm = True
+except ImportError:
+    use_tqdm = False
 
 def generate_instances(
     jsonl_dir: Path,
@@ -73,12 +78,18 @@ def generate_instances(
         out_dir = output_base / problem
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        for i, config in enumerate(configs, start=1):
-            instance = generator_fn(config, test=False)
-            lp_path = out_dir / f"p{i:02d}.lp"
-            lp_path.write_text(instance["logic_program"], encoding="utf-8")
+        if use_tqdm:
+            for i, config in enumerate(tqdm(configs, desc=f"Generating {problem}", unit="inst", ncols=80), start=1):
+                instance = generator_fn(config, test=False)
+                lp_path = out_dir / f"p{i:02d}.lp"
+                lp_path.write_text(instance["logic_program"], encoding="utf-8")
+        else:
+            for i, config in enumerate(configs, start=1):
+                instance = generator_fn(config, test=False)
+                lp_path = out_dir / f"p{i:02d}.lp"
+                lp_path.write_text(instance["logic_program"], encoding="utf-8")
 
-        print(f"Generated {len(configs)} instances for {problem} -> {out_dir}")
+        print(f"Generated {len(configs)} instances for {problem} -> {out_dir}") 
 
 
 def main() -> None:
