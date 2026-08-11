@@ -68,7 +68,7 @@ public:
     Weight cost;
     satisfied_exception(const Program &program, const Model &stable_model) : logic_error("The program is satisfied.")
     {
-        // cout << "ANSWER" << endl;
+        cout << "ANSWER" << endl;
 
         unordered_set<Atom> answer_set;
         for (const auto &atom : program.facts)

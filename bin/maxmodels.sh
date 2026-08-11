@@ -9,4 +9,4 @@ for cmd in "${REQUIRED_COMMANDS[@]}"; do
     fi
 done
 
-gringo --output=smodels --warn=none | smodels -internal -nolookahead | lp2normal-2.27 | maxmodels --simplify | lp2lp2-1.23 | maxmodels --solve --debug-cdcl --external-solver=/home/arekn/workspace/maxsat-solvers/maxsat-evaluation-2024/WMaxCDCL2024/bin/wmaxcdcl_static
+gringo --output=smodels --warn=none | smodels -internal -nolookahead | lp2normal-2.27 | maxmodels --simplify | lp2lp2-1.23 | maxmodels --solve --debug-cdcl --benchmark

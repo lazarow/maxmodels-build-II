@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
     {
         if (print_benchmark)
         {
-            cerr << fixed;
-            cerr.precision(3);
-            cerr << benchmark.time << " " << benchmark.nof_iterations << endl;
+            cout << fixed;
+            cout.precision(3);
+            cout << "% Total time: " << benchmark.time << " seconds, number of iterations (loop formulas): " << benchmark.nof_iterations << endl;
         }
         return 0;
     }
@@ -89,9 +89,9 @@ int main(int argc, char *argv[])
     {
         if (print_benchmark)
         {
-            cerr << fixed;
-            cerr.precision(3);
-            cerr << benchmark.time << " " << benchmark.nof_iterations << endl;
+            cout << fixed;
+            cout.precision(3);
+            cout << "% Total time: " << benchmark.time << " seconds, number of iterations (loop formulas): " << benchmark.nof_iterations << endl;
         }
         return 0;
     }
