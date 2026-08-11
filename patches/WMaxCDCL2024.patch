@@ -1,0 +1,133 @@
+diff --git a/code/utils/ParseUtils.h b/code/utils/ParseUtils.h
+--- a/code/utils/ParseUtils.h
++++ b/code/utils/ParseUtils.h
+@@ -125,6 +125,33 @@
+     /* } */
+ 
+ 
++
++    template<class B>
++    static double parseDouble(B& in) {
++        double val = 0.0;
++        skipWhitespace(in);
++        bool neg = false;
++        if (*in == '-') { neg = true; ++in; }
++        else if (*in == '+') ++in;
++        if ((*in < '0' || *in > '9') && *in != '.')
++            fprintf(stderr, "PARSE ERROR! Unexpected char: %c\n", *in), exit(3);
++        // Integer part
++        while (*in >= '0' && *in <= '9')
++            val = val * 10.0 + (*in - '0'),
++            ++in;
++        // Fractional part
++        if (*in == '.') {
++            ++in;
++            double frac = 1.0;
++            while (*in >= '0' && *in <= '9') {
++                frac /= 10.0;
++                val += (*in - '0') * frac;
++                ++in;
++            }
++        }
++        return neg ? -val : val;
++    }
++
+     // String matching: in case of a match the input iterator will be advanced the corresponding
+     // number of characters.
+     template<class B>
+diff --git a/code/core/Dimacs.h b/code/core/Dimacs.h
+--- a/code/core/Dimacs.h
++++ b/code/core/Dimacs.h
+@@ -191,8 +191,33 @@
+                 parse_DIMACS_new(in, S);
+                 break;
+             }
+-            else if (*in == 'c')
++            else if (*in == 'c') {
++                if (eagerMatch(in, "c VSIDS")) {
++                    S.default_vsids_activity = parseDouble(in);
++                    int n_vars = parseInt(in);
++                    for (int i = 0; i < n_vars; i++) {
++                        int var = parseInt(in);
++                        double val = parseDouble(in);
++                        S.vsids_initial_activity[var - 1] = val;
++                    }
++                } else if (eagerMatch(in, "c CHB")) {
++                    S.default_chb_activity = parseDouble(in);
++                    int n_vars = parseInt(in);
++                    for (int i = 0; i < n_vars; i++) {
++                        int var = parseInt(in);
++                        double val = parseDouble(in);
++                        S.chb_initial_activity[var - 1] = val;
++                    }
++                } else if (eagerMatch(in, "c POLARITY")) {
++                    int n_vars = parseInt(in);
++                    for (int i = 0; i < n_vars; i++) {
++                        int var = parseInt(in);
++                        bool val = (parseInt(in) != 0);
++                        S.initial_polarity[var - 1] = val;
++                    }
++                }
+                 skipLine(in);
++            }
+ 
+         }
+     }
+diff --git a/code/core/Solver.h b/code/core/Solver.h
+--- a/code/core/Solver.h
++++ b/code/core/Solver.h
+@@ -48,6 +48,7 @@
+ #include "utils/Options.h"
+ #include "core/SolverTypes.h"
+ #include "mtl/Queue.h"
++#include <unordered_map>
+ #include "core/PrintFlags.h"
+ 
+ // Don't change the actual numbers.
+@@ -261,6 +262,13 @@
+         vec<uint32_t> canceled;
+ #endif
+ 
++        // VSIDS and CHB variables' initial activity + default activity
++        double default_vsids_activity = .0;
++        double default_chb_activity = .0;
++        std::unordered_map<unsigned int, double> vsids_initial_activity;
++        std::unordered_map<unsigned int, double> chb_initial_activity;
++        std::unordered_map<unsigned int, bool> initial_polarity;
++
+         protected:
+         // Helper structures:
+         //
+diff --git a/code/core/Solver.cc b/code/core/Solver.cc
+--- a/code/core/Solver.cc
++++ b/code/core/Solver.cc
+@@ -2415,8 +2415,15 @@
+     watches.init(mkLit(v, true));
+     assigns.push(l_Undef);
+     vardata.push(mkVarData(CRef_Undef, 0, -1));
+-    activity_CHB.push(0);
+-    activity_VSIDS.push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
++    if (chb_initial_activity.size() > 0 && chb_initial_activity.find(v) != chb_initial_activity.end())
++        activity_CHB.push(chb_initial_activity[v]);
++    else
++        activity_CHB.push(default_chb_activity);
++
++    if (vsids_initial_activity.size() > 0 && vsids_initial_activity.find(v) != vsids_initial_activity.end())
++        activity_VSIDS.push(vsids_initial_activity[v]);
++    else
++        activity_VSIDS.push(rnd_init_act ? drand(random_seed) * 0.00001 : default_vsids_activity);
+ 
+     picked.push(0);
+     conflicted.push(0);
+@@ -2428,7 +2435,10 @@
+     seen.push(0);
+     seen2.push(0);
+     seen2.push(0);
+-    polarity.push(sign);
++    if (initial_polarity.size() > 0 && initial_polarity.find(v) != initial_polarity.end())
++        polarity.push(initial_polarity[v]);
++    else
++        polarity.push(sign);
+     decision.push();
+     trail.capacity(v + 1);
+ 

@@ -18,6 +18,7 @@ LDFLAGS := -lpthread -ldl -fopenmp
 WMAXCDCL_ZIP_URL := https://maxsat-evaluations.github.io/2024/mse24-solver-src/exact/weighted/WMaxCDCL2024.zip
 WMAXCDCL_ZIP := ./vendor/WMaxCDCL2024.zip
 WMAXCDCL_DIR := ./vendor/wmaxcdcl
+WMAXCDCL_PATCH := ./patches/WMaxCDCL2024.patch
 
 .PHONY: build clean all install_dependencies
 
@@ -59,6 +60,9 @@ install_dependencies:
 	@unzip -o -q $(WMAXCDCL_ZIP) -d $(WMAXCDCL_DIR) && echo " complete."
 	@echo -n "[dependencies] Removing WMaxCDCL2024.zip ..."
 	@rm -rf $(WMAXCDCL_ZIP) && echo " complete."
+	@echo "[dependencies] Applying WMaxCDCL patches ..."
+	@bash $(abspath ./patches/apply_wmaxcdcl.sh) $(abspath $(WMAXCDCL_DIR)/WMaxCDCL2024) $(abspath $(WMAXCDCL_PATCH))
+	@echo "... complete."
 	@echo -n "[dependencies] Compiling WMaxCDCL ..."
 	@cd $(WMAXCDCL_DIR)/WMaxCDCL2024/code/simp && make clean >/dev/null && make rs >/dev/null && echo " complete."
 	@echo "[dependencies] Successfully installed dependencies. You can now build maxmodels. Use 'make clean build'."

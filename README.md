@@ -4,7 +4,13 @@ This project is an extended version of the original [maxmodels](https://github.c
 
 ## Installation and compiling
 
-To build **maxmodels (build II)**, you'll need a working Linux, C++20 compiler and GNU make.
+To build **maxmodels (build II)**, you'll need:
+
+- a working Linux,
+- C++20 compiler,
+- GNU make,
+- Python 3.x,
+- `patch` command.
 
 ### 1. Clone the repository
 
@@ -13,12 +19,20 @@ git clone <this-repo>
 cd <this-repo>
 ```
 
-### 2. Build the executable file
+### 2. Install dependencies
+
+To install the dependencies (a default MaxSAT solver), run:
+
+```sh
+make install_dependencies
+```
+
+### 3. Build the executable file
 
 To build the project, run:
 
 ```sh
-make build
+make clean build
 ```
 
 The solver will be placed at `bin/maxmodels`.
