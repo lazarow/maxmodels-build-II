@@ -64,9 +64,20 @@ There is also [lp2sat](http://www.tcs.hut.fi/Software/lp2sat/)-like compact comp
 
 To generate datasets (logic programs of 10 well-known problems) run the below commands.
 
-```
+```sh
 cd extras/datasets/generator
 python generate_from_jsonl.py
 ```
 
 The datasets' configuration are encoded as \*.jsonl files. The generated logic programs are placed in the `extras/datasets/data` directory.
+
+### Exploration experiments
+
+To conduct limited exploration experiments, the randomly selected set of problems can be created from all problems. Run the below commands.
+
+```sh
+cd extras/datasets/generator
+python create_exploration_experiment_dataset.py
+```
+
+Note that, all problems must be ex ante generated. The selected renamed problems will be placed in the `extras/datasets/data/exploration-experiment` directory.
