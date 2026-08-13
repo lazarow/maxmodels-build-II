@@ -11,7 +11,7 @@ B-
 1'
 
 find . -type f -name '*.lp' -print0 |
-while IFS= read -r -d '' file; do
+while IFS= read -r file; do
     result=$(your_command "$file")
 
     if [ "$result" = "$expected" ]; then
