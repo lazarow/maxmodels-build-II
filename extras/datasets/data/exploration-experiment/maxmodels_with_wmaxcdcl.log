@@ -1,0 +1,276 @@
+Processing p01
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 1321
+COST 23
+OPTIMUM
+% Total time: 113.756 seconds, number of iterations (loop formulas): 0
+Processing p02
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 947
+COST 19
+OPTIMUM
+% Total time: 86.007 seconds, number of iterations (loop formulas): 0
+Processing p03
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 984
+COST 20
+OPTIMUM
+% Total time: 91.154 seconds, number of iterations (loop formulas): 0
+Processing p04
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 4236
+COST 3
+OPTIMUM
+% Total time: 20.264 seconds, number of iterations (loop formulas): 0
+Processing p05
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 3560
+COST 3
+OPTIMUM
+% Total time: 19.226 seconds, number of iterations (loop formulas): 0
+Processing p06
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 4519
+COST 3
+OPTIMUM
+% Total time: 20.502 seconds, number of iterations (loop formulas): 0
+Processing p07
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 296
+COST 1105
+OPTIMUM
+% Total time: 118.395 seconds, number of iterations (loop formulas): 0
+Processing p08
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 257
+COST 775
+OPTIMUM
+% Total time: 18.742 seconds, number of iterations (loop formulas): 0
+Processing p09
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 282
+COST 967
+OPTIMUM
+% Total time: 72.141 seconds, number of iterations (loop formulas): 0
+Processing p10
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 936
+COST 14
+OPTIMUM
+% Total time: 121.229 seconds, number of iterations (loop formulas): 0
+Processing p11
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 937
+COST 13
+OPTIMUM
+% Total time: 110.024 seconds, number of iterations (loop formulas): 0
+Processing p12
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 686
+COST 14
+OPTIMUM
+% Total time: 58.911 seconds, number of iterations (loop formulas): 0
+Processing p13
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 32552
+COST 35
+OPTIMUM
+% Total time: 110.423 seconds, number of iterations (loop formulas): 0
+Processing p14
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 40042
+COST 31
+OPTIMUM
+% Total time: 61.696 seconds, number of iterations (loop formulas): 0
+Processing p15
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 23299
+COST 30
+OPTIMUM
+% Total time: 25.173 seconds, number of iterations (loop formulas): 0
+Processing p16
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 11
+COST 1982
+OPTIMUM
+% Total time: 12.029 seconds, number of iterations (loop formulas): 0
+Processing p17
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 11
+COST 2091
+OPTIMUM
+% Total time: 11.765 seconds, number of iterations (loop formulas): 0
+Processing p18
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 11
+COST 1878
+OPTIMUM
+% Total time: 11.788 seconds, number of iterations (loop formulas): 0
+Processing p19
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 331
+COST 1124
+OPTIMUM
+% Total time: 59.869 seconds, number of iterations (loop formulas): 0
+Processing p20
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 292
+COST 880
+OPTIMUM
+% Total time: 79.473 seconds, number of iterations (loop formulas): 0
+Processing p21
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% Program has extended atoms (E segment), so it is assumed that level ranking is used.
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 332
+COST 1029
+OPTIMUM
+% Total time: 39.077 seconds, number of iterations (loop formulas): 0
+Processing p22
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 378
+COST 2450
+OPTIMUM
+% Total time: 42.457 seconds, number of iterations (loop formulas): 0
+Processing p23
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 384
+COST 2558
+OPTIMUM
+% Total time: 46.723 seconds, number of iterations (loop formulas): 0
+Processing p24
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 360
+COST 2951
+OPTIMUM
+% Total time: 85.860 seconds, number of iterations (loop formulas): 0
+Processing p25
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 182
+COST 17
+OPTIMUM
+% Total time: 61.950 seconds, number of iterations (loop formulas): 0
+Processing p26
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 179
+COST 19
+OPTIMUM
+% Total time: 29.292 seconds, number of iterations (loop formulas): 0
+Processing p27
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 264
+COST 35
+OPTIMUM
+% Total time: 91.053 seconds, number of iterations (loop formulas): 0
+Processing p28
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 1349
+COST 459
+OPTIMUM
+% Total time: 20.862 seconds, number of iterations (loop formulas): 0
+Processing p29
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 2130
+COST 904
+OPTIMUM
+% Total time: 75.386 seconds, number of iterations (loop formulas): 0
+Processing p30
+% maxmodels (build II) e28ccc3
+% Copyright (c) 2026, Arkadiusz Nowakowski
+% External solver path = /home/arekn/workspace/maxmodels-build-II/vendor/wmaxcdcl/WMaxCDCL2024/code/simp/wmaxcdcl_static
+% External solver timeout = 600 seconds
+% ALTERNATIVE COST 2206
+COST 904
+OPTIMUM
+% Total time: 110.025 seconds, number of iterations (loop formulas): 0
