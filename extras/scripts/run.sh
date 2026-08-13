@@ -10,7 +10,7 @@ fi
 SUFFIXES=("_default")
 
 for suffix in "${SUFFIXES[@]}"; do
-    CMD="bin/solvers-exploration-experiment/maxmodels${suffix}.sh"
+    CMD="bin/preconfigured-runners/maxmodels${suffix}.sh"
     OUT_FILE="$FOLDER/maxmodels${suffix}.log"
     : > "$OUT_FILE"
     for file in "$FOLDER"/*.lp; do

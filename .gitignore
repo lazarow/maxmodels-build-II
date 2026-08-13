@@ -2,8 +2,8 @@
 
 /bin/*
 !/bin/maxmodels.sh
-!/bin/solvers-exploration-experiment/
-!/bin/solvers-exploration-experiment/maxmodels_*.sh
+!/bin/preconfigured-runners/
+!/bin/preconfigured-runners/maxmodels_*.sh
 /build/*
 !/build/.gitkeep
 
