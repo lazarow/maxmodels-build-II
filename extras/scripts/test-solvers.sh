@@ -7,7 +7,7 @@ if [[ -z "$FOLDER" ]]; then
     exit 1
 fi
 
-SUFFIXES=("_default")
+SUFFIXES=("_with_wmaxcdcl")
 
 for suffix in "${SUFFIXES[@]}"; do
     CMD="bin/preconfigured-runners/maxmodels${suffix}.sh"
