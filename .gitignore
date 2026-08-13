@@ -2,6 +2,7 @@
 
 /bin/*
 !/bin/maxmodels.sh
+!/bin/maxmodels_debug.sh
 !/bin/preconfigured-runners/
 !/bin/preconfigured-runners/maxmodels_*.sh
 /build/*
