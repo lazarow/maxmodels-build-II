@@ -62,7 +62,7 @@ There is also [lp2sat](http://www.tcs.hut.fi/Software/lp2sat/)-like compact comp
 
 ## Datasets
 
-To generate datasets (logic programs of 10 well-known problems) run the below commands.
+To generate datasets (logic programs of 10 well-known problems, 269 instances in total) run the below commands.
 
 ```sh
 cd extras/datasets/generator
