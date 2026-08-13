@@ -13,7 +13,7 @@ B-
 find . -type f -name '*.lp' -print0 |
 while IFS= read -r file; do
     result=$(cat "$file" | gringo --output=smodels --warn=none| smodels -internal -nolookahead)
-
+    echo "$result"
     if [ "$result" = "$expected" ]; then
         printf '%s\n' "$file"
     fi
