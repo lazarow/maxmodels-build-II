@@ -24,6 +24,8 @@ def pick_random_instances_per_problem(
         problem_path = os.path.join(source_dir, problem_name)
         if not os.path.isdir(problem_path):
             continue
+        if problem_name == "exploration-experiment":
+            continue
 
         # Gather all instance files for this problem
         files = [
