@@ -2,6 +2,7 @@
 
 /bin/*
 !/bin/maxmodels.sh
+!/bin/solvers_exploration_experiment/maxmodels_*.sh
 /build/*
 !/build/.gitkeep
 
