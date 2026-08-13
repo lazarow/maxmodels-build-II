@@ -13,6 +13,7 @@ struct SolvingConfiguration
     bool debug_cdcl = false;
     int mode = 0;
     double default_initial_activity = 0.00001;
+    int timeout_seconds = 0;
 };
 
 struct SolvingBenchmark

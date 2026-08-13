@@ -2,17 +2,47 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <poll.h>
+#include <signal.h>
+#include <time.h>
 
+#include <chrono>
 #include <stdexcept>
 
 #include "process.hpp"
 
 extern char **environ;
 
+using namespace std::chrono;
+
+static int remaining_timeout_ms(steady_clock::time_point deadline, bool unlimited)
+{
+    if (unlimited)
+        return -1;
+    auto now = steady_clock::now();
+    if (now >= deadline)
+        return 0;
+    auto ms = duration_cast<milliseconds>(deadline - now).count();
+    if (ms > 1000000000)
+        return 1000000000;
+    return static_cast<int>(ms);
+}
+
+static void kill_and_reap(pid_t pid, int &status)
+{
+    kill(pid, SIGKILL);
+    while (waitpid(pid, &status, 0) < 0)
+    {
+        if (errno != EINTR)
+            throw runtime_error("waitpid failed");
+    }
+}
+
 ExecResult run_solver(
     const std::string &solver_path,
     const std::vector<std::string> &args,
-    const std::string &stdin_data)
+    const std::string &stdin_data,
+    int timeout_seconds)
 {
     int in_pipe[2];
     int out_pipe[2];
@@ -50,45 +80,144 @@ ExecResult run_solver(
 
     close(in_pipe[0]);
     close(out_pipe[1]);
+    signal(SIGPIPE, SIG_IGN);
+
+    const bool unlimited = timeout_seconds <= 0;
+    const auto deadline = unlimited
+                              ? steady_clock::time_point::max()
+                              : steady_clock::now() + seconds(timeout_seconds);
 
     const char *p = stdin_data.data();
     size_t remaining = stdin_data.size();
-    while (remaining > 0)
+    bool stdin_open = true;
+    if (remaining == 0)
     {
-        ssize_t n = write(in_pipe[1], p, remaining);
-        if (n > 0)
-        {
-            p += n;
-            remaining -= n;
-        }
-        else if (errno != EINTR)
-        {
-            break;
-        }
+        close(in_pipe[1]);
+        stdin_open = false;
     }
-    close(in_pipe[1]);
 
     string stdout_buf;
     char buf[8192];
-    for (;;)
+    bool stdout_open = true;
+    bool timed_out = false;
+    int status = 0;
+
+    while (stdout_open)
     {
-        ssize_t n = read(out_pipe[0], buf, sizeof(buf));
-        if (n > 0)
+        pollfd fds[2];
+        nfds_t nfds = 0;
+        int out_idx = -1;
+        int in_idx = -1;
+
+        fds[nfds].fd = out_pipe[0];
+        fds[nfds].events = POLLIN;
+        out_idx = static_cast<int>(nfds++);
+        if (stdin_open)
         {
-            stdout_buf.append(buf, n);
+            fds[nfds].fd = in_pipe[1];
+            fds[nfds].events = POLLOUT;
+            in_idx = static_cast<int>(nfds++);
         }
-        else
+
+        int pret = poll(fds, nfds, remaining_timeout_ms(deadline, unlimited));
+        if (pret < 0)
         {
+            if (errno == EINTR)
+                continue;
+            if (stdin_open)
+                close(in_pipe[1]);
+            close(out_pipe[0]);
+            kill_and_reap(pid, status);
+            throw runtime_error("poll failed");
+        }
+        if (pret == 0)
+        {
+            timed_out = true;
             break;
         }
+
+        if (stdin_open && (fds[in_idx].revents & (POLLOUT | POLLERR | POLLHUP)))
+        {
+            if (fds[in_idx].revents & POLLOUT)
+            {
+                ssize_t n = write(in_pipe[1], p, remaining);
+                if (n > 0)
+                {
+                    p += n;
+                    remaining -= n;
+                    if (remaining == 0)
+                    {
+                        close(in_pipe[1]);
+                        stdin_open = false;
+                    }
+                }
+                else if (errno != EINTR)
+                {
+                    close(in_pipe[1]);
+                    stdin_open = false;
+                }
+            }
+            else
+            {
+                close(in_pipe[1]);
+                stdin_open = false;
+            }
+        }
+
+        if (fds[out_idx].revents & (POLLIN | POLLHUP | POLLERR))
+        {
+            if (fds[out_idx].revents & POLLIN)
+            {
+                ssize_t n = read(out_pipe[0], buf, sizeof(buf));
+                if (n > 0)
+                    stdout_buf.append(buf, n);
+                else if (n == 0 || errno != EINTR)
+                    stdout_open = false;
+            }
+            else
+            {
+                stdout_open = false;
+            }
+        }
     }
+
+    if (stdin_open)
+        close(in_pipe[1]);
+
+    if (timed_out)
+    {
+        close(out_pipe[0]);
+        kill_and_reap(pid, status);
+        return {-1, move(stdout_buf), true};
+    }
+
     close(out_pipe[0]);
 
-    int status;
-    waitpid(pid, &status, 0);
+    while (true)
+    {
+        int flags = unlimited ? 0 : WNOHANG;
+        pid_t r = waitpid(pid, &status, flags);
+        if (r == pid)
+            break;
+        if (r < 0)
+        {
+            if (errno == EINTR)
+                continue;
+            throw runtime_error("waitpid failed");
+        }
+        int ms = remaining_timeout_ms(deadline, unlimited);
+        if (ms == 0)
+        {
+            timed_out = true;
+            kill_and_reap(pid, status);
+            break;
+        }
+        timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = static_cast<long>((ms < 50 ? ms : 50) * 1000000L);
+        nanosleep(&ts, nullptr);
+    }
 
-    int exit_code =
-        WIFEXITED(status) ? WEXITSTATUS(status) : -1;
-
-    return {exit_code, move(stdout_buf)};
+    int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    return {exit_code, move(stdout_buf), timed_out};
 }

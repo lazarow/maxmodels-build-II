@@ -68,7 +68,6 @@ void solve(const Program &program, SolvingConfiguration &solving_configuration, 
                 program.heads.contains(atom) && program.required_atoms.contains(atom) == false)
             {
                 wcnf->add_soft(-atom_mapper.get_variable(literal), weight);
-                wcnf->add_initial_activity(atom_mapper.get_variable(literal), 0.0);
             }
         }
     }

@@ -19,7 +19,6 @@ public:
     virtual void add_complex_soft(Literal literal_or_zero) = 0;
     virtual int32_t solve(const SolvingConfiguration &solving_configuration) = 0;
     virtual int32_t val_lit(Literal literal) = 0;
-    virtual void add_initial_activity(int variable, double activity) = 0;
 };
 
 class ExternalSolverWrapperWCNF : public WCNF
@@ -33,7 +32,6 @@ public:
     void add_complex_soft(Literal literal_or_zero) override;
     int32_t solve(const SolvingConfiguration &solving_configuration) override;
     int32_t val_lit(Literal literal) override;
-    void add_initial_activity(int variable, double activity) override;
 
 private:
     string wcnf;

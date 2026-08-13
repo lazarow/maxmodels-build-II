@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
         auto debug_cdcl = parser.AddFlag("debug-cdcl", "Debug CDCL");
         auto mode = parser.AddArg<int>("mode", "The mode of the solver").Default(0);
         auto default_initial_activity = parser.AddArg<double>("default-initial-activity", "The default initial activity").Default(0.00001);
+        auto timeout = parser.AddArg<int>("timeout", "Timeout for the external solver in seconds (0 = unlimited)").Default(0);
         parser.ParseArgs(argc, argv);
 
         Program program = read_input(cin);
@@ -71,6 +72,11 @@ int main(int argc, char *argv[])
             solving_configuration.debug_cdcl = *debug_cdcl;
             solving_configuration.mode = *mode;
             solving_configuration.default_initial_activity = *default_initial_activity;
+            if (*timeout < 0)
+                throw runtime_error("Timeout must be non-negative.");
+            solving_configuration.timeout_seconds = *timeout;
+            if (solving_configuration.timeout_seconds > 0)
+                cout << "% External solver timeout = " << solving_configuration.timeout_seconds << " seconds" << endl;
             solve(program, solving_configuration, benchmark);
         }
         return 0;

@@ -3,14 +3,14 @@
 FOLDER="$1"
 
 if [[ -z "$FOLDER" ]]; then
-    echo "Usage: $0 <folder> <output_dir>"
+    echo "Usage: $0 <folder>"
     exit 1
 fi
 
-SUFFIXES=("")
+SUFFIXES=("_default")
 
 for suffix in "${SUFFIXES[@]}"; do
-    CMD="maxmodels${suffix}.sh"
+    CMD="bin/solvers-exploration-experiment/maxmodels${suffix}.sh"
     OUT_FILE="$FOLDER/maxmodels${suffix}.log"
     : > "$OUT_FILE"
     for file in "$FOLDER"/*.lp; do
