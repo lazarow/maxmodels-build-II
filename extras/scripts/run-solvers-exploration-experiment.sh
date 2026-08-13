@@ -18,6 +18,12 @@ for suffix in "${SUFFIXES[@]}"; do
         base=$(basename "$file" .lp)
         echo "Running $CMD on $file → $OUT_FILE"
         echo "Processing $base" >> "$OUT_FILE"
-        cat "$file" | $CMD >> "$OUT_FILE" 2>&1
+        # Run the solver and filter out 'ANSWER' and the next line from the output
+        $CMD < "$file" 2>&1 | awk '
+            /^ANSWER$/ { skip=1; next }
+            skip { skip=0; next }
+            { print }
+        ' >> "$OUT_FILE"
+ 
     done
 done
